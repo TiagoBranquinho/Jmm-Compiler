@@ -20,7 +20,7 @@ public class GrammarTest {
 
     private static final String IMPORT = "importDeclaration";
     private static final String MAIN_METHOD = "mainDeclaration";
-    private static final String INSTANCE_METHOD = "instanceMethod";
+    private static final String INSTANCE_METHOD = "instanceDeclaration";
     private static final String STATEMENT = "statement";
     private static final String EXPRESSION = "expression";
 
