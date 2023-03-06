@@ -19,16 +19,21 @@ importDeclaration : 'import' library=ID ( '.' ID )* ';';
 
 classDeclaration : 'class' name=ID ( 'extends' ID )? '{' ( varDeclaration )* ( methodDeclaration )* '}';
 
-varDeclaration : type var=ID ';';
+varDeclaration : (accessModifier)? type var=ID ';';
 
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
 instanceDeclaration : ('public')? type instance=ID '(' ( type parameter=ID ( ',' type parameter=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}';
 
-mainDeclaration : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' parameter=ID ')' '{' ( varDeclaration )* ( statement )* '}' ;
+mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( varDeclaration )* ( statement )* '}' ;
+
+accessModifier : value='private'
+    | value='public'
+    | value='protected';
 
 type : value='int' '[' ']'
+    | value='String' '[' ']'
     | value='String'
     | value='boolean'
     | value='int'
