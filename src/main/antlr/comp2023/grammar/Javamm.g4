@@ -17,33 +17,34 @@ program : (importDeclaration)* classDeclaration EOF;
 
 importDeclaration : 'import' library=ID ( '.' ID )* ';';
 
-classDeclaration : 'class' name=ID ( 'extends' ID )? '{' ( varDeclaration )* ( methodDeclaration )* '}';
+classDeclaration : 'class' name=ID ( 'extends' ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
-varDeclaration : (accessModifier)? type var=ID ';';
+fieldDeclaration : (accessModifier)? type var=ID ';';
 
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
-instanceDeclaration : ('public')? type instance=ID '(' ( type parameter=ID ( ',' type parameter=ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}';
+instanceDeclaration : ('public')? type instance=ID '(' ( type parameter+=ID ( ',' type parameter+=ID )* )? ')' '{' ( statement )* '}';
 
-mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( varDeclaration )* ( statement )* '}' ;
+mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( statement )* '}' ;
 
 accessModifier : value='private'
     | value='public'
     | value='protected';
 
-type : value='int' '[' ']'
-    | value='String' '[' ']'
+type : value='int[]'
+    | value='String[]'
     | value='String'
     | value='boolean'
     | value='int'
     | value=ID;
 
 statement : '{' ( statement )* '}' # Stmt
+    | type var=ID ';' # VarDeclarationStmt
     | 'if' '(' expression ')' statement 'else' statement # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
-    | var=ID '=' value=expression ';' # Assignment
+    | var=ID '=' expression ';' # Assignment
     | ID '[' expression ']' '=' expression ';' # Assignment
     | 'return' expression? ';' # ReturnStmt;
 
