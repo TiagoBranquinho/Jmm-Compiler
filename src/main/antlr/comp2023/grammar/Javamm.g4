@@ -40,7 +40,7 @@ type : value='int[]'
     | value=ID;
 
 statement : '{' ( statement )* '}' # Stmt
-    | type var=ID ';' # VarDeclarationStmt
+    | type var=ID ('=' expression)? ';' # VarDeclarationStmt
     | 'if' '(' expression ')' statement 'else' statement # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt

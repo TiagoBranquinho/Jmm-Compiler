@@ -3,7 +3,7 @@ import io;
 class Fac {
     private int x;
     public int computeFac (int[] num, String gato){
-        int num_aux;
+        int num_aux=15;
         if (num < 1)
             num_aux = 1;
         else
