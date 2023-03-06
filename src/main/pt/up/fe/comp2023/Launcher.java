@@ -42,6 +42,12 @@ public class Launcher {
         // Check if there are parsing errors
         TestUtils.noErrors(parserResult.getReports());
 
+        Descriptor descriptor = new Descriptor(parserResult.getRootNode());
+
+        System.out.println(descriptor.print());
+
+
+
         // ... add remaining stages
     }
 
