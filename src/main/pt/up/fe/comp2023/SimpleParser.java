@@ -51,17 +51,33 @@ public class SimpleParser implements JmmParser {
             // Transforms tokens into a parse tree
             var parser = new JavammParser(tokens);
 
-            // Convert ANTLR CST to JmmNode AST
-            return AntlrParser.parse(lex, parser, startingRule)
-                    // If there were no errors and a root node was generated, create a JmmParserResult with the node
-                    .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
-                    // If there were errors, create an error JmmParserResult without root node
-                    .orElseGet(() -> JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
-                            "There were syntax errors during parsing, terminating")));
+            Integer errorNumber = parser.getNumberOfSyntaxErrors();
+            String errorMessage = "A total of " + errorNumber + " errors have occurred";
+            System.out.println(errorMessage);
+
+                // Convert ANTLR CST to JmmNode AST
+                return AntlrParser.parse(lex, parser, startingRule)
+                        // If there were no errors and a root node was generated, create a JmmParserResult with the node
+                        .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
+                        // If there were errors, create an error JmmParserResult without root node
+                        .orElseGet(() -> JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
+                                "There were syntax errors during parsing, terminating")));
+
 
         } catch (Exception e) {
             // There was an uncaught exception during parsing, create an error JmmParserResult without root node
+            // Desta maneira, está a dar erro e a crashar
+            // O suposto é avisar de que há um erro e continuar, para além de imprimir o número de erros e uma mensagem de que ocorreu um erro
+
+
+            System.out.println("Exception: ");
+            System.out.println(e);
+
+            //String errorMessage = "A total of " + errorNumber + " errors have occurred";
+
             return JmmParserResult.newError(Report.newError(Stage.SYNTATIC, -1, -1, "Exception during parsing", e));
+
+
         }
     }
 }
