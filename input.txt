@@ -1,6 +1,6 @@
 import io;
 
-class Fac {
+class Fac extends Uni {
     private int x;
     public int computeFac (int[] num, String gato){
         int num_aux=15;

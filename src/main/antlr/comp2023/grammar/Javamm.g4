@@ -17,7 +17,7 @@ program : (importDeclaration)* classDeclaration EOF;
 
 importDeclaration : 'import' library=ID ( '.' ID )* ';';
 
-classDeclaration : 'class' name=ID ( 'extends' ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
+classDeclaration : 'class' name=ID ( 'extends' superclass=ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
 fieldDeclaration : (accessModifier)? type var=ID ';';
 
