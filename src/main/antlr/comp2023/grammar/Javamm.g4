@@ -15,31 +15,38 @@ WS : [ \t\n\r\f]+ -> skip ;
 
 program : (importDeclaration)* classDeclaration EOF;
 
-importDeclaration : 'import' ID ( '.' ID )* ';';
+importDeclaration : 'import' library=ID ( '.' ID )* ';';
 
-classDeclaration : 'class' ID ( 'extends' ID )? '{' ( varDeclaration )* ( methodDeclaration )* '}';
+classDeclaration : 'class' name=ID ( 'extends' superclass=ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
-varDeclaration : type ID ';';
+fieldDeclaration : (accessModifier)? type var=ID ';';
 
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
-instanceDeclaration : ('public')? type ID '(' ( type ID ( ',' type ID )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}';
+instanceDeclaration : ('public')? type instance=ID '(' ( type parameter+=ID ( ',' type parameter+=ID )* )? ')' '{' ( statement )* '}';
 
-mainDeclaration : ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' ID ')' '{' ( varDeclaration )* ( statement )* '}' ;
+mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( statement )* '}' ;
 
-type : 'int' '[' ']'
-    | 'String'
-    | 'boolean'
-    | 'int'
-    | ID;
+accessModifier : value='private'
+    | value='public'
+    | value='protected';
 
-statement : '{' ( statement )* '}' # ExprStmt
+type : value='int[]'
+    | value='String[]'
+    | value='String'
+    | value='boolean'
+    | value='int'
+    | value=ID;
+
+statement : '{' ( statement )* '}' # Stmt
+    | type var=ID ('=' expression)? ';' # VarDeclarationStmt
     | 'if' '(' expression ')' statement 'else' statement # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
-    | var=ID '=' value=expression ';' # Assignment
-    | ID '[' expression ']' '=' expression ';' # Assignment;
+    | var=ID '=' expression ';' # Assignment
+    | ID '[' expression ']' '=' expression ';' # Assignment
+    | 'return' expression? ';' # ReturnStmt;
 
 expression : '(' expression ')' #PrecedenceOp
     | op='!' expression #BinaryOp
@@ -49,11 +56,11 @@ expression : '(' expression ')' #PrecedenceOp
     | expression op='&&' expression #BinaryOp
     | expression '[' expression ']' #SubscriptOp
     | expression '.' 'length' #DotOp
-    | expression '.' ID '(' ( expression ( ',' expression )* )? ')' #DotOp
-    | 'new' 'int' '[' expression ']' #DeclarationOp
-    | 'new' ID '(' ')' #DeclarationOp
+    | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
+    | 'new' 'int' '[' expression ']' #ArrayDeclaration
+    | 'new' objClass=ID '(' ')' #ObjectDeclaration
     | value=INTEGER #Integer
-    | 'true' #ReservedExpr
-    | 'false' #ReservedExpr
+    | value='true' #ReservedExpr
+    | value='false' #ReservedExpr
     | value=ID #Identifier
-    | 'this' #ReservedExpr;
+    | value='this' #ReservedExpr;

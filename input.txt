@@ -1,14 +1,17 @@
 import io;
 
-class Fac {
-    public int computeFac (int num ){
-        int num_aux;
+class Fac extends Uni {
+    private int x;
+    public int computeFac (int[] num, String gato){
+        int num_aux=15;
         if (num < 1)
             num_aux = 1;
         else
-            num_aux = num * (this.computeFac (num-1));
+            num_aux = num * (this.computeFac(num-1));
+        int ok;
         return num_aux;
     }
+
     public static void main ( String[] args ){
         //io.println (new Fac().computeFac(10)); // assuming the existence
                                                     // of the classfile io. class
@@ -17,6 +20,7 @@ class Fac {
         3+4igfvvbb
         /* multi
         line
-        comment*/
+        comment
+        */
     }
 }

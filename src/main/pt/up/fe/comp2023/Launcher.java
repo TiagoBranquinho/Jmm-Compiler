@@ -48,6 +48,12 @@ public class Launcher {
 
 
 
+        Descriptor descriptor = new Descriptor(parserResult.getRootNode());
+
+        System.out.println(descriptor.print());
+
+
+
         // ... add remaining stages
     }
 
