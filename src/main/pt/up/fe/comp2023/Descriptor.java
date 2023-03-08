@@ -1,12 +1,9 @@
 package pt.up.fe.comp2023;
 
-import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
-import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.parser.JmmParserResult;
 
 import java.util.*;
 
@@ -39,7 +36,7 @@ public class Descriptor implements SymbolTable, Table {
     @Override
     public List<Symbol> getFields() {
         List<Symbol> symbols = new ArrayList<>();
-        for (VariableDescriptor fieldDescriptor : mainClass.getFieldDescriptor().values()){
+        for (FieldDescriptor fieldDescriptor : mainClass.getFieldDescriptor().values()){
             symbols.add(fieldDescriptor.getSymbol());
         }
         return symbols;
@@ -73,21 +70,6 @@ public class Descriptor implements SymbolTable, Table {
         this.mainClass = mainClass;
     }
 
-    @Override
-    public String toString() {
-        String print = "\n Symbol table:\n";
-        print += "imports: \n";
-        for (String lib : imports){
-            print += "lib: " + lib + " ";
-        }
-        print += "\nmain class: " + mainClass.toString();
-
-        for (ClassDescriptor classDescriptor : classDescriptorMap.values()){
-            print += classDescriptor.toString();
-            print += "\n";
-        }
-        return print;
-    }
 
     @Override
     public void buildTable(JmmNode root) {

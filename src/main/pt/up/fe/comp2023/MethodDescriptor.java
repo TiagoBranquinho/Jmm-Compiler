@@ -28,7 +28,7 @@ public class MethodDescriptor implements Table{
 
     private int checkReturn(JmmNode root){
         for (JmmNode node : root.getChildren()){
-            if(Objects.equals(node.getKind(), "Identifier")){
+            if(Objects.equals(node.getKind(), "ReturnStmt")){
                 return 1;
             }
         }
@@ -51,8 +51,14 @@ public class MethodDescriptor implements Table{
     private void generateArgs(JmmNode root){
         List<String> args;
         String argString = root.get("parameter");
-        args = List.of(argString.split(", "));
+        if(argString.charAt(0) == '[' && argString.endsWith("]")){
+            argString = argString.substring(1, argString.length() - 1);
+        }
 
+        args = List.of(argString.split(", "));
+        if (args.size() == 1 && Objects.equals(args.get(0), "")){
+            args = new ArrayList<String>();
+        }
         for(int i = 0; i < args.size(); i++){
             String retString = root.getJmmChild(i + voidFunc).get("value");
             boolean isArray = retString.endsWith("[]");
@@ -67,7 +73,7 @@ public class MethodDescriptor implements Table{
         String type;
         boolean isArray;
         for(JmmNode node : root.getChildren()){
-            if(Objects.equals(node.getKind(), "VarDeclaration")){
+            if(Objects.equals(node.getKind(), "VarDeclarationStmt")){
                 type = node.getJmmChild(0).get("value");
                 isArray = type.endsWith("[]");
                 if(isArray){

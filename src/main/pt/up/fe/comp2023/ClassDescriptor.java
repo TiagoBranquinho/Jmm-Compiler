@@ -1,14 +1,11 @@
 package pt.up.fe.comp2023;
 
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
 
 public class ClassDescriptor implements Table{
-    private Map<String, VariableDescriptor> fieldDescriptor;
+    private Map<String, FieldDescriptor> fieldDescriptor;
     private Map<String, MethodDescriptor> methodDescriptor;
     private String className;
     private String extendedClassName;
@@ -17,7 +14,7 @@ public class ClassDescriptor implements Table{
         fieldDescriptor = new HashMap<>();
         methodDescriptor = new HashMap<>();
         className = node.get("name");
-        extendedClassName = null;
+        extendedClassName = node.hasAttribute("superclass") ? node.get("superclass") : null;
         buildTable(node);
     }
 
@@ -29,7 +26,7 @@ public class ClassDescriptor implements Table{
         return extendedClassName;
     }
 
-    public Map<String, VariableDescriptor> getFieldDescriptor(){
+    public Map<String, FieldDescriptor> getFieldDescriptor(){
         return fieldDescriptor;
     }
 
@@ -55,8 +52,8 @@ public class ClassDescriptor implements Table{
                     methodDescriptor.put(method.get("instance"), new MethodDescriptor(method));
                 }
             }
-            else if(Objects.equals(node.getKind(), "Identifier")){
-                fieldDescriptor.put(node.get("value"), new VariableDescriptor(node));
+            else if(Objects.equals(node.getKind(), "FieldDeclaration")){
+                fieldDescriptor.put(node.get("var"), new FieldDescriptor(node));
             }
         }
     }
