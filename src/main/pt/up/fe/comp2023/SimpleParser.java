@@ -54,6 +54,7 @@ public class SimpleParser implements JmmParser {
             Integer errorNumber = parser.getNumberOfSyntaxErrors();
             String errorMessage = "A total of " + errorNumber + " errors have occurred";
             System.out.println(errorMessage);
+            //System.out.println("Buuuuu");
 
                 // Convert ANTLR CST to JmmNode AST
                 return AntlrParser.parse(lex, parser, startingRule)
@@ -71,7 +72,7 @@ public class SimpleParser implements JmmParser {
 
 
             System.out.println("Exception: ");
-            System.out.println(e);
+            //System.out.println(e);
 
             //String errorMessage = "A total of " + errorNumber + " errors have occurred";
 

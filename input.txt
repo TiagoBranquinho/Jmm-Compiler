@@ -13,11 +13,14 @@ class Fac extends Uni {
     }
 
     public static void main ( String[] args ){
+        // sofia = 10;
+
         //io.println (new Fac().computeFac(10)); // assuming the existence
                                                     // of the classfile io. class
 
 
-        3+4igfvvbb
+        //3+4igfvvbb;
+        a = 2;
         /* multi
         line
         comment

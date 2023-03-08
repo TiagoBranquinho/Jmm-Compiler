@@ -40,6 +40,10 @@ public class Launcher {
         if(parserResult.getRootNode() != null){
             System.out.println(parserResult.getRootNode().toTree());
         }
+        else
+        {
+            System.out.println(parserResult.getReports());
+        }
 
 
 
@@ -48,9 +52,9 @@ public class Launcher {
 
 
 
-        Descriptor descriptor = new Descriptor(parserResult.getRootNode());
+        //Descriptor descriptor = new Descriptor(parserResult.getRootNode());
 
-        System.out.println(descriptor.print());
+        //System.out.println(descriptor.print());
 
 
 
