@@ -1,12 +1,9 @@
 package pt.up.fe.comp2023;
 
-import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
-import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.parser.JmmParserResult;
 
 import java.util.*;
 
@@ -39,7 +36,7 @@ public class Descriptor implements SymbolTable, Table {
     @Override
     public List<Symbol> getFields() {
         List<Symbol> symbols = new ArrayList<>();
-        for (VariableDescriptor fieldDescriptor : mainClass.getFieldDescriptor().values()){
+        for (FieldDescriptor fieldDescriptor : mainClass.getFieldDescriptor().values()){
             symbols.add(fieldDescriptor.getSymbol());
         }
         return symbols;
