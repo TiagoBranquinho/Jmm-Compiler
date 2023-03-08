@@ -70,21 +70,6 @@ public class Descriptor implements SymbolTable, Table {
         this.mainClass = mainClass;
     }
 
-    @Override
-    public String toString() {
-        String print = "\n Symbol table:\n";
-        print += "imports: \n";
-        for (String lib : imports){
-            print += "lib: " + lib + " ";
-        }
-        print += "\nmain class: " + mainClass.toString();
-
-        for (ClassDescriptor classDescriptor : classDescriptorMap.values()){
-            print += classDescriptor.toString();
-            print += "\n";
-        }
-        return print;
-    }
 
     @Override
     public void buildTable(JmmNode root) {

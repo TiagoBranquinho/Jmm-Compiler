@@ -14,7 +14,7 @@ public class ClassDescriptor implements Table{
         fieldDescriptor = new HashMap<>();
         methodDescriptor = new HashMap<>();
         className = node.get("name");
-        extendedClassName = null;
+        extendedClassName = node.hasAttribute("superclass") ? node.get("superclass") : null;
         buildTable(node);
     }
 

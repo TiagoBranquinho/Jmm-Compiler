@@ -56,7 +56,9 @@ public class MethodDescriptor implements Table{
         }
 
         args = List.of(argString.split(", "));
-
+        if (args.size() == 1 && Objects.equals(args.get(0), "")){
+            args = new ArrayList<String>();
+        }
         for(int i = 0; i < args.size(); i++){
             String retString = root.getJmmChild(i + voidFunc).get("value");
             boolean isArray = retString.endsWith("[]");
@@ -71,7 +73,7 @@ public class MethodDescriptor implements Table{
         String type;
         boolean isArray;
         for(JmmNode node : root.getChildren()){
-            if(Objects.equals(node.getKind(), "VarDeclaration")){
+            if(Objects.equals(node.getKind(), "VarDeclarationStmt")){
                 type = node.getJmmChild(0).get("value");
                 isArray = type.endsWith("[]");
                 if(isArray){
