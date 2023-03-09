@@ -51,9 +51,8 @@ public class SimpleParser implements JmmParser {
             // Transforms tokens into a parse tree
             var parser = new JavammParser(tokens);
 
-            Integer errorNumber = parser.getNumberOfSyntaxErrors();
-            String errorMessage = "A total of " + errorNumber + " errors have occurred";
-            System.out.println(errorMessage);
+            //Integer errorNumber = parser.getNumberOfSyntaxErrors();
+
             //System.out.println("Buuuuu");
 
                 // Convert ANTLR CST to JmmNode AST

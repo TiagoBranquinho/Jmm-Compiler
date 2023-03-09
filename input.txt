@@ -1,5 +1,4 @@
 
-
 class Fac extends Uni {
     private int x;
     public int computeFac (int[] num, String gato){
@@ -13,21 +12,23 @@ class Fac extends Uni {
     }
 
     public static void main ( String[] args ){
-        // sofia = 10;
+        //int sofia = 10;
 
         //io.println (new Fac().computeFac(10)); // assuming the existence
                                                     // of the classfile io. class
 
 
-        //3+4igfvvbb;
-        a = 2;
+        b = 3+4;
+        a = 2
+        c = 3;
         /* multi
         line
         comment
         */
     }
 }
-
+/*
+}
 class MethodsAndFields{
 	int field1;
 	boolean field2;
@@ -52,6 +53,5 @@ class MethodsAndFields{
 
 	public static void main(String[] args){
 
-	}
-}
+	}*/
 
