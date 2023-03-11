@@ -41,7 +41,7 @@ type : value='int[]'
 
 statement : '{' ( statement )* '}' # Stmt
     | type var=ID ('=' expression)? ';' # VarDeclarationStmt
-    | 'if' '(' expression ')' statement 'else' statement # CondicionalStmt
+    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment
@@ -52,7 +52,7 @@ expression : '(' expression ')' #PrecedenceOp
     | op='!' expression #BinaryOp
     | expression op=('*' | '/') expression #BinaryOp
     | expression op=('+' | '-') expression #BinaryOp
-    | expression op=('<' | '>') expression #BinaryOp
+    | expression op=('<' | '>' | '==') expression #BinaryOp
     | expression op='&&' expression #BinaryOp
     | expression '[' expression ']' #SubscriptOp
     | expression '.' 'length' #DotOp

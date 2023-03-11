@@ -8,21 +8,13 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.*;
 
 public class MySymbolTable implements SymbolTable {
-    private HashMap<String, ClassDescriptor> classDescriptorMap;
-    private Map<String, FieldDescriptor> fieldDescriptor;
-    private Map<String, MethodDescriptor> methodDescriptor;
+    private HashMap<String, ClassDescriptor> classDescriptorMap;;
 
     private ArrayList<String> imports;
     private ClassDescriptor mainClass;
 
-    private Symbol symbol;
-
-    private String accessModifier = "";
-
     public MySymbolTable(JmmNode root){
         classDescriptorMap = new HashMap<>();
-        fieldDescriptor = new HashMap<>();
-        methodDescriptor = new HashMap<>();
         imports = new ArrayList<>();
         new MyVisitor(this).visit(root);
     }
@@ -44,7 +36,7 @@ public class MySymbolTable implements SymbolTable {
     @Override
     public List<Symbol> getFields() {
         List<Symbol> symbols = new ArrayList<>();
-        for (FieldDescriptor fieldDescriptor : fieldDescriptor.values()){
+        for (FieldDescriptor fieldDescriptor : mainClass.getFieldDescriptor().values()){
             symbols.add(fieldDescriptor.getSymbol());
         }
         return symbols;
@@ -53,7 +45,7 @@ public class MySymbolTable implements SymbolTable {
     @Override
     public List<String> getMethods() {
         List<String> methods = new ArrayList<>();
-        for (String methodName : methodDescriptor.keySet()){
+        for (String methodName : mainClass.getMethodDescriptor().keySet()){
             methods.add(methodName);
         }
         return methods;
@@ -61,17 +53,17 @@ public class MySymbolTable implements SymbolTable {
 
     @Override
     public Type getReturnType(String s) {
-        return methodDescriptor.get(s).getReturnType();
+        return mainClass.getMethodDescriptor().get(s).getReturnType();
     }
 
     @Override
     public List<Symbol> getParameters(String s) {
-        return methodDescriptor.get(s).getParameters();
+        return mainClass.getMethodDescriptor().get(s).getParameters();
     }
 
     @Override
     public List<Symbol> getLocalVariables(String s) {
-        return methodDescriptor.get(s).getLocalVariables();
+        return mainClass.getMethodDescriptor().get(s).getLocalVariables();
     }
 
     public void setMainClass(ClassDescriptor mainClass) {
@@ -99,18 +91,18 @@ public class MySymbolTable implements SymbolTable {
     public void addMethod(JmmNode node){
         JmmNode instanceNode = node.getJmmChild(0);
         if(Objects.equals(instanceNode.getKind(), "MainDeclaration")){
-            methodDescriptor.put("main", new MethodDescriptor(instanceNode));
+            mainClass.getMethodDescriptor().put("main", new MethodDescriptor(instanceNode));
         }
         else{
-            methodDescriptor.put(instanceNode.get("instance"), new MethodDescriptor(instanceNode));
+            mainClass.getMethodDescriptor().put(instanceNode.get("instance"), new MethodDescriptor(instanceNode));
         }
     }
 
     public void addField(JmmNode node){
-        fieldDescriptor.put(node.get("var"), new FieldDescriptor(node));
+        mainClass.getFieldDescriptor().put(node.get("var"), new FieldDescriptor(node));
     }
 
     public void addLocalVar(String methodName, JmmNode varNode){
-        methodDescriptor.get(methodName).addVar(varNode);
+        mainClass.getMethodDescriptor().get(methodName).addVar(varNode);
     }
 }
