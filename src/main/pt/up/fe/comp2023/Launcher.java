@@ -50,11 +50,9 @@ public class Launcher {
         // Check if there are parsing errors
         //TestUtils.noErrors(parserResult.getReports());
 
+        MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
-
-        //Descriptor descriptor = new Descriptor(parserResult.getRootNode());
-
-        //System.out.println(descriptor.print());
+        System.out.println(mySymbolTable.print());
 
 
 
