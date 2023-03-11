@@ -4,7 +4,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
 
-public class ClassDescriptor implements Table{
+public class ClassDescriptor {
     private Map<String, FieldDescriptor> fieldDescriptor;
     private Map<String, MethodDescriptor> methodDescriptor;
     private String className;
@@ -15,7 +15,6 @@ public class ClassDescriptor implements Table{
         methodDescriptor = new HashMap<>();
         className = node.get("name");
         extendedClassName = node.hasAttribute("superclass") ? node.get("superclass") : null;
-        buildTable(node);
     }
 
     public String getClassName() {
@@ -34,27 +33,7 @@ public class ClassDescriptor implements Table{
         return methodDescriptor;
     }
 
-
-
     public void setExtendedClassName(String name){
         this.extendedClassName = name;
-    }
-
-    @Override
-    public void buildTable(JmmNode root) {
-        for(JmmNode node : root.getChildren()){
-            if(Objects.equals(node.getKind(), "MethodDeclaration")){
-                JmmNode method = node.getJmmChild(0);
-                if(Objects.equals(method.getKind(), "MainDeclaration")){
-                    methodDescriptor.put("main", new MethodDescriptor(method));
-                }
-                else{
-                    methodDescriptor.put(method.get("instance"), new MethodDescriptor(method));
-                }
-            }
-            else if(Objects.equals(node.getKind(), "FieldDeclaration")){
-                fieldDescriptor.put(node.get("var"), new FieldDescriptor(node));
-            }
-        }
     }
 }

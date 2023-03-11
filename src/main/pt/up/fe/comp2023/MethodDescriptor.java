@@ -9,14 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class MethodDescriptor implements Table{
+public class MethodDescriptor {
     private List<Symbol> parameters;
     private Type returnType;
     private List<Symbol> localVariables;
 
     private int voidFunc;
     public MethodDescriptor(JmmNode root){
-        buildTable(root);
         parameters = new ArrayList<>();
         localVariables = new ArrayList<>();
         voidFunc = checkReturn(root);
@@ -84,6 +83,19 @@ public class MethodDescriptor implements Table{
         }
     }
 
+    public void addVar(JmmNode var){
+        String type;
+        boolean isArray;
+        if(Objects.equals(var.getKind(), "VarDeclarationStmt")){
+            type = var.getJmmChild(0).get("value");
+            isArray = type.endsWith("[]");
+            if(isArray){
+                type = type.substring(0, type.length() - 2);
+            }
+            localVariables.add(new Symbol(new Type(type, isArray), var.get("var")));
+        }
+    }
+
 
     public Type getReturnType() {
         return returnType;
@@ -95,10 +107,5 @@ public class MethodDescriptor implements Table{
 
     public List<Symbol> getLocalVariables() {
         return localVariables;
-    }
-
-    @Override
-    public void buildTable(JmmNode node) {
-
     }
 }
