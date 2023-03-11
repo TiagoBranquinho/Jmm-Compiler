@@ -5,8 +5,8 @@ class Parameters{
 	    if(a == 2){
 		    int x = 1;
         }
-		else
+		else{
 		    int x = 5;
+		}
 	}
 }
-

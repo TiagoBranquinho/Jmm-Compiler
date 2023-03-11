@@ -27,6 +27,9 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("BinaryOp", this::dealWithBinaryOp);
         addVisit("ExprStmt", this::dealWithExprStmt);
         addVisit("Type", this::dealWithType);
+        addVisit("CondicionalStmt", this::dealWithConditionalStatement);
+        addVisit("Integer", this::dealWithInteger);
+
 
     }
 
@@ -54,7 +57,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     private String dealWithFieldDeclaration(JmmNode jmmNode, String s) {
         symbolTable.addField(jmmNode);
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
         return "";
     }
@@ -65,14 +68,14 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
         return "";
     }
 
     private String dealWithExprStmt(JmmNode jmmNode, String s) {
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
         return "";
     }
@@ -80,14 +83,14 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     private String dealWithMethodDeclaration(JmmNode jmmNode, String s) {
         symbolTable.addMethod(jmmNode);
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
         return "";
     }
 
     private String dealWithType(JmmNode jmmNode, String s) {
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
         return "";
     }
@@ -98,6 +101,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
+        System.out.println(instance);
         if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
             symbolTable.addLocalVar(instance.get("instance"), jmmNode);
         }
@@ -108,8 +112,19 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithInstanceDeclaration(JmmNode jmmNode, String s){
         for (JmmNode node : jmmNode.getChildren()){
-            return visit(node);
+            visit(node);
         }
+        return "";
+    }
+
+    private String dealWithConditionalStatement(JmmNode jmmNode, String s){
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
+        }
+        return "";
+    }
+
+    private String dealWithInteger(JmmNode jmmNode, String s){
         return "";
     }
 
