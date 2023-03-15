@@ -6,7 +6,9 @@ class Parameters{
 		    int x = 1;
         }
 		else{
-		    int x = 5;
+		    while(true){
+		        int x = 5;
+		    }
 		}
 	}
 }

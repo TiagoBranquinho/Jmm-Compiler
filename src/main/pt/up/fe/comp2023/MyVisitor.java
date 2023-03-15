@@ -28,7 +28,12 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("ExprStmt", this::dealWithExprStmt);
         addVisit("Type", this::dealWithType);
         addVisit("CondicionalStmt", this::dealWithConditionalStatement);
+        addVisit("LoopStmt", this::dealWithLoopStatement);
         addVisit("Integer", this::dealWithInteger);
+        addVisit("ReservedExpr", this::dealWithReservedExpr);
+        addVisit("Stmt", this::dealWithStmt);
+
+
 
 
     }
@@ -125,6 +130,22 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithInteger(JmmNode jmmNode, String s){
+        return "";
+    }
+
+    private String dealWithLoopStatement(JmmNode jmmNode, String s){
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
+        }
+        return "";
+    }
+
+    private String dealWithReservedExpr(JmmNode jmmNode, String s){return "";}
+
+    private String dealWithStmt(JmmNode jmmNode, String s){
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
+        }
         return "";
     }
 
