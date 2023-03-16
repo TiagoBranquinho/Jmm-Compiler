@@ -6,8 +6,6 @@ grammar Javamm;
 
 INTEGER : [0-9]+ ;
 ID : [a-zA-Z_][a-zA-Z_0-9]* ;
-FLOAT : INTEGER+ '.' INTEGER* | '.' INTEGER+ ;
-NUMBER : ('-'?) (FLOAT | INTEGER+) ;
 
 TRADICIONAL_COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
 
@@ -66,7 +64,7 @@ expression : '(' expression ')' #PrecedenceOp
     | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
     | 'new' 'int' '[' expression ']' #ArrayDeclaration
     | 'new' objClass=ID '(' ')' #ObjectDeclaration
-    | value=(NUMBER|FLOAT|INTEGER) #Integer
+    | value=INTEGER #Integer
     | value='true' #ReservedExpr
     | value='false' #ReservedExpr
     | value=ID #Identifier
