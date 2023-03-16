@@ -36,16 +36,16 @@ public class Launcher {
 
         // Parse stage
         JmmParserResult parserResult = parser.parse(code, config);
-
         if(parserResult.getReports().size() > 0){
 
-                TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
-                Integer errorNumber = parserResult.getReports().size();
-                String errorMessage = "A total of " + errorNumber + " errors have occurred";
-                System.out.println(errorMessage);
-                for(int i = 0; i < parserResult.getReports().size(); i++){
-                    System.out.println("Errors:" + parserResult.getReports());
-                }
+            TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
+            Integer errorNumber = parserResult.getReports().size();
+            String errorMessage = "A total of " + errorNumber + " errors have occurred";
+            System.out.println(errorMessage);
+            for(int i = 0; i < parserResult.getReports().size(); i++){
+                System.out.println("Errors:" + parserResult.getReports());
+            }
+
 
         }
         else{
@@ -56,8 +56,11 @@ public class Launcher {
 
 
 
+
+
+
         // Check if there are parsing errors
-        //TestUtils.noErrors(parserResult.getReports());
+        //
 
         MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
