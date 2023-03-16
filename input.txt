@@ -1,38 +1,4 @@
-<<<<<<< HEAD
-
-class Fac extends Uni {
-    private int x;
-    public int computeFac (int[] num, String gato){
-        int num_aux=15;
-        if (num < 1)
-            num_aux = 1;
-        else
-            num_aux = num * (this.computeFac(num-1));
-        int ok;
-        return num_aux;
-    }
-
-    public static void main ( String[] args ){
-        //int sofia = 10;
-
-        //io.println (new Fac().computeFac(10)); // assuming the existence
-                                                    // of the classfile io. class
-
-
-        b 3+4;
-        a = 2
-        c = 3;
-        /* multi
-        line
-        comment
-        */
-    }
-}
-/*
-}
-=======
 import a.b.c;
->>>>>>> d171d3c980249fa459f2627f425342f88043463c
 class MethodsAndFields{
 	int field1 = 1.2;
 	boolean field2;
@@ -68,10 +34,5 @@ class MethodsAndFields{
 
 	public static void main(String[] args){
 
-<<<<<<< HEAD
-	}*/
-
-=======
 	}
 }
->>>>>>> d171d3c980249fa459f2627f425342f88043463c
