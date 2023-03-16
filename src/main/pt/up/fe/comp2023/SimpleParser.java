@@ -60,8 +60,10 @@ public class SimpleParser implements JmmParser {
                         // If there were no errors and a root node was generated, create a JmmParserResult with the node
                         .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
                         // If there were errors, create an error JmmParserResult without root node
+
                         .orElseGet(() -> {return JmmParserResult.newError(new Report(ReportType.ERROR, Stage.SYNTATIC, -1,
                                 "There were" + errorNumber + "syntax errors during parsing, terminating"));});
+
 
 
         } catch (Exception e) {

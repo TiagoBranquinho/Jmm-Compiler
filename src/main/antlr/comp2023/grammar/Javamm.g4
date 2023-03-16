@@ -15,16 +15,16 @@ WS : [ \t\n\r\f]+ -> skip ;
 
 program : (importDeclaration)* classDeclaration EOF;
 
-importDeclaration : 'import' library=ID ( '.' ID )* ';';
+importDeclaration : 'import' library+=ID ( '.' library+=ID )* ';';
 
 classDeclaration : 'class' name=ID ( 'extends' superclass=ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
-fieldDeclaration : (accessModifier)? type var=ID ';';
+fieldDeclaration : (accessModifier)? type var=ID ('=' expression)?';';
 
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
-instanceDeclaration : ('public')? type instance=ID '(' ( type parameter+=ID ( ',' type parameter+=ID )* )? ')' '{' ( statement )* '}';
+instanceDeclaration : ('public')? returnType instance=ID '(' ( parameterType parameter+=ID ( ',' parameterType parameter+=ID )* )? ')' '{' ( statement )* '}';
 
 mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( statement )* '}' ;
 
@@ -39,9 +39,14 @@ type : value='int[]'
     | value='int'
     | value=ID;
 
+parameterType : type;
+
+returnType : type
+    | value='void';
+
 statement : '{' ( statement )* '}' # Stmt
     | type var=ID ('=' expression)? ';' # VarDeclarationStmt
-    | 'if' '(' expression ')' statement 'else' statement # CondicionalStmt
+    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else if' '(' expression ')'('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment
@@ -52,7 +57,7 @@ expression : '(' expression ')' #PrecedenceOp
     | op='!' expression #BinaryOp
     | expression op=('*' | '/') expression #BinaryOp
     | expression op=('+' | '-') expression #BinaryOp
-    | expression op=('<' | '>') expression #BinaryOp
+    | expression op=('<' | '>' | '==') expression #BinaryOp
     | expression op='&&' expression #BinaryOp
     | expression '[' expression ']' #SubscriptOp
     | expression '.' 'length' #DotOp

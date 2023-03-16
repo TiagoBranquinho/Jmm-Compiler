@@ -11,8 +11,8 @@ import java.util.List;
 public class Analysis implements JmmAnalysis {
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult jmmParserResult) {
-        Descriptor descriptor = new Descriptor(jmmParserResult.getRootNode());
+        MySymbolTable mySymbolTable = new MySymbolTable(jmmParserResult.getRootNode());
         List<Report> reports = new ArrayList<>();
-        return new JmmSemanticsResult(jmmParserResult, descriptor, reports);
+        return new JmmSemanticsResult(jmmParserResult, mySymbolTable, reports);
     }
 }

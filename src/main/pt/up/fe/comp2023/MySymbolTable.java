@@ -7,16 +7,16 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
 
-public class Descriptor implements SymbolTable, Table {
-    private HashMap<String, ClassDescriptor> classDescriptorMap;
+public class MySymbolTable implements SymbolTable {
+    private HashMap<String, ClassDescriptor> classDescriptorMap;;
 
     private ArrayList<String> imports;
     private ClassDescriptor mainClass;
 
-    public Descriptor(JmmNode root){
+    public MySymbolTable(JmmNode root){
         classDescriptorMap = new HashMap<>();
         imports = new ArrayList<>();
-        buildTable(root);
+        new MyVisitor(this).visit(root);
     }
     @Override
     public List<String> getImports() {
@@ -70,18 +70,43 @@ public class Descriptor implements SymbolTable, Table {
         this.mainClass = mainClass;
     }
 
+    public ClassDescriptor getMainClass(){
+        return mainClass;
+    }
 
-    @Override
-    public void buildTable(JmmNode root) {
-        for (JmmNode node : root.getChildren()){
-            if(Objects.equals(node.getKind(), "ImportDeclaration")){
-                imports.add(node.get("library"));
-            }
-            else if(Objects.equals(node.getKind(), "ClassDeclaration")){
-                mainClass = new ClassDescriptor(node);
-                classDescriptorMap.put(node.get("name"), mainClass);
+    //Add Nodes
 
-            }
+    public void addImport(JmmNode node){
+        imports.add(node.get("library"));
+    }
+
+    public void addClass(JmmNode node){
+        ClassDescriptor classDescriptor = new ClassDescriptor(node);
+        if(mainClass == null){
+            mainClass = classDescriptor;
         }
+        classDescriptorMap.put(node.get("name"), classDescriptor);
+    }
+
+    public void addMethod(JmmNode node){
+        JmmNode instanceNode = node.getJmmChild(0);
+        if(Objects.equals(instanceNode.getKind(), "MainDeclaration")){
+            mainClass.getMethodDescriptor().put("main", new MethodDescriptor(instanceNode));
+        }
+        else{
+            mainClass.getMethodDescriptor().put(instanceNode.get("instance"), new MethodDescriptor(instanceNode));
+        }
+    }
+
+    public void addField(JmmNode node){
+        mainClass.getFieldDescriptor().put(node.get("var"), new FieldDescriptor(node));
+    }
+
+    public void addLocalVar(String methodName, JmmNode varNode){
+        mainClass.getMethodDescriptor().get(methodName).addVar(varNode);
+    }
+
+    public void addLocalArg(String methodName, JmmNode varNode){
+        mainClass.getMethodDescriptor().get(methodName).addArg(varNode);
     }
 }

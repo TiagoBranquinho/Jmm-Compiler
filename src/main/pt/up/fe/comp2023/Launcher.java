@@ -46,10 +46,13 @@ public class Launcher {
                 System.out.println("Errors:" + parserResult.getReports());
             }
 
+
         }
         else{
             System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
         }
+
+        //fazer um for para correr os reports
 
 
 
@@ -59,11 +62,9 @@ public class Launcher {
         // Check if there are parsing errors
         //
 
+        MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
-
-        //Descriptor descriptor = new Descriptor(parserResult.getRootNode());
-
-        //System.out.println(descriptor.print());
+        System.out.println(mySymbolTable.print());
 
 
 

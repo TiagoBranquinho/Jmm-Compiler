@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 class Fac extends Uni {
     private int x;
@@ -29,8 +30,11 @@ class Fac extends Uni {
 }
 /*
 }
+=======
+import a.b.c;
+>>>>>>> d171d3c980249fa459f2627f425342f88043463c
 class MethodsAndFields{
-	int field1;
+	int field1 = 1;
 	boolean field2;
 	MethodsAndFields field3;
 
@@ -43,7 +47,9 @@ class MethodsAndFields{
 	}
 
 	public MethodsAndFields getField3(){
-		return field3;
+	    int x;
+	    int x = 2;
+	    return field3;
 	}
 
 	public int[] all(int a, boolean b, MethodsAndFields maf){
@@ -53,5 +59,10 @@ class MethodsAndFields{
 
 	public static void main(String[] args){
 
+<<<<<<< HEAD
 	}*/
 
+=======
+	}
+}
+>>>>>>> d171d3c980249fa459f2627f425342f88043463c
