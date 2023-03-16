@@ -46,7 +46,7 @@ returnType : type
 
 statement : '{' ( statement )* '}' # Stmt
     | type var=ID ('=' expression)? ';' # VarDeclarationStmt
-    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else if' '(' expression ')'('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
+    | 'if' '(' expression ')' ('{' statement '}' | statement) ('else if' '(' expression ')'('{' statement '}' | statement))*? 'else' ('{' statement '}' | statement) # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment
