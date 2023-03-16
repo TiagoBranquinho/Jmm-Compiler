@@ -5,7 +5,6 @@ class MethodsAndFields{
 	MethodsAndFields field3;
 
 	public int getField1(){
-	    2 + 3;\n1+1;
 		return field1;
 	}
 
