@@ -13,8 +13,6 @@ TRADICIONAL_COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
 
 END_OF_LINE_COMMENT : '//' .*? ('\r' | '\n' | EOF) -> channel(HIDDEN);
 
-NEWLINE : '\\n' -> skip;
-
 WS : [ \t\n\r\f]+ -> skip ;
 
 program : (importDeclaration)* classDeclaration EOF;
