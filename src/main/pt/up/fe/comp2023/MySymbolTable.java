@@ -63,7 +63,7 @@ public class MySymbolTable implements SymbolTable {
 
     @Override
     public List<Symbol> getLocalVariables(String s) {
-        return mainClass.getMethodDescriptor().get(s).getLocalVariables().stream().distinct().toList();
+        return mainClass.getMethodDescriptor().get(s).getLocalVariables();
     }
 
     public void setMainClass(ClassDescriptor mainClass) {

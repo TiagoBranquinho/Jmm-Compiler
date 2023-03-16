@@ -15,7 +15,7 @@ WS : [ \t\n\r\f]+ -> skip ;
 
 program : (importDeclaration)* classDeclaration EOF;
 
-importDeclaration : 'import' library=ID ( '.' ID )* ';';
+importDeclaration : 'import' library+=ID ( '.' library+=ID )* ';';
 
 classDeclaration : 'class' name=ID ( 'extends' superclass=ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
@@ -24,7 +24,7 @@ fieldDeclaration : (accessModifier)? type var=ID ';';
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
-instanceDeclaration : ('public')? returnType instance=ID '(' ( type parameter+=ID ( ',' type parameter+=ID )* )? ')' '{' ( statement )* '}';
+instanceDeclaration : ('public')? returnType instance=ID '(' ( parameterType parameter+=ID ( ',' parameterType parameter+=ID )* )? ')' '{' ( statement )* '}';
 
 mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( statement )* '}' ;
 
@@ -39,17 +39,14 @@ type : value='int[]'
     | value='int'
     | value=ID;
 
-returnType : value='int[]'
-    | value='String[]'
-    | value='String'
-    | value='boolean'
-    | value='int'
-    | value='void'
-    | value=ID;
+parameterType : type;
+
+returnType : type
+    | value='void';
 
 statement : '{' ( statement )* '}' # Stmt
     | type var=ID ('=' expression)? ';' # VarDeclarationStmt
-    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
+    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else if' '(' expression ')'('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment

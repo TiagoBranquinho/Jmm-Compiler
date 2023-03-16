@@ -34,6 +34,9 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("Stmt", this::dealWithStmt);
         addVisit("ReturnStmt", this::dealWithReturnStmt);
         addVisit("ReturnType", this::dealWithReturnType);
+        addVisit("ParameterType", this::dealWithParameterType);
+        addVisit("Assignment", this::dealWithAssignment);
+
 
 
 
@@ -98,6 +101,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithType(JmmNode jmmNode, String s) {
+        return "";
+    }
+
+    private String dealWithParameterType(JmmNode jmmNode, String s) {
         JmmNode parent = jmmNode.getJmmParent();
         if(Objects.equals(parent.getKind(), "InstanceDeclaration")){
             symbolTable.addLocalArg(parent.get("instance"), jmmNode);
@@ -174,6 +181,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
             symbolTable.getMainClass().getMethodDescriptor().get("main").setReturnType(jmmNode);
         }
 
+        return "";
+    }
+
+    private String dealWithAssignment(JmmNode jmmNode, String s){
         return "";
     }
 }

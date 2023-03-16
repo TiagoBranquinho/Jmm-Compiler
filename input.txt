@@ -1,4 +1,4 @@
-
+import a.b.c;
 class MethodsAndFields{
 	int field1;
 	boolean field2;
@@ -13,7 +13,9 @@ class MethodsAndFields{
 	}
 
 	public MethodsAndFields getField3(){
-		return field3;
+	    int x;
+	    int x = 2;
+	    return field3;
 	}
 
 	public int[] all(int a, boolean b, MethodsAndFields maf){
