@@ -19,7 +19,7 @@ importDeclaration : 'import' library+=ID ( '.' library+=ID )* ';';
 
 classDeclaration : 'class' name=ID ( 'extends' superclass=ID )? '{' ( fieldDeclaration )* ( methodDeclaration )* '}';
 
-fieldDeclaration : (accessModifier)? type var=ID ';';
+fieldDeclaration : (accessModifier)? type var=ID ('=' expression)?';';
 
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
