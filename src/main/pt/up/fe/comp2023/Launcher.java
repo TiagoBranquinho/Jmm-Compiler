@@ -37,12 +37,19 @@ public class Launcher {
         // Parse stage
         JmmParserResult parserResult = parser.parse(code, config);
 
-        if(parserResult.getRootNode() != null){
-            System.out.println(parserResult.getRootNode().toTree());
+        if(parserResult.getReports().size() > 0){
+            try{
+                TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
+                Integer errorNumber = parserResult.getReports().size();
+                String errorMessage = "A total of " + errorNumber + " errors have occurred";
+                System.out.println(errorMessage);
+            }
+            catch(Exception e){
+                System.out.println("Olá");
+            }
         }
-        else
-        {
-            System.out.println(parserResult.getReports());
+        else{
+            System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
         }
 
 

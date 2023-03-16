@@ -32,6 +32,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("Integer", this::dealWithInteger);
         addVisit("ReservedExpr", this::dealWithReservedExpr);
         addVisit("Stmt", this::dealWithStmt);
+        addVisit("ReturnStmt", this::dealWithReturnStmt);
+        addVisit("ReturnType", this::dealWithReturnType);
+
+
 
 
 
@@ -94,8 +98,12 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithType(JmmNode jmmNode, String s) {
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+        JmmNode parent = jmmNode.getJmmParent();
+        if(Objects.equals(parent.getKind(), "InstanceDeclaration")){
+            symbolTable.addLocalArg(parent.get("instance"), jmmNode);
+        }
+        else if(Objects.equals(parent.getKind(), "MainDeclaratiom")){
+            symbolTable.addLocalArg("main", jmmNode);
         }
         return "";
     }
@@ -149,4 +157,23 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         return "";
     }
 
+    private String dealWithReturnStmt(JmmNode jmmNode, String s){
+        return "";
+    }
+
+    private String dealWithReturnType(JmmNode jmmNode, String s){
+        JmmNode parent = jmmNode.getJmmParent();
+        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+            parent = parent.getJmmParent();
+        }
+        JmmNode instance = parent.getJmmChild(0);
+        if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
+            symbolTable.getMainClass().getMethodDescriptor().get(instance.get("instance")).setReturnType(jmmNode);
+        }
+        else{
+            symbolTable.getMainClass().getMethodDescriptor().get("main").setReturnType(jmmNode);
+        }
+
+        return "";
+    }
 }
