@@ -18,7 +18,7 @@ class Fac extends Uni {
                                                     // of the classfile io. class
 
 
-        b = 3+4;
+        b 3+4;
         a = 2
         c = 3;
         /* multi

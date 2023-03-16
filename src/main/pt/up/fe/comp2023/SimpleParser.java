@@ -51,7 +51,7 @@ public class SimpleParser implements JmmParser {
             // Transforms tokens into a parse tree
             var parser = new JavammParser(tokens);
 
-            //Integer errorNumber = parser.getNumberOfSyntaxErrors();
+            Integer errorNumber = parser.getNumberOfSyntaxErrors();
 
             //System.out.println("Buuuuu");
 
@@ -60,8 +60,8 @@ public class SimpleParser implements JmmParser {
                         // If there were no errors and a root node was generated, create a JmmParserResult with the node
                         .map(root -> new JmmParserResult(root, Collections.emptyList(), config))
                         // If there were errors, create an error JmmParserResult without root node
-                        .orElseGet(() -> JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
-                                "There were syntax errors during parsing, terminating")));
+                        .orElseGet(() -> {return JmmParserResult.newError(new Report(ReportType.ERROR, Stage.SYNTATIC, -1,
+                                "There were" + errorNumber + "syntax errors during parsing, terminating"));});
 
 
         } catch (Exception e) {
