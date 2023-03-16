@@ -5,11 +5,15 @@ grammar Javamm;
 }
 
 INTEGER : [0-9]+ ;
+FLOAT : INTEGER+ '.' INTEGER* | '.' INTEGER+ ;
+NUMBER : ('-')? (FLOAT | INTEGER+) ;
 ID : [a-zA-Z_][a-zA-Z_0-9]* ;
 
 TRADICIONAL_COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
 
 END_OF_LINE_COMMENT : '//' .*? ('\r' | '\n' | EOF) -> channel(HIDDEN);
+
+NEWLINE : '\\n' -> skip;
 
 WS : [ \t\n\r\f]+ -> skip ;
 
@@ -46,11 +50,12 @@ returnType : type
 
 statement : '{' ( statement )* '}' # Stmt
     | type var=ID ('=' expression)? ';' # VarDeclarationStmt
-    | 'if' '(' expression ')' ('{' statement '}' | statement) 'else if' '(' expression ')'('{' statement '}' | statement) 'else' ('{' statement '}' | statement) # CondicionalStmt
+    | 'if' '(' expression ')' ('{' statement '}' | statement) ('else if' '(' expression ')'('{' statement '}' | statement))*? 'else' ('{' statement '}' | statement) # CondicionalStmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment
     | ID '[' expression ']' '=' expression ';' # Assignment
+    | '\n' # NewLine
     | 'return' expression? ';' # ReturnStmt;
 
 expression : '(' expression ')' #PrecedenceOp
@@ -64,7 +69,7 @@ expression : '(' expression ')' #PrecedenceOp
     | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
     | 'new' 'int' '[' expression ']' #ArrayDeclaration
     | 'new' objClass=ID '(' ')' #ObjectDeclaration
-    | value=INTEGER #Integer
+    | value=(NUMBER|FLOAT|INTEGER) #Integer
     | value='true' #ReservedExpr
     | value='false' #ReservedExpr
     | value=ID #Identifier
