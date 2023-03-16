@@ -1,6 +1,6 @@
 import a.b.c;
 class MethodsAndFields{
-	int field1 = 1.2;
+	int field1 = 1;
 	boolean field2;
 	MethodsAndFields field3;
 
