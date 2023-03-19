@@ -38,7 +38,7 @@ public class Launcher {
         JmmParserResult parserResult = parser.parse(code, config);
         if(parserResult.getReports().size() > 0){
 
-            TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
+            //TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
             Integer errorNumber = parserResult.getReports().size();
             String errorMessage = "A total of " + errorNumber + " errors have occurred";
             System.out.println(errorMessage);
@@ -49,7 +49,10 @@ public class Launcher {
 
         }
         else{
-            System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
+            //System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
+            MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
+
+            System.out.println(mySymbolTable.print());
         }
 
         //fazer um for para correr os reports
@@ -62,9 +65,7 @@ public class Launcher {
         // Check if there are parsing errors
         //
 
-        MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
-        System.out.println(mySymbolTable.print());
 
 
 
