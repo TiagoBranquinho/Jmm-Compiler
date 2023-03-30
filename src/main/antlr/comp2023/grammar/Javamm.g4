@@ -57,8 +57,8 @@ expression : '(' expression ')' #PrecedenceOp
     | op='!' expression #BinaryOp
     | expression op=('*' | '/') expression #BinaryOp
     | expression op=('+' | '-') expression #BinaryOp
-    | expression op=('<' | '>' | '==') expression #BinaryOp
-    | expression op='&&' expression #BinaryOp
+    | expression op=('<' | '>' | '==' | '<=' | '>=') expression #BinaryOp
+    | expression op=('&&' | '||') expression #BinaryOp
     | expression '[' expression ']' #SubscriptOp
     | expression '.' 'length' #DotOp
     | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
