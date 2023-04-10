@@ -11,6 +11,9 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     private String className;
 
     private MySymbolTable symbolTable;
+
+    private Optimization optimization;
+
     public MyVisitor(MySymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
@@ -36,6 +39,8 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("ReturnType", this::dealWithReturnType);
         addVisit("ParameterType", this::dealWithParameterType);
         addVisit("Assignment", this::dealWithAssignment);
+        addVisit("DotOp", this::dealWithDotOp);
+
 
 
 
@@ -187,4 +192,9 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     private String dealWithAssignment(JmmNode jmmNode, String s){
         return "";
     }
+
+    private String dealWithDotOp(JmmNode jmmNode, String s){
+        return "";
+    }
+
 }

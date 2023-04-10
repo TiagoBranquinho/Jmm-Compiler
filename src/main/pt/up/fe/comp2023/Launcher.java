@@ -49,10 +49,12 @@ public class Launcher {
 
         }
         else{
-            //System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
+            System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
             MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
             System.out.println(mySymbolTable.print());
+            System.out.println(mySymbolTable.getImports());
+
         }
 
         //fazer um for para correr os reports

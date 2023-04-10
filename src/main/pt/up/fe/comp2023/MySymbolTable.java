@@ -77,7 +77,7 @@ public class MySymbolTable implements SymbolTable {
     //Add Nodes
 
     public void addImport(JmmNode node){
-        imports.add(node.get("library"));
+        imports.addAll(List.of(node.get("library").substring(1, node.get("library").length() - 1).split(", ")));
     }
 
     public void addClass(JmmNode node){
