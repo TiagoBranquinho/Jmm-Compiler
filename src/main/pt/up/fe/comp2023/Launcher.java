@@ -72,6 +72,15 @@ public class Launcher {
 
 
         // ... add remaining stages
+
+        /* Instantiate JasminBackender
+        var jasminBackend = new JasminBackender();
+
+        var backendResult = jasminBackend.toJasmin(ollirResult);
+
+        // Generate .class file
+        backendResult.compile(path.toFile());
+         */
     }
 
     private static Map<String, String> parseArgs(String[] args) {
