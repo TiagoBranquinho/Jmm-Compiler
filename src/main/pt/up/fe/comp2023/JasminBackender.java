@@ -116,6 +116,11 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
         ElementType elementType = type.getTypeOfElement();
 
+        if (elementType == ElementType.ARRAYREF) {
+            stringBuilder.append("[");
+            elementType = ((ArrayType) type).getArrayType();
+        }
+
         switch (elementType) {
             case INT32 -> stringBuilder.append("I");
             case BOOLEAN -> stringBuilder.append("Z");
@@ -124,13 +129,13 @@ public class JasminBackender implements JasminBackend {
                 boolean name_is_full = true;
 
                 if(this.superClass.equals("this")){
-                    stringBuilder.append("L").append(this.classUnit.getClassName()).append(";");
+                    stringBuilder.append("L").append(this.classUnit.getClassName()).append("\n");
                     name_is_full = false;
                 }
                 else{
                     for (String importName : this.classUnit.getImports()) {
                         if (importName.endsWith(this.superClass)) {
-                            stringBuilder.append("L").append(importName.replaceAll("\\.", "/")).append(";");
+                            stringBuilder.append("L").append(importName.replaceAll("\\.", "/")).append("\n");
                             name_is_full = false;
                             break;
                         }
@@ -138,7 +143,7 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 if (name_is_full) {
-                    stringBuilder.append("L").append(name).append(";");
+                    stringBuilder.append("L").append(name).append("\n");
                 }
             }
             case STRING -> stringBuilder.append("Ljava/lang/String;");
