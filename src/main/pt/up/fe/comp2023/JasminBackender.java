@@ -143,7 +143,7 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 if (name_is_full) {
-                    stringBuilder.append("1").append(name).append(";");
+                    stringBuilder.append("L").append(name).append(";");
                 }
             }
             case STRING -> stringBuilder.append("Ljava/lang/String;");
@@ -287,7 +287,7 @@ public class JasminBackender implements JasminBackend {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
                 case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
+                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload_1").append(this.getVariableNumber(operand.getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
             }
