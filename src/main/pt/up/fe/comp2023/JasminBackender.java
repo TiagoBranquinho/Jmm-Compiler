@@ -129,7 +129,7 @@ public class JasminBackender implements JasminBackend {
                 boolean name_is_full = true;
 
                 if(this.superClass.equals("this")){
-                    stringBuilder.append("1").append(this.classUnit.getClassName()).append(";");
+                    stringBuilder.append("L").append(name).append(";");
                     name_is_full = false;
                 }
                 else{
