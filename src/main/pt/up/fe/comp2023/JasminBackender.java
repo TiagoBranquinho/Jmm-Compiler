@@ -512,13 +512,13 @@ public class JasminBackender implements JasminBackend {
                     boolean name_is_full = true;
 
                     if(this.superClass.equals("this")){
-                        stringBuilder.append("\tnew1 ").append(this.classUnit.getClassName()).append("\n");
+                        stringBuilder.append("\tnew ").append(this.classUnit.getClassName()).append("\n");
                         name_is_full = false;
                     }
                     else{
                         for (String importName : this.classUnit.getImports()) {
                             if (importName.endsWith(this.superClass)) {
-                                stringBuilder.append("\tnew1 ").append(importName.replaceAll("\\.", "/")).append("/").append("\n");
+                                stringBuilder.append("\tnew ").append(importName.replaceAll("\\.", "/")).append("/").append("\n");
                                 name_is_full = false;
                                 break;
                             }
@@ -526,7 +526,7 @@ public class JasminBackender implements JasminBackend {
                     }
 
                     if (name_is_full) {
-                        stringBuilder.append("\tnew1 ").append(((Operand) instruction.getFirstArg()).getName()).append("\n");
+                        stringBuilder.append("\tnew ").append(((Operand) instruction.getFirstArg()).getName()).append("\n");
                     }
 
                 } else {
