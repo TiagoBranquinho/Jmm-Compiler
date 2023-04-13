@@ -170,8 +170,8 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append("<init>");
         } else {
             stringBuilder.append(method.getMethodName());
-            stringBuilder.append("(");
         }
+            stringBuilder.append("(");
 
         for (Element param : method.getParams()) {
             stringBuilder.append(this.getFieldDescriptor(param.getType()));
