@@ -5,7 +5,7 @@ class CompileBasic {
     int intField;
     boolean boolField;
 
-    public int method1() {
+    public void method1() {
         int intLocal1;
         boolean boolLocal1;
 

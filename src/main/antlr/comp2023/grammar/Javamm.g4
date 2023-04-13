@@ -42,7 +42,12 @@ type : value='int[]'
 
 parameterType : type;
 
-returnType : type
+returnType : value='int[]'
+    | value='String[]'
+    | value='String'
+    | value='boolean'
+    | value='int'
+    | value=ID
     | value='void';
 
 statement : '{' ( statement )* '}' # Stmt

@@ -324,6 +324,12 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
 
         Operand dest = (Operand) instruction.getDest();
+        if (dest instanceof ArrayOperand) {
+            ArrayOperand arrayOperand = (ArrayOperand) dest;
+            stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
+            stringBuilder.append(this.getLoadToStackInstruction(arrayOperand.getIndexOperands().get(0), varTable)); // load index
+
+        }
 
         if (instruction.getRhs().getInstType() == BINARYOPER) {
             BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
@@ -357,7 +363,7 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable));
-        stringBuilder.append(this.getStore(dest, varTable)); // store in array[index] if (dest instanceof ArrayOperand)
+        stringBuilder.append(this.getStore(dest, varTable));
 
         return stringBuilder.toString();
     }
