@@ -116,11 +116,6 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
         ElementType elementType = type.getTypeOfElement();
 
-        if (elementType == ElementType.ARRAYREF) {
-            stringBuilder.append("[");
-            elementType = ((ArrayType) type).getArrayType();
-        }
-
         switch (elementType) {
             case INT32 -> stringBuilder.append("I");
             case BOOLEAN -> stringBuilder.append("Z");
