@@ -326,8 +326,8 @@ public class JasminBackender implements JasminBackend {
         Operand dest = (Operand) instruction.getDest();
         if (dest instanceof ArrayOperand) {
             ArrayOperand arrayOperand = (ArrayOperand) dest;
-            stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
-            stringBuilder.append(this.getLoadToStackInstruction(arrayOperand.getIndexOperands().get(0), varTable)); // load index
+            stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n");
+            stringBuilder.append(this.getLoadToStackInstruction(arrayOperand.getIndexOperands().get(0), varTable));
 
         } else {
             if (instruction.getRhs().getInstType() == BINARYOPER) {
