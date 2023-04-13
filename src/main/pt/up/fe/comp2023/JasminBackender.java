@@ -166,11 +166,12 @@ public class JasminBackender implements JasminBackend {
         if (method.isFinalMethod()) stringBuilder.append("final ");
 
         // <method-spec>
-        if (method.isConstructMethod())
+        if (method.isConstructMethod()) {
             stringBuilder.append("<init>");
-        else
+        } else {
             stringBuilder.append(method.getMethodName());
-        stringBuilder.append("(");
+            stringBuilder.append("(");
+        }
 
         for (Element param : method.getParams()) {
             stringBuilder.append(this.getFieldDescriptor(param.getType()));
@@ -309,10 +310,11 @@ public class JasminBackender implements JasminBackend {
             StringBuilder stringBuilder = new StringBuilder();
 
             // virtual reg 0, 1, 2, 3 have specific operation
-            if (virtualReg < 4)
+            if (virtualReg < 4) {
                 stringBuilder.append("_");
-            else
+            }else {
                 stringBuilder.append(" ");
+            }
 
             stringBuilder.append(virtualReg);
 
@@ -547,10 +549,11 @@ public class JasminBackender implements JasminBackend {
         }
         stringBuilder.append("\t");
         if(instruction.getOperand() != null){
-            if(instruction.getOperand().getType().getTypeOfElement() == ElementType.INT32 || instruction.getOperand().getType().getTypeOfElement() == ElementType.BOOLEAN)
+            if(instruction.getOperand().getType().getTypeOfElement() == ElementType.INT32 || instruction.getOperand().getType().getTypeOfElement() == ElementType.BOOLEAN) {
                 stringBuilder.append("i");
-            else
+            } else {
                 stringBuilder.append("a");
+            }
         }
 
         stringBuilder.append("return\n");
