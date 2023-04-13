@@ -287,7 +287,7 @@ public class JasminBackender implements JasminBackend {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
                 case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload_1").append(this.getVariableNumber(operand.getName(), varTable));
+                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
             }
@@ -542,9 +542,9 @@ public class JasminBackender implements JasminBackend {
 
     private String getReturnInstruction(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
-        if(instruction.hasReturnValue())
+        if(instruction.hasReturnValue()) {
             stringBuilder.append(this.getLoadToStackInstruction(instruction.getOperand(), varTable));
-
+        }
         stringBuilder.append("\t");
         if(instruction.getOperand() != null){
             if(instruction.getOperand().getType().getTypeOfElement() == ElementType.INT32 || instruction.getOperand().getType().getTypeOfElement() == ElementType.BOOLEAN)
