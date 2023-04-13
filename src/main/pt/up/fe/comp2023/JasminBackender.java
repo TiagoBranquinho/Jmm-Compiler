@@ -129,13 +129,13 @@ public class JasminBackender implements JasminBackend {
                 boolean name_is_full = true;
 
                 if(this.superClass.equals("this")){
-                    stringBuilder.append(".super ").append(this.classUnit.getClassName()).append("\n");
+                    stringBuilder.append("L").append(this.classUnit.getClassName()).append("\n");
                     name_is_full = false;
                 }
                 else{
                     for (String importName : this.classUnit.getImports()) {
                         if (importName.endsWith(this.superClass)) {
-                            stringBuilder.append(".super ").append(importName.replaceAll("\\.", "/")).append("\n");
+                            stringBuilder.append("L").append(importName.replaceAll("\\.", "/")).append("\n");
                             name_is_full = false;
                             break;
                         }
@@ -143,7 +143,7 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 if (name_is_full) {
-                    stringBuilder.append(".super ").append(name).append("\n");
+                    stringBuilder.append("L").append(name).append("\n");
                 }
             }
             case STRING -> stringBuilder.append("Ljava/lang/String;");
@@ -229,7 +229,7 @@ public class JasminBackender implements JasminBackend {
             //case GETFIELD -> this.getGetFieldInstruction((GetFieldInstruction) instruction, varTable);
             //case UNARYOPER -> this.getUnaryOperationInstruction((UnaryOpInstruction) instruction, varTable);
             case BINARYOPER -> this.getBinaryOperationInstruction((BinaryOpInstruction) instruction, varTable);
-            case NOPER -> this.getLoadToStackOperationInstruction(((SingleOpInstruction) instruction).getSingleOperand(), varTable);
+            case NOPER -> this.getLoadToStackInstruction(((SingleOpInstruction) instruction).getSingleOperand(), varTable);
             default -> stringBuilder.append("; ERROR: instruction type is not supported\n").toString();
         };
     }
@@ -237,7 +237,7 @@ public class JasminBackender implements JasminBackend {
     private String getBinaryOperationInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(this.getLoadToStackOperationInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackOperationInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation()));
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation()));
 
         stringBuilder.append("\n");
 
@@ -255,7 +255,7 @@ public class JasminBackender implements JasminBackend {
         };
     }
 
-    private String getLoadToStackOperationInstruction(Element element, HashMap<String, Descriptor> varTable) {
+    private String getLoadToStackInstruction(Element element, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (element instanceof LiteralElement) {
@@ -384,10 +384,10 @@ public class JasminBackender implements JasminBackend {
 
         switch (instruction.getInvocationType()) {
             case invokevirtual -> {
-                stringBuilder.append(this.getLoadToStackOperationInstruction(instruction.getFirstArg(), varTable));
+                stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
 
                 for (Element element : instruction.getListOfOperands()) {
-                    stringBuilder.append(this.getLoadToStackOperationInstruction(element, varTable));
+                    stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
                 }
 
                 boolean name_is_full = true;
@@ -421,7 +421,7 @@ public class JasminBackender implements JasminBackend {
 
             }
             case invokespecial -> {
-                stringBuilder.append(this.getLoadToStackOperationInstruction(instruction.getFirstArg(), varTable));
+                stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
 
                 stringBuilder.append("\tinvokespecial ");
 
@@ -466,7 +466,7 @@ public class JasminBackender implements JasminBackend {
             case invokestatic -> {
 
                 for (Element element : instruction.getListOfOperands()) {
-                    stringBuilder.append(this.getLoadToStackOperationInstruction(element, varTable));
+                    stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
                 }
 
                 boolean name_is_full = true;
@@ -506,7 +506,7 @@ public class JasminBackender implements JasminBackend {
 
                 if (elementType == ElementType.OBJECTREF) {
                     for (Element element : instruction.getListOfOperands()) {
-                        stringBuilder.append(this.getLoadToStackOperationInstruction(element, varTable));
+                        stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
                     }
 
                     boolean name_is_full = true;
@@ -533,7 +533,7 @@ public class JasminBackender implements JasminBackend {
                     stringBuilder.append("; ERROR: new invocation type not supported\n");
                 }
             }
-            case ldc -> stringBuilder.append(this.getLoadToStackOperationInstruction(instruction.getFirstArg(), varTable));
+            case ldc -> stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
             default -> stringBuilder.append("; ERROR: call instruction not supported\n");
         }
 
@@ -543,7 +543,7 @@ public class JasminBackender implements JasminBackend {
     private String getReturnInstruction(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
         if(instruction.hasReturnValue())
-            stringBuilder.append(this.getLoadToStackOperationInstruction(instruction.getOperand(), varTable));
+            stringBuilder.append(this.getLoadToStackInstruction(instruction.getOperand(), varTable));
 
         stringBuilder.append("\t");
         if(instruction.getOperand() != null){
