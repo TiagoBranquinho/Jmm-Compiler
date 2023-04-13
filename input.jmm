@@ -1,37 +1,22 @@
-import a.b.c;
-class MethodsAndFields{
-	private int $field1 = 1;
-	boolean field2;
-	MethodsAndFields field3;
+import io;
+import Quicksort;
+class CompileBasic {
 
-	public int getField1(){
-		return field1;
-	}
+    int intField;
+    boolean boolField;
 
-	public boolean getField2(){
-	    if(a){
-	        ifStmt1;
-	        ifStmt2;
-	    }
-	    else{
-	        elseStmt1;
-	        elseStmt2;
-	    }
-		return field2;
-	}
+    public int method1() {
+        int intLocal1;
+        boolean boolLocal1;
 
-	public MethodsAndFields getField3(){
-	    int x;
-	    int x = 2;
-	    return field3;
-	}
+        return 0;
+    }
 
-	public int[] all(int a, boolean b, MethodsAndFields maf){
-		int[] c;
-		return c;
-	}
+    public boolean method2(int intParam1, boolean boolParam1) {
+        return boolParam1;
+    }
 
-	public static void main(String[] args){
 
-	}
+    public static void main(String[] args) {
+    }
 }

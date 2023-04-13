@@ -53,7 +53,7 @@ public class Launcher {
             MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
             System.out.println(mySymbolTable.print());
-            System.out.println(mySymbolTable.getImports());
+            //System.out.println(mySymbolTable.getImports());
 
         }
 

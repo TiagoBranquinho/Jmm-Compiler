@@ -109,4 +109,5 @@ public class MySymbolTable implements SymbolTable {
     public void addLocalArg(String methodName, JmmNode varNode){
         mainClass.getMethodDescriptor().get(methodName).addArg(varNode);
     }
+
 }
