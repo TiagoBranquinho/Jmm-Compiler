@@ -16,7 +16,7 @@ public class JasminBackender implements JasminBackend {
     ClassUnit classUnit = null;
     String superClass;
     int limit_stack = 99;
-    int limit_locals= 99;
+    int limit_locals = 99;
 
     @Override
     public JasminResult toJasmin(OllirResult ollirResult) {
@@ -29,7 +29,7 @@ public class JasminBackender implements JasminBackend {
             this.classUnit.buildCFGs();
             this.classUnit.buildVarTables();
 
-            System.out.println("Generating Jasmin code ...");
+            System.out.println("Generating Jasmin code...");
 
             String jasminCode = getJasminCode(); //implement Jasmin code generator
             List<Report> reports = new ArrayList<>();
