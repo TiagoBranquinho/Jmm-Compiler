@@ -329,36 +329,36 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
             stringBuilder.append(this.getLoadToStackInstruction(arrayOperand.getIndexOperands().get(0), varTable)); // load index
 
-        }
+        } else {
+            if (instruction.getRhs().getInstType() == BINARYOPER) {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
 
-        if (instruction.getRhs().getInstType() == BINARYOPER) {
-            BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
+                    boolean left_literal = binaryOpInstruction.getLeftOperand().isLiteral();
+                    boolean right_literal = binaryOpInstruction.getRightOperand().isLiteral();
 
-            if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
-                boolean left_literal = binaryOpInstruction.getLeftOperand().isLiteral();
-                boolean right_literal = binaryOpInstruction.getRightOperand().isLiteral();
+                    Operand operand = null;
+                    LiteralElement literal = null;
 
-                Operand operand = null;
-                LiteralElement literal = null;
+                    if (left_literal && !right_literal) {
+                        literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
+                        operand = (Operand) binaryOpInstruction.getRightOperand();
+                    } else if (!left_literal && right_literal) {
+                        literal = (LiteralElement) binaryOpInstruction.getRightOperand();
+                        operand = (Operand) binaryOpInstruction.getLeftOperand();
+                    }
 
-                if (left_literal && !right_literal) {
-                    literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
-                    operand = (Operand) binaryOpInstruction.getRightOperand();
-                } else if (!left_literal && right_literal) {
-                    literal = (LiteralElement) binaryOpInstruction.getRightOperand();
-                    operand = (Operand) binaryOpInstruction.getLeftOperand();
-                }
+                    if (literal != null && operand != null) {
+                        if (operand.getName().equals(dest.getName())) {
+                            int literalValue = Integer.parseInt((literal).getLiteral());
 
-                if (literal != null && operand != null) {
-                    if (operand.getName().equals(dest.getName())) {
-                        int literalValue = Integer.parseInt((literal).getLiteral());
-
-                        if (literalValue >= -128 && literalValue <= 127) {
-                            return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            if (literalValue >= -128 && literalValue <= 127) {
+                                return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
 
