@@ -127,6 +127,7 @@ public class JasminBackender implements JasminBackend {
             case OBJECTREF -> {
                 String name = ((ClassType) type).getName();
                 boolean name_is_full = true;
+                stringBuilder.append("'?");
 
                 if(this.superClass.equals("this")){
                     stringBuilder.append("L").append(this.classUnit.getClassName()).append(";");
@@ -145,6 +146,7 @@ public class JasminBackender implements JasminBackend {
                 if (name_is_full) {
                     stringBuilder.append("L").append(name).append(";");
                 }
+                stringBuilder.append("'?");
             }
             case STRING -> stringBuilder.append("Ljava/lang/String;");
             case VOID -> stringBuilder.append("V");
