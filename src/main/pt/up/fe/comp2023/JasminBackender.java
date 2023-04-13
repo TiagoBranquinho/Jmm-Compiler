@@ -129,7 +129,7 @@ public class JasminBackender implements JasminBackend {
                 boolean name_is_full = true;
 
                 if(this.superClass.equals("this")){
-                    stringBuilder.append("L").append(this.classUnit.getClassName()).append(";");
+                    stringBuilder.append("1").append(this.classUnit.getClassName()).append(";");
                     name_is_full = false;
                 }
                 else{
@@ -195,7 +195,7 @@ public class JasminBackender implements JasminBackend {
 
         List<Instruction> methodInstructions = method.getInstructions();
         for (Instruction instruction : methodInstructions) {
-            // LABEL:
+
             for (Map.Entry<String, Instruction> label : method.getLabels().entrySet()) {
                 if (label.getValue().equals(instruction)) {
                     stringBuilder.append(label.getKey()).append(":\n");
