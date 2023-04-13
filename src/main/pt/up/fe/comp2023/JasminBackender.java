@@ -282,6 +282,13 @@ public class JasminBackender implements JasminBackend {
             } else {
                 stringBuilder.append("\tldc ").append(literal);
             }
+        } else if (element instanceof ArrayOperand) {
+            ArrayOperand operand = (ArrayOperand) element;
+
+            stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)).append("\n");
+
+            stringBuilder.append(getLoadToStackInstruction(operand.getIndexOperands().get(0), varTable));
+            stringBuilder.append("\tiaload");
 
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
