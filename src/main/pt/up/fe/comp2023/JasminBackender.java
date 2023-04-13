@@ -129,7 +129,7 @@ public class JasminBackender implements JasminBackend {
                 boolean name_is_full = true;
 
                 if(this.superClass.equals("this")){
-                    stringBuilder.append("L").append(name).append(";");
+                    stringBuilder.append("L").append(this.classUnit.getClassName()).append(";");
                     name_is_full = false;
                 }
                 else{
@@ -143,7 +143,7 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 if (name_is_full) {
-                    stringBuilder.append("L").append(name).append(";");
+                    stringBuilder.append("1").append(name).append(";");
                 }
             }
             case STRING -> stringBuilder.append("Ljava/lang/String;");
