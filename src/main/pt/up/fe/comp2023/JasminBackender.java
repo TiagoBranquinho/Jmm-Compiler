@@ -226,8 +226,8 @@ public class JasminBackender implements JasminBackend {
             case CALL -> this.getCallInstruction((CallInstruction) instruction, varTable);
             //case GOTO -> this.getGotoInstruction((GotoInstruction) instruction);
             case RETURN -> this.getReturnInstruction((ReturnInstruction) instruction, varTable);
-            //case PUTFIELD -> this.getPutFieldInstruction((PutFieldInstruction) instruction, varTable);
-            //case GETFIELD -> this.getGetFieldInstruction((GetFieldInstruction) instruction, varTable);
+            case PUTFIELD -> this.getPutFieldInstruction((PutFieldInstruction) instruction, varTable);
+            case GETFIELD -> this.getGetFieldInstruction((GetFieldInstruction) instruction, varTable);
             //case UNARYOPER -> this.getUnaryOperationInstruction((UnaryOpInstruction) instruction, varTable);
             case BINARYOPER -> this.getBinaryOperationInstruction((BinaryOpInstruction) instruction, varTable);
             case NOPER -> this.getLoadToStackInstruction(((SingleOpInstruction) instruction).getSingleOperand(), varTable);
@@ -560,4 +560,63 @@ public class JasminBackender implements JasminBackend {
 
         return stringBuilder.toString();
     }
+
+    private String getPutFieldInstruction(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String className = null;
+        boolean name_is_full = true;
+
+        if(this.superClass.equals("this")){
+            className = this.classUnit.getClassName();
+            name_is_full = false;
+        }
+        else{
+            for (String importName : this.classUnit.getImports()) {
+                if (importName.endsWith(this.superClass)) {
+                    className = importName.replaceAll("\\.", "/");
+                    name_is_full = false;
+                    break;
+                }
+            }
+        }
+
+        if (name_is_full) {
+            className = ((Operand) instruction.getFirstOperand()).getName();
+        }
+
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstOperand(), varTable) + this.getLoadToStackInstruction(instruction.getThirdOperand(), varTable) + "\tputfield " + className + "/" + ((Operand) instruction.getSecondOperand()).getName() + " " + this.getFieldDescriptor(instruction.getSecondOperand().getType()) + "\n");
+
+        return stringBuilder.toString();
+    }
+
+    private String getGetFieldInstruction(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        String className = null;
+        boolean name_is_full = true;
+
+        if(this.superClass.equals("this")){
+            className = this.classUnit.getClassName();
+            name_is_full = false;
+        }
+        else{
+            for (String importName : this.classUnit.getImports()) {
+                if (importName.endsWith(this.superClass)) {
+                    className = importName.replaceAll("\\.", "/");
+                    name_is_full = false;
+                    break;
+                }
+            }
+        }
+
+        if (name_is_full) {
+            className = ((Operand) instruction.getFirstOperand()).getName();
+        }
+
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstOperand(), varTable) + "\tgetfield " + className + "/" + ((Operand) instruction.getSecondOperand()).getName() + " " + this.getFieldDescriptor(instruction.getSecondOperand().getType()) + "\n");
+
+        return stringBuilder.toString();
+    }
+
 }
