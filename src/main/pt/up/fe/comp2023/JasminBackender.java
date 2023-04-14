@@ -128,13 +128,13 @@ public class JasminBackender implements JasminBackend {
                 String name = ((ClassType) type).getName();
                 boolean name_is_full = true;
 
-                if(this.superClass.equals("this")){
+                if(name.equals("this")){
                     stringBuilder.append("L").append(this.classUnit.getClassName()).append(";");
                     name_is_full = false;
                 }
                 else{
                     for (String importName : this.classUnit.getImports()) {
-                        if (importName.endsWith(this.superClass)) {
+                        if (importName.endsWith(name)) {
                             stringBuilder.append("L").append(importName.replaceAll("\\.", "/")).append(";");
                             name_is_full = false;
                             break;
@@ -394,13 +394,13 @@ public class JasminBackender implements JasminBackend {
 
                 boolean name_is_full = true;
 
-                if(this.superClass.equals("this")){
+                if(((ClassType) instruction.getFirstArg().getType()).getName().equals("this")){
                     stringBuilder.append("\tinvokevirtual ").append(this.classUnit.getClassName()).append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "")).append("(");;
                     name_is_full = false;
                 }
                 else{
                     for (String importName : this.classUnit.getImports()) {
-                        if (importName.endsWith(this.superClass)) {
+                        if (importName.endsWith(((ClassType) instruction.getFirstArg().getType()).getName())) {
                             stringBuilder.append("\tinvokevirtual ").append(importName.replaceAll("\\.", "/")).append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "")).append("(");;
                             name_is_full = false;
                             break;
@@ -433,13 +433,13 @@ public class JasminBackender implements JasminBackend {
                     String className = null;
                     boolean name_is_full = true;
 
-                    if(this.superClass.equals("this")){
+                    if(((ClassType) instruction.getFirstArg().getType()).getName().equals("this")){
                         className = this.classUnit.getClassName();
                         name_is_full = false;
                     }
                     else{
                         for (String importName : this.classUnit.getImports()) {
-                            if (importName.endsWith(this.superClass)) {
+                            if (importName.endsWith(((ClassType) instruction.getFirstArg().getType()).getName())) {
                                 className = importName.replaceAll("\\.", "/");
                                 name_is_full = false;
                                 break;
@@ -473,13 +473,13 @@ public class JasminBackender implements JasminBackend {
 
                 boolean name_is_full = true;
 
-                if(this.superClass.equals("this")){
+                if(((Operand) instruction.getFirstArg()).getName().equals("this")){
                     stringBuilder.append("\tinvokestatic ").append(this.classUnit.getClassName()).append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "")).append("(");
                     name_is_full = false;
                 }
                 else{
                     for (String importName : this.classUnit.getImports()) {
-                        if (importName.endsWith(this.superClass)) {
+                        if (importName.endsWith(((Operand) instruction.getFirstArg()).getName())) {
                             stringBuilder.append("\tinvokestatic ").append(importName.replaceAll("\\.", "/")).append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", "")).append("(");
                             name_is_full = false;
                             break;
@@ -513,13 +513,13 @@ public class JasminBackender implements JasminBackend {
 
                     boolean name_is_full = true;
 
-                    if(this.superClass.equals("this")){
+                    if(((Operand) instruction.getFirstArg()).getName().equals("this")){
                         stringBuilder.append("\tnew ").append(this.classUnit.getClassName()).append("\n");
                         name_is_full = false;
                     }
                     else{
                         for (String importName : this.classUnit.getImports()) {
-                            if (importName.endsWith(this.superClass)) {
+                            if (importName.endsWith(((Operand) instruction.getFirstArg()).getName())) {
                                 stringBuilder.append("\tnew ").append(importName.replaceAll("\\.", "/")).append("/").append("\n");
                                 name_is_full = false;
                                 break;
@@ -567,13 +567,13 @@ public class JasminBackender implements JasminBackend {
         String className = null;
         boolean name_is_full = true;
 
-        if(this.superClass.equals("this")){
+        if(((Operand) instruction.getFirstOperand()).getName().equals("this")){
             className = this.classUnit.getClassName();
             name_is_full = false;
         }
         else{
             for (String importName : this.classUnit.getImports()) {
-                if (importName.endsWith(this.superClass)) {
+                if (importName.endsWith(((Operand) instruction.getFirstOperand()).getName())) {
                     className = importName.replaceAll("\\.", "/");
                     name_is_full = false;
                     break;
@@ -596,13 +596,13 @@ public class JasminBackender implements JasminBackend {
         String className = null;
         boolean name_is_full = true;
 
-        if(this.superClass.equals("this")){
+        if(((Operand) instruction.getFirstOperand()).getName().equals("this")){
             className = this.classUnit.getClassName();
             name_is_full = false;
         }
         else{
             for (String importName : this.classUnit.getImports()) {
-                if (importName.endsWith(this.superClass)) {
+                if (importName.endsWith(((Operand) instruction.getFirstOperand()).getName())) {
                     className = importName.replaceAll("\\.", "/");
                     name_is_full = false;
                     break;
