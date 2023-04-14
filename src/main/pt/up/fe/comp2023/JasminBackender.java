@@ -24,14 +24,13 @@ public class JasminBackender implements JasminBackend {
 
             this.classUnit = ollirResult.getOllirClass();
 
-            // SETUP classUnit
             this.classUnit.checkMethodLabels();
             this.classUnit.buildCFGs();
             this.classUnit.buildVarTables();
 
             System.out.println("Generating Jasmin code...");
 
-            String jasminCode = getJasminCode(); //implement Jasmin code generator
+            String jasminCode = getJasminCode();
             List<Report> reports = new ArrayList<>();
 
             if (ollirResult.getConfig().get("debug") != null && ollirResult.getConfig().get("debug").equals("true")) {
@@ -45,13 +44,11 @@ public class JasminBackender implements JasminBackend {
                     Collections.singletonList(Report.newError(Stage.GENERATION, -1, -1,
                             "Jasmin generation exception.", e)));
         }
-
     }
 
     private String getJasminCode() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        // .class  <access-spec> <class-name>
         stringBuilder.append(".class ").append(this.classUnit.getClassName()).append("\n");
 
 
@@ -60,7 +57,6 @@ public class JasminBackender implements JasminBackend {
             this.superClass = "java/lang/Object";
         }
 
-        // .super  <class-name>
         boolean name_is_full = true;
 
         if(this.superClass.equals("this")){
@@ -83,7 +79,6 @@ public class JasminBackender implements JasminBackend {
 
         // Fields
         for (Field field : this.classUnit.getFields()) {
-            // .field <access-spec> <field-name> <descriptor>
             StringBuilder accessSpec = new StringBuilder();
             if (field.getFieldAccessModifier() != AccessModifiers.DEFAULT) {
                 accessSpec.append(field.getFieldAccessModifier().name().toLowerCase()).append(" ");
@@ -101,9 +96,6 @@ public class JasminBackender implements JasminBackend {
 
         // Methods
         for (Method method : this.classUnit.getMethods()) {
-            // .method <access-spec> <method-spec>
-            //     <statements>
-            // .end method
             stringBuilder.append(this.getMethodHeader(method));
             stringBuilder.append(this.getMethodStatements(method));
             stringBuilder.append(".end method\n");
@@ -157,7 +149,6 @@ public class JasminBackender implements JasminBackend {
     private String getMethodHeader(Method method) {
         StringBuilder stringBuilder = new StringBuilder("\n.method ");
 
-        // <access-spec>
         if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
             stringBuilder.append(method.getMethodAccessModifier().name().toLowerCase()).append(" ");
         }
@@ -165,7 +156,6 @@ public class JasminBackender implements JasminBackend {
         if (method.isStaticMethod()) stringBuilder.append("static ");
         if (method.isFinalMethod()) stringBuilder.append("final ");
 
-        // <method-spec>
         if (method.isConstructMethod()) {
             stringBuilder.append("<init>");
         } else {
@@ -186,9 +176,7 @@ public class JasminBackender implements JasminBackend {
 
         String methodInstructions = this.getMethodInstructions(method);
 
-        return "\t.limit stack " + this.limit_stack + "\n" +
-                "\t.limit locals " + this.limit_locals + "\n" +
-                methodInstructions;
+        return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + methodInstructions;
     }
 
     private String getMethodInstructions(Method method) {
@@ -238,9 +226,7 @@ public class JasminBackender implements JasminBackend {
     private String getBinaryOperationInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(this.getLoadToStackInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation()));
-
-        stringBuilder.append("\n");
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation())).append("\n");
 
         return stringBuilder.toString();
     }
@@ -358,8 +344,7 @@ public class JasminBackender implements JasminBackend {
             }
         }
 
-        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable));
-        stringBuilder.append(this.getStore(dest, varTable));
+        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable)).append(this.getStore(dest, varTable));
 
         return stringBuilder.toString();
     }
