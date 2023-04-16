@@ -94,9 +94,7 @@ public class JasminBackender implements JasminBackend {
 
         // Methods
         for (Method method : this.classUnit.getMethods()) {
-            stringBuilder.append(this.getMethodHeader(method));
-            stringBuilder.append(this.getMethodStatements(method));
-            stringBuilder.append(".end method\n");
+            stringBuilder.append(this.getMethodHeader(method)).append(this.getMethodStatements(method)).append(".end method\n");
         }
 
         return stringBuilder.toString();
