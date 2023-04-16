@@ -2,6 +2,37 @@ import io;
 import Quicksort;
 class CompileBasic {
 
+	public int getField1(){
+	    while(a<b){
+	        a = a +1;
+	    }
+		return field1;
+	}
+
+	public boolean getField2(){
+
+	    int a;
+	    int b;
+	    if(a>b){
+	        ifStmt1;
+	        ifStmt2;
+	    }
+	    else{
+	        elseStmt1;
+	        elseStmt2;
+	    }
+		return field2;
+	}
+
+	public MethodsAndFields getField3(){
+	    int x;
+	    int x = 2;
+	    int a = 1;
+	    int b = 2;
+	    c = a + b;
+	    return field3;
+	}
+
     int intField;
     boolean boolField;
 
