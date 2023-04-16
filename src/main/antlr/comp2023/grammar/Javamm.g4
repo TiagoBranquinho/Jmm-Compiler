@@ -24,13 +24,14 @@ fieldDeclaration : (accessModifier)? type var=ID ('=' expression)?';';
 methodDeclaration : instanceDeclaration
     | mainDeclaration ;
 
-instanceDeclaration : ('public')? returnType instance=ID '(' ( parameterType parameter+=ID ( ',' parameterType parameter+=ID )* )? ')' '{' ( statement )* '}';
+instanceDeclaration : (accessModifier)? returnType instance=ID '(' ( parameterType parameter+=ID ( ',' parameterType parameter+=ID )* )? ')' '{' ( statement )* '}';
 
-mainDeclaration : ('public')? 'static' 'void' 'main' '(' type parameter=ID ')' '{' ( statement )* '}' ;
+mainDeclaration : ('public')? 'static' 'void' 'main' '(' parameterType parameter=ID ')' '{' ( statement )* '}' ;
 
 accessModifier : value='private'
     | value='public'
-    | value='protected';
+    | value='protected'
+    | value='default';
 
 type : value='int[]'
     | value='String[]'
@@ -41,7 +42,12 @@ type : value='int[]'
 
 parameterType : type;
 
-returnType : type
+returnType : value='int[]'
+    | value='String[]'
+    | value='String'
+    | value='boolean'
+    | value='int'
+    | value=ID
     | value='void';
 
 statement : '{' ( statement )* '}' # Stmt

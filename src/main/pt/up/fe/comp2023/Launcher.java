@@ -54,7 +54,7 @@ public class Launcher {
             MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
             System.out.println(mySymbolTable.print());
-            System.out.println(mySymbolTable.getImports());
+            //System.out.println(mySymbolTable.getImports());
 
         }
 
@@ -75,6 +75,15 @@ public class Launcher {
 
 
         // ... add remaining stages
+
+        /* Instantiate JasminBackender
+        var jasminBackend = new JasminBackender();
+
+        var backendResult = jasminBackend.toJasmin(ollirResult);
+
+        // Generate .class file
+        backendResult.compile(path.toFile());
+         */
     }
 
     private static Map<String, String> parseArgs(String[] args) {

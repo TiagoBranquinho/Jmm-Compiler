@@ -1,8 +1,6 @@
-import a.b.c;
-class MethodsAndFields{
-	int $field1 = 1;
-	boolean field2;
-	MethodsAndFields field3;
+import io;
+import Quicksort;
+class CompileBasic {
 
 	public int getField1(){
 	    while(a<b){
@@ -35,12 +33,21 @@ class MethodsAndFields{
 	    return field3;
 	}
 
-	public int[] all(int a, boolean b, MethodsAndFields maf){
-		int[] c;
-		return c;
-	}
+    int intField;
+    boolean boolField;
 
-	public static void main(String[] args){
+    public void method1() {
+        int intLocal1;
+        boolean boolLocal1;
 
-	}
+        return 0;
+    }
+
+    public boolean method2(int intParam1, boolean boolParam1) {
+        return boolParam1;
+    }
+
+
+    public static void main(String[] args) {
+    }
 }
