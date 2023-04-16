@@ -33,9 +33,13 @@ public class JasminBackender implements JasminBackend {
             String jasminCode = getJasminCode();
             List<Report> reports = new ArrayList<>();
 
+            /*
             if (ollirResult.getConfig().get("debug") != null && ollirResult.getConfig().get("debug").equals("true")) {
                 System.out.println("JASMIN CODE : \n" + jasminCode);
             }
+             */
+
+            System.out.println("JASMIN CODE : \n" + jasminCode);
 
             return new JasminResult(ollirResult, jasminCode, reports);
 
@@ -483,9 +487,6 @@ public class JasminBackender implements JasminBackend {
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
 
-                if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
-                }
-
             }
             case NEW -> {
 
@@ -505,7 +506,7 @@ public class JasminBackender implements JasminBackend {
                     else{
                         for (String importName : this.classUnit.getImports()) {
                             if (importName.endsWith(((Operand) instruction.getFirstArg()).getName())) {
-                                stringBuilder.append("\tnew ").append(importName.replaceAll("\\.", "/")).append("/").append("\n");
+                                stringBuilder.append("\tnew ").append(importName.replaceAll("\\.", "/")).append("\n");
                                 name_is_full = false;
                                 break;
                             }
