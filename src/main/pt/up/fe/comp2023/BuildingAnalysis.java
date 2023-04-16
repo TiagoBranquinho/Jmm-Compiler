@@ -7,7 +7,7 @@ import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.List;
 
-// extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
+//extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 public class BuildingAnalysis implements JmmAnalysis{
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult){

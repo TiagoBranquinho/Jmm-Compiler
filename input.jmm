@@ -5,11 +5,17 @@ class MethodsAndFields{
 	MethodsAndFields field3;
 
 	public int getField1(){
+	    while(a<b){
+	        a = a +1;
+	    }
 		return field1;
 	}
 
 	public boolean getField2(){
-	    if(a){
+
+	    int a;
+	    int b;
+	    if(a>b){
 	        ifStmt1;
 	        ifStmt2;
 	    }
@@ -23,6 +29,9 @@ class MethodsAndFields{
 	public MethodsAndFields getField3(){
 	    int x;
 	    int x = 2;
+	    int a = 1;
+	    int b = 2;
+	    c = a + b;
 	    return field3;
 	}
 
