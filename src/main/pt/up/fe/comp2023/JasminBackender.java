@@ -33,12 +33,6 @@ public class JasminBackender implements JasminBackend {
             String jasminCode = getJasminCode();
             List<Report> reports = new ArrayList<>();
 
-            /*
-            if (ollirResult.getConfig().get("debug") != null && ollirResult.getConfig().get("debug").equals("true")) {
-                System.out.println("JASMIN CODE : \n" + jasminCode);
-            }
-             */
-
             System.out.println("JASMIN CODE : \n" + jasminCode);
 
             return new JasminResult(ollirResult, jasminCode, reports);
@@ -178,9 +172,7 @@ public class JasminBackender implements JasminBackend {
 
     private String getMethodStatements(Method method) {
 
-        String methodInstructions = this.getMethodInstructions(method);
-
-        return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + methodInstructions;
+        return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + this.getMethodInstructions(method);
     }
 
     private String getMethodInstructions(Method method) {
@@ -250,9 +242,8 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (element instanceof LiteralElement) {
-            String literal = ((LiteralElement) element).getLiteral();
             if (element.getType().getTypeOfElement() == ElementType.INT32 || element.getType().getTypeOfElement() == ElementType.BOOLEAN) {
-                int parsedInt = Integer.parseInt(literal);
+                int parsedInt = Integer.parseInt(((LiteralElement) element).getLiteral());
 
                 if (parsedInt >= -1 && parsedInt <= 5) { // [-1,5]
                     stringBuilder.append("\ticonst_");
@@ -271,16 +262,15 @@ public class JasminBackender implements JasminBackend {
                 }
 
             } else {
-                stringBuilder.append("\tldc ").append(literal);
+                stringBuilder.append("\tldc ").append(((LiteralElement) element).getLiteral());
             }
 
         } else if (element instanceof Operand) {
-            Operand operand = (Operand) element;
-            switch (operand.getType().getTypeOfElement()) {
-                case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
+            switch (((Operand) element).getType().getTypeOfElement()) {
+                case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(((Operand) element).getName(), varTable));
+                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(((Operand) element).getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
-                default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
+                default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(((Operand) element).getType().getTypeOfElement()).append("\n");
             }
         } else {
             stringBuilder.append("; ERROR: getLoadToStack() unsupported element instance\n");
@@ -315,8 +305,6 @@ public class JasminBackender implements JasminBackend {
     private String getAssignInstruction(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        Operand dest = (Operand) instruction.getDest();
-
         if (instruction.getRhs().getInstType() == BINARYOPER) {
             BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
 
@@ -336,7 +324,7 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 if (literal != null && operand != null) {
-                    if (operand.getName().equals(dest.getName())) {
+                    if (operand.getName().equals(((Operand) instruction.getDest()).getName())) {
                         int literalValue = Integer.parseInt((literal).getLiteral());
 
                         if (literalValue >= -128 && literalValue <= 127) {
@@ -348,7 +336,7 @@ public class JasminBackender implements JasminBackend {
             }
         }
 
-        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable)).append(this.getStore(dest, varTable));
+        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable)).append(this.getStore((Operand) instruction.getDest(), varTable));
 
         return stringBuilder.toString();
     }
