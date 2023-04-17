@@ -50,6 +50,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("Assignment", this::dealWithAssignmentSymbolTable);
         addVisit("DotOp", this::dealWithDotOpSymbolTable);
         addVisit("AccessModifier", this::dealWithAccessModifier);
+        addVisit("ObjectDeclaration", this::dealWithObjectDeclaration);
         this.setDefaultVisit(this::defaultVisitor);
 
 
@@ -216,6 +217,9 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithIntegerSymbolTable(JmmNode jmmNode, String s){
+        if(this.optimization != null){
+            return this.optimization.intToOllir(jmmNode);
+        }
         return "";
     }
 
@@ -272,10 +276,20 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
 
     private String dealWithAssignmentSymbolTable(JmmNode jmmNode, String s){
+        if(this.optimization != null){
+            for (JmmNode node : jmmNode.getChildren()){
+                this.optimization.appendToOllir(visit(node));
+            }
+        }
         return "";
     }
 
     private String dealWithDotOpSymbolTable(JmmNode jmmNode, String s){
+        if(this.optimization != null){
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+        }
         return "";
     }
 
@@ -283,152 +297,20 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         return "";
     }
 
-    //---------------------------------------
-
-
-    private String dealWithProgramOllir(JmmNode jmmNode, String s) {
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+    private String dealWithObjectDeclaration(JmmNode jmmNode, String s){
+        if(this.optimization != null){
+            JmmNode assignment = jmmNode.getJmmParent();
+            while (!Objects.equals(assignment.getKind(), "Assignment")){
+                assignment = assignment.getJmmParent();
+            }
+            JmmNode instance = jmmNode.getJmmParent();
+            while (!Objects.equals(instance.getKind(), "Assignment")){
+                instance = instance.getJmmParent();
+            }
+            this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
         }
         return "";
     }
 
-    private String dealWithClassDeclarationOllir(JmmNode jmmNode, String s) {
-        optimization.addClass();
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithImportDeclarationOllir(JmmNode jmmNode, String s) {
-        return "";
-    }
-
-    private String dealWithFieldDeclarationOllir(JmmNode jmmNode, String s) {
-        //symbolTable.addField(jmmNode);
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithLiteralOllir(JmmNode jmmNode, String s) {
-        return jmmNode.get("value");
-    }
-
-    private String dealWithBinaryOpOllir(JmmNode jmmNode, String s) {
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithExprStmtOllir(JmmNode jmmNode, String s) {
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithMethodDeclarationOllir(JmmNode jmmNode, String s) {
-        optimization.addMethod(jmmNode);
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithTypeOllir(JmmNode jmmNode, String s) {
-        return "";
-    }
-
-    private String dealWithParameterTypeOllir(JmmNode jmmNode, String s) {
-        JmmNode parent = jmmNode.getJmmParent();
-        if(Objects.equals(parent.getKind(), "InstanceDeclaration")){
-            symbolTable.addLocalArg(parent.get("instance"), jmmNode);
-        }
-        else if(Objects.equals(parent.getKind(), "MainDeclaratiom")){
-            symbolTable.addLocalArg("main", jmmNode);
-        }
-        return "";
-    }
-
-    private String dealWithVarDeclarationStmtOllir(JmmNode jmmNode, String s) {
-        /*JmmNode parent = jmmNode.getJmmParent();
-        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-            parent = parent.getJmmParent();
-        }
-        JmmNode instance = parent.getJmmChild(0);
-        System.out.println(instance);
-        if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
-            symbolTable.addLocalVar(instance.get("instance"), jmmNode);
-        }
-        else
-            symbolTable.addLocalVar("main", jmmNode);
-        */return "";
-    }
-
-    private String dealWithInstanceDeclarationOllir(JmmNode jmmNode, String s){
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithConditionalStatementOllir(JmmNode jmmNode, String s){
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithIntegerOllir(JmmNode jmmNode, String s){
-        return "";
-    }
-
-    private String dealWithLoopStatementOllir(JmmNode jmmNode, String s){
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithReservedExprOllir(JmmNode jmmNode, String s){return "";}
-
-    private String dealWithStmtOllir(JmmNode jmmNode, String s){
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
-        return "";
-    }
-
-    private String dealWithReturnStmtOllir(JmmNode jmmNode, String s){
-        return "";
-    }
-
-    private String dealWithReturnTypeOllir(JmmNode jmmNode, String s){
-        /*JmmNode parent = jmmNode.getJmmParent();
-        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-            parent = parent.getJmmParent();
-        }
-        JmmNode instance = parent.getJmmChild(0);
-        if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
-            symbolTable.getMainClass().getMethodDescriptor().get(instance.get("instance")).setReturnType(jmmNode);
-        }
-        else{
-            symbolTable.getMainClass().getMethodDescriptor().get("main").setReturnType(jmmNode);
-        }
-
-        */return "";
-    }
-
-    private String dealWithAssignmentOllir(JmmNode jmmNode, String s){
-        return "";
-    }
-
-    private String dealWithDotOpOllir(JmmNode jmmNode, String s){
-        return "";
-    }
 
 }
