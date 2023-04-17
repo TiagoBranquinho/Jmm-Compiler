@@ -41,14 +41,21 @@ public class Optimization implements JmmOptimization {
     }
 
 
-    public void addImports(){
-        for(String importString : jmmSemanticsResult.getSymbolTable().getImports()){
-            ollirCode.append("import ").append(importString).append(";\n");
+    public void addImport(JmmNode node){
+        String library = node.get("library");
+        library = library.substring(1, library.length() - 1);
+        ollirCode.append("import ");
+        for(String item : library.split(", ")){
+            ollirCode.append(item).append(".");
+
         }
-        ollirCode.append("\n");
+        ollirCode.deleteCharAt(ollirCode.length() - 1);
+        ollirCode.append(";\n");
     }
 
     public void addClass(){
+        if(!ollirCode.isEmpty())
+            ollirCode.append("\n");
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         String extend = Objects.equals(jmmSemanticsResult.getSymbolTable().getSuper(), null) ? "" : " extends " + jmmSemanticsResult.getSymbolTable().getSuper();
         ollirCode.append(className).append(extend).append(" {\n");

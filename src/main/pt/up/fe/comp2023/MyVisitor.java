@@ -69,11 +69,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
             return "";
         }
         else{
-            optimization.addImports();
             for (JmmNode node : jmmNode.getChildren()){
                 visit(node);
             }
-            optimization.appendToOllir("\n\n}");
+            optimization.appendToOllir("\n;\n}");
         return "";
         }
     }
@@ -104,6 +103,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithImportDeclarationSymbolTable(JmmNode jmmNode, String s) {
         if(this.symbolTable != null) symbolTable.addImport(jmmNode);
+        else this.optimization.addImport(jmmNode);
         return "";
     }
 
@@ -283,7 +283,6 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
 
     private String dealWithProgramOllir(JmmNode jmmNode, String s) {
-        optimization.addImports();
         for (JmmNode node : jmmNode.getChildren()){
             visit(node);
         }

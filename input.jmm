@@ -1,5 +1,5 @@
 import io;
-import Quicksort;
+import Quicksort.gato;
 
 class CompileBasic extends Quicksort {
 
