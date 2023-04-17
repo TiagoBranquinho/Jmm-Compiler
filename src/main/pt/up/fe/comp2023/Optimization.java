@@ -17,9 +17,12 @@ public class Optimization implements JmmOptimization {
     public OllirResult toOllir(JmmSemanticsResult jmmSemanticsResult) {
         this.jmmSemanticsResult = jmmSemanticsResult;
         new MyVisitor(this).visit(jmmSemanticsResult.getRootNode());
-        ollirCode.append("\n\n}\n");
         System.out.print(ollirCode.toString());
         return new OllirResult(ollirCode.toString(), jmmSemanticsResult.getConfig());
+    }
+
+    public void appendToOllir(String code){
+        ollirCode.append(code);
     }
 
     private String typeToOllir(Type type){
@@ -30,33 +33,52 @@ public class Optimization implements JmmOptimization {
         switch (typeName) {
             case "int" -> ret.append(".i32");
             case "void" -> ret.append(".V");
+            case "boolean" -> ret.append(".bool");
             default -> ret.append(".").append(typeName);
         }
 
         return ret.toString();
     }
 
-    public void addImports(){
-        for(String importString : jmmSemanticsResult.getSymbolTable().getImports()){
-            ollirCode.append("import ").append(importString).append(";\n");
+
+    public void addImport(JmmNode node){
+        String library = node.get("library");
+        library = library.substring(1, library.length() - 1);
+        ollirCode.append("import ");
+        for(String item : library.split(", ")){
+            ollirCode.append(item).append(".");
+
         }
+        ollirCode.deleteCharAt(ollirCode.length() - 1);
+        ollirCode.append(";\n");
     }
 
     public void addClass(){
+        if(!ollirCode.isEmpty())
+            ollirCode.append("\n");
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         String extend = Objects.equals(jmmSemanticsResult.getSymbolTable().getSuper(), null) ? "" : " extends " + jmmSemanticsResult.getSymbolTable().getSuper();
-        ollirCode.append(className).append(extend).append(" {\n").append(
-        ".construct ").append(className).append("().V {\n").append(
-        "invokespecial(this, \"<init>\").V;\n").append(
-        "}\n\n");
+        ollirCode.append(className).append(extend).append(" {\n");
+
     }
+
+    public void addConstructor(){
+        String className = jmmSemanticsResult.getSymbolTable().getClassName();
+        ollirCode.append("\n").append(
+                ".construct ").append(className).append("().V {\n").append(
+                "invokespecial(this, \"<init>\").V;\n").append(
+                "}\n\n");
+
+    }
+
+
 
     public void addMethod(JmmNode jmmNode){
         String name;
         String accessModifier = "public";
         JmmNode instance = jmmNode.getJmmChild(0);
         name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        //accessModifier = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("accessModifier") : "public";
+        accessModifier = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.getJmmChild(0).get("value") : "public static";
         ollirCode.append(".method ").append(accessModifier).append(" ").append(name).append("(");
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             ollirCode.append(parameter.getName()).append(typeToOllir(parameter.getType())).append(", ");
@@ -66,7 +88,59 @@ public class Optimization implements JmmOptimization {
         }
         ollirCode.append(")");
         ollirCode.append(typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name))).append(" {\n");
-        ollirCode.append("inside method\n");
-        ollirCode.append("}\n");
     }
+
+    public void addMethodRetType(JmmNode instance, JmmNode retStmt){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        String retType = typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name));
+
+        ollirCode.append("ret").append(retType);
+
+        if(!retType.equals(".V")){
+            for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+                if(Objects.equals(localVar.getName(), retStmt.getJmmChild(0).get("value"))){
+                    ollirCode.append(" ").append(localVar.getName()).append(typeToOllir(localVar.getType()));
+                    return;
+                }
+            }
+            int i = 0;
+            for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+                if(Objects.equals(parameter.getName(), retStmt.getJmmChild(0).get("value"))){
+                    ollirCode.append(" ").append("$").append(i).append(".").append(parameter.getName()).append(typeToOllir(parameter.getType()));
+                    ollirCode.append(";\n");
+                    return;
+                }
+                i++;
+            }
+
+        }
+        ollirCode.append(";\n");
+
+    }
+
+    public void addField(JmmNode field){
+        String accessModifier = field.getNumChildren() == 2 ? field.getJmmChild(0).get("value") : "private";
+        ollirCode.append(".field ").append(accessModifier);
+
+        for(Symbol f : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(f.getName(), field.get("var"))){
+                ollirCode.append(" ").append(f.getName()).append(typeToOllir(f.getType())).append(";\n");
+                break;
+            }
+        }
+    }
+
+    public void addVar(JmmNode instance, JmmNode var){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), var.get("var"))){
+                ollirCode.append(localVar.getName()).append(typeToOllir(localVar.getType()));
+                return;
+            }
+        }
+    }
+
+
+
+
 }
