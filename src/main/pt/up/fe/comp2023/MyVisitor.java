@@ -49,15 +49,16 @@ public class MyVisitor extends AJmmVisitor <String , String > {
         addVisit("ParameterType", this::dealWithParameterTypeSymbolTable);
         addVisit("Assignment", this::dealWithAssignmentSymbolTable);
         addVisit("DotOp", this::dealWithDotOpSymbolTable);
-
-
-
+        this.setDefaultVisit(this::defaultVisitor);
 
 
 
 
     }
 
+    private String defaultVisitor(JmmNode jmmNode, String s) {
+        return "";
+    }
 
     private String dealWithProgramSymbolTable(JmmNode jmmNode, String s) {
         if(this.optimization != null){
@@ -219,6 +220,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
         return "";
     }
+
 
     private String dealWithAssignmentSymbolTable(JmmNode jmmNode, String s){
         return "";
