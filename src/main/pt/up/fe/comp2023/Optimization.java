@@ -13,6 +13,9 @@ public class Optimization implements JmmOptimization {
     private StringBuilder ollirCode = new StringBuilder();
 
     private JmmSemanticsResult jmmSemanticsResult;
+
+    private int tempNumber = 0;
+
     @Override
     public OllirResult toOllir(JmmSemanticsResult jmmSemanticsResult) {
         this.jmmSemanticsResult = jmmSemanticsResult;
@@ -23,6 +26,26 @@ public class Optimization implements JmmOptimization {
 
     public void appendToOllir(String code){
         ollirCode.append(code);
+    }
+
+    public int getTempNumber(){
+        return tempNumber++;
+    }
+
+    public String intToOllir(JmmNode integer){
+        return integer.get("value") + typeToOllir(new Type("int", false)) + ";\n";
+    }
+
+    public void initObjectDeclaration(JmmNode declaration, JmmNode assignment, JmmNode instance){
+        String objClass = declaration.get("objClass");
+        String type = typeToOllir(new Type(objClass, false));
+        int tempNumber = this.getTempNumber();
+        ollirCode.append("temp_").append(tempNumber).append(type).append(" :=").append(type).append(" new(").append(objClass).append(")").append(type);
+        ollirCode.append(";\n");
+        ollirCode.append("invokespecial(temp_").append(tempNumber).append(type).append(",\"<init>\").V");
+        ollirCode.append(";\n");
+        ollirCode.append(assignment.get("var")).append(type).append(" =:").append("temp_").append(tempNumber).append(type);
+        ollirCode.append(";\n");
     }
 
     private String typeToOllir(Type type){
@@ -100,10 +123,11 @@ public class Optimization implements JmmOptimization {
             for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
                 if(Objects.equals(localVar.getName(), retStmt.getJmmChild(0).get("value"))){
                     ollirCode.append(" ").append(localVar.getName()).append(typeToOllir(localVar.getType()));
+                    ollirCode.append(";\n");
                     return;
                 }
             }
-            int i = 0;
+            int i = 1;
             for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
                 if(Objects.equals(parameter.getName(), retStmt.getJmmChild(0).get("value"))){
                     ollirCode.append(" ").append("$").append(i).append(".").append(parameter.getName()).append(typeToOllir(parameter.getType()));
@@ -111,6 +135,12 @@ public class Optimization implements JmmOptimization {
                     return;
                 }
                 i++;
+            }
+            if(isNumeric(retStmt.getJmmChild(0).get("value"))){
+                ollirCode.append(" ").append(retStmt.getJmmChild(0).get("value")).append(typeToOllir(new Type("int", false)));
+            }
+            if(Objects.equals(retStmt.getJmmChild(0).get("value"), "true") || Objects.equals(retStmt.getJmmChild(0).get("value"), "false")){
+                ollirCode.append(" ").append(retStmt.getJmmChild(0).get("value")).append(typeToOllir(new Type("bool", false)));
             }
 
         }
@@ -130,14 +160,40 @@ public class Optimization implements JmmOptimization {
         }
     }
 
-    public void addVar(JmmNode instance, JmmNode var){
+    public String addAssignment(JmmNode assignment, JmmNode instance){
+        StringBuilder retString = new StringBuilder();
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        String var = assignment.get("var");
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), var.get("var"))){
-                ollirCode.append(localVar.getName()).append(typeToOllir(localVar.getType()));
-                return;
+            if(Objects.equals(localVar.getName(), var)){
+                retString.append(var).append(typeToOllir(localVar.getType())).append(" :=").append(typeToOllir(localVar.getType())).append(" ").append(assignment.getJmmChild(0).get("value")).append(typeToOllir(localVar.getType()));
+                retString.append(";\n");
+                return retString.toString();
             }
         }
+        int i = 1;
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), var)){
+                retString.append("$").append(i).append(".").append(var).append(typeToOllir(parameter.getType())).append(" :=").append(typeToOllir(parameter.getType())).append(" ").append(assignment.getJmmChild(0).get("value")).append(typeToOllir(parameter.getType()));
+
+                retString.append(";\n");
+                return retString.toString();
+            }
+            i++;
+        }
+        return "error";
+    }
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
 
