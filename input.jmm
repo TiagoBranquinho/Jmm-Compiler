@@ -1,6 +1,7 @@
 import io;
 import Quicksort;
-class CompileBasic {
+
+class CompileBasic extends Quicksort {
 
 	public int getField1(){
 	    while(a<b){
@@ -43,8 +44,7 @@ class CompileBasic {
         return 0;
     }
 
-    public boolean method2(int intParam1, boolean boolParam1) {
-        return boolParam1;
+    public void method2(int intParam1, boolean boolParam1) {
     }
 
 
