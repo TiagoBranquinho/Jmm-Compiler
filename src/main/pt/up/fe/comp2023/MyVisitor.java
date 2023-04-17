@@ -72,7 +72,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
             for (JmmNode node : jmmNode.getChildren()){
                 visit(node);
             }
-            optimization.appendToOllir("\n;\n}");
+            optimization.appendToOllir("\n\n}");
         return "";
         }
     }
