@@ -14,6 +14,8 @@ import pt.up.fe.comp2023.Reports;
 
 public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
+    public static List<Report> globalReports = new ArrayList<>();
+
 
     final List<String> _PERMITTED_TYPES = List.of(new String[]{"int", "boolean", "void"});
     //receber a symbolTable
@@ -27,8 +29,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         addVisit("MethodDeclaration", this::);
         addVisit("InstanceDeclaration", this::);*/
         /*addVisit("MainDeclaration", this::dealWithInstanceDeclaration);*/
-        //addVisit("VarDeclarationStmt", this::checkVarDeclarationStmt);
-        //addVisit("Identifier", this::checkDeclaration);
+        addVisit("VarDeclarationStmt", this::checkVarDeclarationStmt);
+        addVisit("Identifier", this::checkDeclaration);
         addVisit("BinaryOp", this::checkBinaryOp);
         /*addVisit("ExprStmt", this::dealWithExprStmt);*/
         addVisit("Type", this::checkType);
@@ -46,7 +48,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     }
 
     private List<Report> defaultVisitor(JmmNode jmmNode, MySymbolTable mySymbolTable) {
-        return new ArrayList<>();
+        return globalReports;
     }
 
 
@@ -55,20 +57,68 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         return new ArrayList<>();
     }
 
+    private List<Report> checkVarDeclarationStmt(JmmNode jmmNode, SymbolTable symbolTable){
+
+        System.out.println("checkVarDeclarationStatement");
+        System.out.println(jmmNode.getAttributes());
+        System.out.println("node: " + jmmNode);
+        List<JmmNode> children = jmmNode.getChildren();
+
+        System.out.println("children: " + children);
+
+        //System.out.println("child1: " + children.get(0).getAttributes());
+        //System.out.println("child1 type: " + children.get(0).get("type"));
+        //System.out.println("child1 value: " + children.get(0).get("value"));
+        System.out.println("-.-.-.-.-.-.-.-.-");
+
+        //System.out.println("Value: ");
+        //System.out.println(jmmNode.get("value"));
+
+        return globalReports;
+    }
+
+    private List<Report> checkDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable){
+
+        System.out.println("checkVarDeclaration ");
+        System.out.println(jmmNode.getAttributes());
+        System.out.println("node: " + jmmNode);
+        List<JmmNode> children = jmmNode.getChildren();
+
+        System.out.println("children: " + children);
+
+        System.out.println("child1: " + children.get(0).getAttributes());
+        System.out.println("child1 type: " + children.get(0).get("type"));
+        System.out.println("child1 value: " + children.get(0).get("value"));
+        System.out.println("x.x.x.x.x.x.x.x");
+
+        //eu verifico depois se está na SymbolTable
+        //primeiro nas localVariables, depois nos parametros e depois nos fields
+
+
+
+        //List<Report> errorReports = new ArrayList<>();
+
+        return globalReports;
+    }
+
     private List<Report> checkType(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
-        List<Report> errorReports = new ArrayList<>();
+        //List<Report> errorReports = new ArrayList<>();
+
+        System.out.println("checkType");
+
         String value = jmmNode.get("value");
 
         if (_PERMITTED_TYPES.contains(value)){
             jmmNode.put("type", value);
-            return new ArrayList<>();
+
+            return globalReports;
         }
         // TO DO criar reports em caso de erro
 
-        errorReports.add(Reports.reportCheckType(jmmNode));
+        globalReports.add(Reports.reportCheckType(jmmNode));
 
-        return errorReports;
+        return globalReports;
 
     }
 
@@ -85,11 +135,18 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         String childValue = children.get(0).get("value");
         System.out.println("akakak" + children.get(0).get("value"));
+
+        System.out.println(children.get(0).get("value"));
+        System.out.println(children.get(1).get("value"));
+        System.out.println(children.get(0).getAttributes());
         if (children.get(0).get("value") != children.get(1).get("value")){
             //significa que os dois nodes em que se está a fazer a operação são de tipos
             // diferentes, logo não dá
             //fazer um report
-            errorReports.add(Reports.reportCheckBinaryOp(jmmNode, "children nodes have diferent types"));
+            globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "children nodes have diferent types"));
+
+            System.out.println("globalReports: " + globalReports);
+            return globalReports;
         } else {
 
             //Se não for um operador que permita a utilização de booleanos
@@ -98,20 +155,26 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 if(childValue == "true"
                 || childValue == "false"){
                     //dar return a report
-                    errorReports.add(Reports.reportCheckBinaryOp(jmmNode, "not boolean operation with boolean type children"));
+                    globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "not boolean operation with boolean type children"));
+                    System.out.println("globalReports 2: " + globalReports);
+                    return globalReports;
                 }
                 else{
-                    return errorReports;
+                    System.out.println("globalReports 3: " + globalReports);
+                    return globalReports;
                 }
-                return new ArrayList<>();
+
             }else if(op == "&&" || op == "||"){
                 if(childValue != "true"
                         || childValue != "false"){
-                    errorReports.add(Reports.reportCheckBinaryOp(jmmNode, "boolean operation with not boolean type children"));
-
+                    globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "boolean operation with not boolean type children"));
+                    System.out.println("globalReports 4: " + globalReports);
+                    return globalReports;
                 }
                 else{
-                    return errorReports;
+
+                    System.out.println("globalReports : " + globalReports);
+                    return globalReports;
                 }
             }
 
@@ -121,7 +184,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             jmmNode.put("type", value);
         }
 
-        return errorReports;
+        return globalReports;
     }
 
     private List<Report> checkConditionalStatement(JmmNode jmmNode, MySymbolTable mySymbolTable){
@@ -130,17 +193,20 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         String value = jmmNode.get("value");
 
         if(value != "boolean"){
-            errorReports.add(Reports.reportcheckConditionalStatement(jmmNode));
+            globalReports.add(Reports.reportcheckConditionalStatement(jmmNode));
+
+            return globalReports;
         }
 
-        return errorReports;
+
+        return globalReports;
     }
 
     private List<Report> checkVarDeclarationStatement(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
 
 
-        return new ArrayList<>();
+        return globalReports;
     }
 
     private List<Report> checkAssignment(JmmNode jmmNode, MySymbolTable mySymbolTable){
@@ -148,15 +214,25 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         List<Report> errorReports = new ArrayList<>();
         List<JmmNode> children = jmmNode.getChildren();
 
+        System.out.println("checkAssignment");
 
+        System.out.println("children: " + children);
+
+        System.out.println("assignement child 0: " + children.get(0).getAttributes() + "value" +children.get(0).get("value"));
+        //System.out.println("assignement child 1: " + children.get(1).getAttributes() + children.get(1).get("value"));
+
+/*
         if (children.get(0).get("value") != "true"
         || children.get(0).get("value") != "false"
         || children.get(0).get("isArray") == "true"){
             //tem de se dar um report porque o if está a ser feito mal
-            errorReports.add(Reports.reportcheckAssignment(jmmNode));
-        }
+            globalReports.add(Reports.reportcheckAssignment(jmmNode));
 
-        return new ArrayList<>();
+            return globalReports;
+        }*/
+
+
+        return globalReports;
     }
 
     private List<Report> checkReservedExpr(JmmNode jmmNode, MySymbolTable mySymbolTable){
@@ -168,7 +244,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             // não pode ser
         }
 
-        return new ArrayList<>();
+        return globalReports;
     }
 
 }

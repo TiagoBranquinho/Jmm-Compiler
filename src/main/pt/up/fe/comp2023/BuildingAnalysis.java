@@ -21,8 +21,12 @@ public class BuildingAnalysis implements JmmAnalysis{
         //mandar como parâmetro uma lista de reports, que depois conforme as visitas que faz acrescenta os reports de erro
         System.out.println("============");
         System.out.println(mySymbolTable);
+
+        reports.addAll(semanticAnalysis);
+        System.out.println("os reports finais: " + reports);
+
         // juntar os symbolTableReports com os da semanticAnalysis e meter aqui
-        return new JmmSemanticsResult(parserResult, mySymbolTable, semanticAnalysis);
+        return new JmmSemanticsResult(parserResult, mySymbolTable, reports);
 
 
     }
