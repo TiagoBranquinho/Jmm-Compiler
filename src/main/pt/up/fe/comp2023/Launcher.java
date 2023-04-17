@@ -11,6 +11,7 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
+import pt.up.fe.comp2023.BuildingAnalysis;
 
 public class Launcher {
 
@@ -55,6 +56,9 @@ public class Launcher {
 
             System.out.println(mySymbolTable.print());
             //System.out.println(mySymbolTable.getImports());
+
+            //BuildingAnalysis analyser = new BuildingAnalysis();
+            //analyser.semanticAnalysis(parserResult);
 
         }
 
