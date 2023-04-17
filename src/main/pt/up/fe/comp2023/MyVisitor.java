@@ -62,22 +62,44 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
 
     private String dealWithProgramSymbolTable(JmmNode jmmNode, String s) {
-        if(this.optimization != null){
+        if(this.symbolTable != null){
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+            return "";
+        }
+        else{
             optimization.addImports();
-            optimization.addClass();
-        }
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+            optimization.appendToOllir("\n\n}");
         return "";
+        }
     }
 
     private String dealWithClassDeclarationSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null) symbolTable.addClass(jmmNode);
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+        if(this.symbolTable != null){
+            symbolTable.addClass(jmmNode);
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+            return "";
         }
-        return "";
+        else{
+            optimization.addClass();
+            for(JmmNode child : jmmNode.getChildren()){
+                if(Objects.equals(child.getKind(), "FieldDeclaration")){
+                    optimization.addField(child);
+                }
+            }
+            optimization.addConstructor();
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+            return "";
+        }
+
     }
 
     private String dealWithImportDeclarationSymbolTable(JmmNode jmmNode, String s) {
@@ -87,7 +109,6 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithFieldDeclarationSymbolTable(JmmNode jmmNode, String s) {
         if(this.symbolTable != null) symbolTable.addField(jmmNode);
-        if(this.optimization != null) optimization.addField(jmmNode);
         for (JmmNode node : jmmNode.getChildren()){
             visit(node);
         }

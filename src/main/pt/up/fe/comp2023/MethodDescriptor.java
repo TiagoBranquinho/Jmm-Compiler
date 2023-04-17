@@ -38,7 +38,7 @@ public class MethodDescriptor {
 
     public void setReturnType(JmmNode node){
         voidFunc = 1;
-        String type = node.getJmmChild(0).get("value");
+        String type = node.get("value");
 
         boolean isArray = type.endsWith("[]");
         if(isArray){

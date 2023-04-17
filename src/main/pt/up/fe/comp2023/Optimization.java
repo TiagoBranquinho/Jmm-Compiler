@@ -45,17 +45,26 @@ public class Optimization implements JmmOptimization {
         for(String importString : jmmSemanticsResult.getSymbolTable().getImports()){
             ollirCode.append("import ").append(importString).append(";\n");
         }
+        ollirCode.append("\n");
     }
 
     public void addClass(){
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         String extend = Objects.equals(jmmSemanticsResult.getSymbolTable().getSuper(), null) ? "" : " extends " + jmmSemanticsResult.getSymbolTable().getSuper();
-        ollirCode.append(className).append(extend).append(" {\n").append(
-        ".construct ").append(className).append("().V {\n").append(
-        "invokespecial(this, \"<init>\").V;\n").append(
-        "}\n\n");
+        ollirCode.append(className).append(extend).append(" {\n");
 
     }
+
+    public void addConstructor(){
+        String className = jmmSemanticsResult.getSymbolTable().getClassName();
+        ollirCode.append("\n").append(
+                ".construct ").append(className).append("().V {\n").append(
+                "invokespecial(this, \"<init>\").V;\n").append(
+                "}\n\n");
+
+    }
+
+
 
     public void addMethod(JmmNode jmmNode){
         String name;
@@ -108,7 +117,7 @@ public class Optimization implements JmmOptimization {
 
         for(Symbol f : jmmSemanticsResult.getSymbolTable().getFields()){
             if(Objects.equals(f.getName(), field.get("var"))){
-                ollirCode.append(" ").append(f.getName()).append(typeToOllir(f.getType())).append(";\n\n");
+                ollirCode.append(" ").append(f.getName()).append(typeToOllir(f.getType())).append(";\n");
                 break;
             }
         }
