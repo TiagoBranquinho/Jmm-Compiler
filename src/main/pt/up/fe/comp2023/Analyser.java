@@ -214,7 +214,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("child 2: " + children.get(2));
         System.out.println("child 2 attributes: " + children.get(2).getAttributes());
 
-        JmmNode operator = children.get(0);
+
         String op = children.get(0).get("op");
 
         if(Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "*") ||Objects.equals(op, "/")){
@@ -246,7 +246,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         System.out.println("children: " + children);
 
-        System.out.println("assignement child 0: " + children.get(0).getAttributes() + "value" +children.get(0).get("value"));
+        System.out.println("assignment child 0: " + children.get(0).getAttributes());
         //System.out.println("assignement child 1: " + children.get(1).getAttributes() + children.get(1).get("value"));
 
 /*

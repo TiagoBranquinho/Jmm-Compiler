@@ -1,17 +1,16 @@
-import io;
-import Quicksort;
+import A;
 
-class IntInIfCondition {
+class IntPlusObject {
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
 
-   }
+    }
 
-   public int foo() {
-       if (1 + 2) {
-       } else {
-       }
+    public int foo() {
+        A a;
 
-       return 0;
-   }
+        a = new A();
+
+        return 10 + a;
+    }
 }
