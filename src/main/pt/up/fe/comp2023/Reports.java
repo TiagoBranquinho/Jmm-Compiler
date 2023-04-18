@@ -17,7 +17,7 @@ public class Reports {
     }
 
     public static Report reportcheckConditionalStatement(JmmNode jmmNode){
-        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkConditionalStatement, the opartion is not boolean");
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkConditionalStatement, the operation is not boolean");
     }
 
     public static Report reportcheckAssignment(JmmNode jmmNode){

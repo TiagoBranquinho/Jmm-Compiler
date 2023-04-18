@@ -8,6 +8,7 @@ import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import pt.up.fe.comp2023.Reports;
@@ -161,9 +162,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             //Se não for um operador que permita a utilização de booleanos
             //e a situação de aceder a elementos de arrays?
-            if(op != "&&" || op != "||"){
-                if(childValue == "true"
-                || childValue == "false"){
+            if(!Objects.equals(op, "&&") || !Objects.equals(op, "||")){
+                if(Objects.equals(childValue, "true") || Objects.equals(childValue, "false")){
                     //dar return a report
                     globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "not boolean operation with boolean type children"));
                     System.out.println("globalReports 2: " + globalReports);
@@ -174,9 +174,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     return globalReports;
                 }
 
-            }else if(op == "&&" || op == "||"){
-                if(childValue != "true"
-                        || childValue != "false"){
+            }else if(Objects.equals(op, "&&") || Objects.equals(op, "||")){
+                if(Objects.equals(childValue, "true") || Objects.equals(childValue, "false")){
                     globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "boolean operation with not boolean type children"));
                     System.out.println("globalReports 4: " + globalReports);
                     return globalReports;
@@ -200,16 +199,33 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     private List<Report> checkConditionalStatement(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
         List<Report> errorReports = new ArrayList<>();
-        String value = jmmNode.get("value");
+        //String value = jmmNode.get("value");
 
-        if(value != "boolean"){
+        System.out.println("checkConditionalStatement");
+        System.out.println("node: " + jmmNode);
+        System.out.println("atributtes: " + jmmNode.getAttributes());
+        System.out.println("children: " + jmmNode.getChildren());
+
+        List<JmmNode> children = jmmNode.getChildren();
+        System.out.println("child 0: " + children.get(0));
+        System.out.println("child 0 attributes: " + children.get(0).getAttributes());
+        System.out.println("child 1: " + children.get(1));
+        System.out.println("child 1 attributes: " + children.get(1).getAttributes());
+        System.out.println("child 2: " + children.get(2));
+        System.out.println("child 2 attributes: " + children.get(2).getAttributes());
+
+        JmmNode operator = children.get(0);
+        String op = children.get(0).get("op");
+
+        if(Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "*") ||Objects.equals(op, "/")){
             globalReports.add(Reports.reportcheckConditionalStatement(jmmNode));
-
+            System.out.println("globalReports checkCondition: " + globalReports);
             return globalReports;
         }
 
 
         return globalReports;
+
     }
 
     private List<Report> checkVarDeclarationStatement(JmmNode jmmNode, MySymbolTable mySymbolTable){
