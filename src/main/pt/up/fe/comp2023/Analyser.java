@@ -86,13 +86,19 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         System.out.println("children: " + children);
 
-        System.out.println("child1: " + children.get(0).getAttributes());
+        /*System.out.println("child1: " + children.get(0).getAttributes());
         System.out.println("child1 type: " + children.get(0).get("type"));
-        System.out.println("child1 value: " + children.get(0).get("value"));
+        System.out.println("child1 value: " + children.get(0).get("value"));*/
         System.out.println("x.x.x.x.x.x.x.x");
 
         //eu verifico depois se está na SymbolTable
         //primeiro nas localVariables, depois nos parametros e depois nos fields
+
+        //tem de ser ir ver à symbol table qual o valor efetivo da variável
+
+        String name = jmmNode.get("value");
+
+        //ir à symbol table ver que valor corresponde a esse nome
 
 
 
@@ -106,24 +112,28 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         //List<Report> errorReports = new ArrayList<>();
 
         System.out.println("checkType");
+        System.out.println("node attributes:" + jmmNode.getAttributes());
 
         String value = jmmNode.get("value");
 
         if (_PERMITTED_TYPES.contains(value)){
+            System.out.println("Antes do put");
             jmmNode.put("type", value);
+            System.out.println("node attribute after the put:" + jmmNode.getAttributes());
 
             return globalReports;
         }
         // TO DO criar reports em caso de erro
 
         globalReports.add(Reports.reportCheckType(jmmNode));
-
+        System.out.println("Não entrou no if no checkType");
         return globalReports;
 
     }
 
     private List<Report> checkBinaryOp(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
+        System.out.println("checkBinaryOp");
         System.out.println("akakak1111");
         List<Report> errorReports = new ArrayList<>();
 
@@ -215,6 +225,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         List<JmmNode> children = jmmNode.getChildren();
 
         System.out.println("checkAssignment");
+
+        System.out.println("node: " + jmmNode);
 
         System.out.println("children: " + children);
 
