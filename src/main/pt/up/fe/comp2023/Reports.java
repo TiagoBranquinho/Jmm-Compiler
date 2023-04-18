@@ -24,6 +24,10 @@ public class Reports {
         return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkAssignement");
     }
 
+    public static Report reportCheckReservedExpr(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkReservedExpression");
+    }
+
 
 }
 

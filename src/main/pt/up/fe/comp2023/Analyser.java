@@ -265,11 +265,16 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
     private List<Report> checkReservedExpr(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
+        System.out.println("checkReservedExpr");
         Optional<JmmNode> parent = jmmNode.getAncestor("mainDeclaration");
+
 
         if(parent.isPresent()){
             //dar return do report de erro porque significa que o static tem como pai o mainMethod, o que
             // não pode ser
+            System.out.println("has ancestor that is a mainDeclaration");
+            globalReports.add(Reports.reportCheckReservedExpr(jmmNode));
+            return globalReports;
         }
 
         return globalReports;
