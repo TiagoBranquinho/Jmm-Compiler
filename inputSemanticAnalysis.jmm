@@ -1,15 +1,21 @@
-class BinaryOps_Simple {
+import B;
 
-	public static void main(String[] args) {
-        int i;
-        //int j;
-        boolean a;
-        //boolean b;
-        i = 1;
-        //j = 2;
-        //i = i + j;
-        a = true;
-        //b = false;
-        //a = a && b;
-	}
+class ObjectAssignmentPassExtends extends B {
+
+    public static void main(String[] args) {
+
+    }
+
+    public ObjectAssignmentPassExtends foo() {
+        ObjectAssignmentPassExtends a;
+        B b;
+
+        a = new ObjectAssignmentPassExtends();
+        b = new B();
+
+        // ObjectAssignmentPassExtends extends B
+        b = a;
+
+        return a;
+    }
 }

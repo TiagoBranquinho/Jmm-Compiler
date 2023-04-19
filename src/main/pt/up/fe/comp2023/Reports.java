@@ -32,6 +32,19 @@ public class Reports {
         return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkDeclaration");
     }
 
+    public static Report reportCheckSubscriptOp(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkSubscriptOp");
+    }
+
+    public static Report reportCheckObjectDeclaration(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkObjectDeclaration");
+    }
+
+
+    public static Report checkReturnStmt(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkReturnStmt");
+    }
+
 
 }
 
