@@ -179,6 +179,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
     private String dealWithReturnStmt(JmmNode jmmNode, String s){
         StringBuilder ret = new StringBuilder();
+        StringBuilder add = new StringBuilder();
         JmmNode parent = jmmNode.getJmmParent();
         while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
             parent = parent.getJmmParent();
@@ -189,7 +190,16 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         String retType = optimization.getMethodRetType(instance);
         ret.append("ret").append(retType).append(" ");
         for (JmmNode node : jmmNode.getChildren()){
-            ret.append(visit(node, retType));
+            if(Objects.equals(node.getKind(), "DotOp") || Objects.equals(node.getKind(), "BinaryOp")){
+                String visit = visit(node, retType);
+                int number = optimization.getTempNumber();
+                add.append("temp_").append(number).append(retType).append(" :=").append(retType).append(" ").append(visit).append(";\n");
+                optimization.appendToOllir(add.toString());
+                ret.append("temp_").append(number).append(retType);
+            }
+            else{
+                ret.append(visit(node, retType));
+            }
             //ret.append("temp_").append(optimization.getTempNumber()).append(retType);
         }
         this.optimization.appendToOllir(ret + ";\n");
