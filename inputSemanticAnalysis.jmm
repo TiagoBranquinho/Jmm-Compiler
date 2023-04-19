@@ -1,18 +1,15 @@
-import A;
+class BinaryOps_Simple {
 
-class AssumeArguments {
-
-    public static void main(String[] args) {
-
-    }
-
-    public int bar() {
-        A a;
-        boolean b;
-
-        a = new A();
-        b = true;
-
-        return a.foo(b);
-    }
+	public static void main(String[] args) {
+        int i;
+        //int j;
+        boolean a;
+        //boolean b;
+        i = 1;
+        //j = 2;
+        //i = i + j;
+        a = true;
+        //b = false;
+        //a = a && b;
+	}
 }
