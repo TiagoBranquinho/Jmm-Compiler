@@ -15,10 +15,6 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     private Optimization optimization;
 
     private int a = 0;
-    public MyVisitor(Optimization optimization) {
-        this.optimization = optimization;
-        a = 1;
-    }
     public MyVisitor(MySymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
@@ -60,6 +56,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
 
     }
+
 
     private String defaultVisitor(JmmNode jmmNode, String s) {
         return "";
@@ -124,10 +121,23 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithBinaryOpSymbolTable(JmmNode jmmNode, String s) {
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+        if(this.optimization != null){
+            System.out.println("in binary op");
+            System.out.println(s);
+            StringBuilder ret = new StringBuilder();
+
+            for (JmmNode node : jmmNode.getChildren()){
+                ret.append(visit(node, s)).append(" ").append(jmmNode.get("op")).append(s);
+            }
+            return "";
         }
-        return "";
+        else{
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
+            }
+            return "";
+        }
+
     }
 
     private String dealWithExprStmtSymbolTable(JmmNode jmmNode, String s) {
@@ -277,8 +287,39 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithAssignmentSymbolTable(JmmNode jmmNode, String s){
         if(this.optimization != null){
+            StringBuilder ret = new StringBuilder();
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            JmmNode instance = parent.getJmmChild(0);
+            String var = optimization.getVarOrType(jmmNode, instance, "var");
+            String type = optimization.getVarOrType(jmmNode, instance, "type");
+            ret.append(var).append(" :=").append(type).append(" ");
             for (JmmNode node : jmmNode.getChildren()){
-                this.optimization.appendToOllir(visit(node));
+                ret.append(visit(node, type));
+            }
+            this.optimization.appendToOllir(ret.toString() + ";\n");
+        }
+        return "";
+    }
+
+    private String dealWithDotOpSymbolTable(JmmNode jmmNode, String type, String s){
+        if(this.optimization != null){
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            JmmNode instance = parent.getJmmChild(0);
+            StringBuilder code = new StringBuilder();
+            int tempNumber = optimization.getTempNumber();
+            code.append("temp_").append(tempNumber).append(type).append(" :=").append(type).append(" ");
+            code.append(optimization.getInvoke(jmmNode, instance)).append(type);
+            code.append(";\n");
+            optimization.appendToOllir(code.toString());
+
+            for (JmmNode node : jmmNode.getChildren()){
+                visit(node);
             }
         }
         return "";
@@ -286,6 +327,18 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
     private String dealWithDotOpSymbolTable(JmmNode jmmNode, String s){
         if(this.optimization != null){
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            JmmNode instance = parent.getJmmChild(0);
+            StringBuilder code = new StringBuilder();
+            int tempNumber = optimization.getTempNumber();
+            code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
+            code.append(optimization.getInvoke(jmmNode, instance)).append(s);
+            code.append(";\n");
+            optimization.appendToOllir(code.toString());
+
             for (JmmNode node : jmmNode.getChildren()){
                 visit(node);
             }

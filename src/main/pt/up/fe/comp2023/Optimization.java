@@ -7,6 +7,9 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class Optimization implements JmmOptimization {
@@ -19,7 +22,7 @@ public class Optimization implements JmmOptimization {
     @Override
     public OllirResult toOllir(JmmSemanticsResult jmmSemanticsResult) {
         this.jmmSemanticsResult = jmmSemanticsResult;
-        new MyVisitor(this).visit(jmmSemanticsResult.getRootNode());
+        new OllirGenerator(this).visit(jmmSemanticsResult.getRootNode());
         System.out.print(ollirCode.toString());
         return new OllirResult(ollirCode.toString(), jmmSemanticsResult.getConfig());
     }
@@ -32,11 +35,14 @@ public class Optimization implements JmmOptimization {
         return tempNumber++;
     }
 
+    public void decreaseTempNumber(){tempNumber--;}
+
     public String intToOllir(JmmNode integer){
-        return integer.get("value") + typeToOllir(new Type("int", false)) + ";\n";
+        return integer.get("value") + typeToOllir(new Type("int", false));
     }
 
-    public void initObjectDeclaration(JmmNode declaration, JmmNode assignment, JmmNode instance){
+    public String initObjectDeclaration(JmmNode declaration, JmmNode assignment, JmmNode instance){
+        StringBuilder ret = new StringBuilder();
         String objClass = declaration.get("objClass");
         String type = typeToOllir(new Type(objClass, false));
         int tempNumber = this.getTempNumber();
@@ -44,8 +50,8 @@ public class Optimization implements JmmOptimization {
         ollirCode.append(";\n");
         ollirCode.append("invokespecial(temp_").append(tempNumber).append(type).append(",\"<init>\").V");
         ollirCode.append(";\n");
-        ollirCode.append(assignment.get("var")).append(type).append(" =:").append("temp_").append(tempNumber).append(type);
-        ollirCode.append(";\n");
+        ret.append("temp_").append(tempNumber).append(type);
+        return ret.toString();
     }
 
     private String typeToOllir(Type type){
@@ -61,6 +67,11 @@ public class Optimization implements JmmOptimization {
         }
 
         return ret.toString();
+    }
+
+    public String getMethodRetType(JmmNode instance){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name));
     }
 
 
@@ -91,7 +102,6 @@ public class Optimization implements JmmOptimization {
                 ".construct ").append(className).append("().V {\n").append(
                 "invokespecial(this, \"<init>\").V;\n").append(
                 "}\n\n");
-
     }
 
 
@@ -160,23 +170,28 @@ public class Optimization implements JmmOptimization {
         }
     }
 
-    public String addAssignment(JmmNode assignment, JmmNode instance){
+    public String getVarOrType(JmmNode node, JmmNode instance, String condition){
         StringBuilder retString = new StringBuilder();
+
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        String var = assignment.get("var");
+        String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
+        if(isNumeric(var)){
+            return this.intToOllir(node);
+        }
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
             if(Objects.equals(localVar.getName(), var)){
-                retString.append(var).append(typeToOllir(localVar.getType())).append(" :=").append(typeToOllir(localVar.getType())).append(" ").append(assignment.getJmmChild(0).get("value")).append(typeToOllir(localVar.getType()));
-                retString.append(";\n");
+                if(Objects.equals(condition, "var"))
+                    retString.append(var);
+                retString.append(typeToOllir(localVar.getType()));
                 return retString.toString();
             }
         }
         int i = 1;
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(parameter.getName(), var)){
-                retString.append("$").append(i).append(".").append(var).append(typeToOllir(parameter.getType())).append(" :=").append(typeToOllir(parameter.getType())).append(" ").append(assignment.getJmmChild(0).get("value")).append(typeToOllir(parameter.getType()));
-
-                retString.append(";\n");
+                if(Objects.equals(condition, "var"))
+                    retString.append("$").append(i).append(".").append(var);
+                retString.append(typeToOllir(parameter.getType()));
                 return retString.toString();
             }
             i++;
@@ -194,6 +209,58 @@ public class Optimization implements JmmOptimization {
             return false;
         }
         return true;
+    }
+
+    public String getInvoke(JmmNode dotOp, JmmNode instance) {
+        StringBuilder retString = new StringBuilder();
+        JmmNode left = dotOp.getJmmChild(0);
+        List<JmmNode> identifiers = dotOp.getChildren();
+        identifiers.remove(0);
+        if(Objects.equals(left.get("value"), "this")){
+            retString.append("invokevirtual(this, \"").append(dotOp.get("method")).append("\"");
+            for(JmmNode node : identifiers){
+                retString.append(", ").append(getVarOrType(node, instance, "var"));
+            }
+            retString.append(")");
+            return retString.toString();
+        }
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
+                for(JmmNode node : identifiers){
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                }
+                retString.append(")");
+                return retString.toString();
+            }
+        }
+        int i = 1;
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), left.get("value"))){
+                retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
+                for(JmmNode node : identifiers){
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                }
+                retString.append(")");
+                return retString.toString();
+            }
+            i++;
+        }
+
+        retString.append("invokestatic(").append(left.get("value")).append(", \"").append(dotOp.get("method")).append("\"");
+        for(JmmNode node : identifiers){
+            retString.append(", ").append(getVarOrType(node, instance, "var"));
+        }
+        retString.append(")");
+        return retString.toString();
+    }
+
+    public void checkVoidMethod(JmmNode instance){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+
+        if(Objects.equals(jmmSemanticsResult.getSymbolTable().getReturnType(name).getName(), "void"))
+            ollirCode.append("ret.V;\n");
     }
 
 
