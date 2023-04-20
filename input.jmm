@@ -1,7 +1,18 @@
-class CompileArithmetic {
+import io;
+
+class CompileArithmetic extends io{
 
     public static void main(String[] args) {
-
+        int a;
+        int b;
+        int c;
+        int d;
+        a = 1;
+        b = 2;
+        c = 1 + 100;
+        c = c * 130;
+        c = c + 135724;
+        io.println(c);
     }
 
     public int foo() {
@@ -11,6 +22,12 @@ class CompileArithmetic {
         int d;
         a = 1;
         b = 2;
-        return a + this.add(b,c);
+        c = 1 + 100;
+        c = c * 130;
+        c = c + 135724;
+        io.println(c);
+        d = a + this.add(b,c);
+        io.println(d);
+        return d;
     }
 }
