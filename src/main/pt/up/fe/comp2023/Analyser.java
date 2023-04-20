@@ -312,7 +312,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             //Se não for um operador que permita a utilização de booleanos
             //e a situação de aceder a elementos de arrays?
             if(!Objects.equals(op, "&&") || !Objects.equals(op, "||")){
-                if(jmmNode.getChildren().get(0).get("type").equals("booelan")){
+                if(jmmNode.getChildren().get(0).get("type").equals("boolean")){
                     //dar return a report
                     jmmNode.put("type", "int");
                     jmmNode.put("isArray", "false");
@@ -329,7 +329,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 }
 
             }else if(Objects.equals(op, "&&") || Objects.equals(op, "||")){
-                if(!jmmNode.getChildren().get(0).get("type").equals("booelan")){
+                if(!jmmNode.getChildren().get(0).get("type").equals("boolean")){
                     jmmNode.put("type", "boolean");
                     jmmNode.put("isArray", "false");
                     globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "boolean operation with not boolean type children"));
