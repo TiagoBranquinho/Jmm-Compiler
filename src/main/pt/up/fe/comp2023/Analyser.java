@@ -328,7 +328,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     return globalReports;
                 }
 
-            }else if(Objects.equals(op, "&&") || Objects.equals(op, "||")){
+            }else if(op.equals("&&") || op.equals("||")){
                 if(!jmmNode.getChildren().get(0).get("type").equals("boolean")){
                     jmmNode.put("type", "boolean");
                     jmmNode.put("isArray", "false");
