@@ -311,7 +311,13 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             //Se não for um operador que permita a utilização de booleanos
             //e a situação de aceder a elementos de arrays?
-            if(!Objects.equals(op, "&&") || !Objects.equals(op, "||")){
+            if(op.equals("&&") || op.equals("||")){
+                System.out.println("operador é boolean");
+                jmmNode.put("type", "boolean");
+                jmmNode.put("isArray", "false");
+                System.out.println("globalReports : " + globalReports);
+                return globalReports;
+            }else{
                 if(jmmNode.getChildren().get(0).get("type").equals("boolean")){
                     //dar return a report
                     jmmNode.put("type", "int");
@@ -328,30 +334,16 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     return globalReports;
                 }
 
-            }else if(op.equals("&&") || op.equals("||")){
-                if(!jmmNode.getChildren().get(0).get("type").equals("boolean")){
-                    jmmNode.put("type", "boolean");
-                    jmmNode.put("isArray", "false");
-                    globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "boolean operation with not boolean type children"));
-                    System.out.println("globalReports 4: " + globalReports);
-                    return globalReports;
-                }
-                else{
-                    jmmNode.put("type", "boolean");
-                    jmmNode.put("isArray", "false");
-                    System.out.println("globalReports : " + globalReports);
-                    return globalReports;
-                }
             }
 
 
-            String value = children.get(0).get("type");
+            /*String value = children.get(0).get("type");
             jmmNode.put("type", value);
-            jmmNode.put("isArray", "false");
+            jmmNode.put("isArray", "false");*/
 
         }
 
-        return globalReports;
+        //return globalReports;
     }
 
     private List<Report> checkConditionalStatement(JmmNode jmmNode, MySymbolTable mySymbolTable){
@@ -437,8 +429,12 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         for (int i = 0; i < tipo.size(); i++) {
             System.out.println(tipo.get(i));
             if(Objects.equals(tipo.get(i).getName(), var)){
+                System.out.println("if das localVariables");
                 jmmNode.put("type", tipo.get(i).getType().getName());
                 jmmNode.put("isArray", String.valueOf(tipo.get(i).getType().isArray()));
+                System.out.println("ainda nas localVariables");
+                System.out.println("type: " + jmmNode.get("type"));
+                System.out.println("isArray: " + jmmNode.get("isArray"));
                 break;
             }
         }
@@ -633,8 +629,10 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
         Type returnType = mySymbolTable.getReturnType(methodNode);
+        System.out.println("returnType variable:" + returnType);
 
         if(!returnType.getName().equals(jmmNode.getChildren().get(0).get("type"))){
+            //Return type e o child 0 não têm o mesmo type
             globalReports.add(Reports.checkReturnStmt(jmmNode));
             return globalReports;
         }
