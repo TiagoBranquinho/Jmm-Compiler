@@ -69,13 +69,13 @@ public class Launcher {
             //Instantiate JasminBackender
             var jasminBackend = new JasminBackender();
 
-            var backendResult = jasminBackend.toJasmin(ollirResult);
+            var jasminResult = jasminBackend.toJasmin(ollirResult);
 
             // Generate .class file
-            backendResult.compile(new File("jasminResult"));
+            jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            backendResult.run();
+            jasminResult.run();
 
         }
 
