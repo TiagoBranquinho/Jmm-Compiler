@@ -1,16 +1,6 @@
 class CompileArithmetic {
-    int e;
     public static void main(String[] args) {
-        int a;
-        int b;
-        int c;
-        int d;
-        a = 1;
-        b = 2;
-        c = 1 + 100;
-        c = c * 130;
-        c = c + 135724;
-        io.println(c);
+
     }
 
     public int foo() {
@@ -18,15 +8,12 @@ class CompileArithmetic {
         int b;
         int c;
         int d;
+        int x;
         a = 1;
         b = 2;
-        c = 1 + 100;
-        c = c * 130;
-        c = c + 135724;
-        io.println(c);
-        d = a + this.add(b,c);
-        io.println(d);
-        e = 5;
-        return a + e;
+        c = 1;
+        d = 1;
+        x = this.foo(a,3) + this.foo(b,5) + this.foo(c,2);
+        return 2;
     }
 }
