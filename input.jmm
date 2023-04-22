@@ -1,5 +1,4 @@
 class CompileArithmetic {
-    int e;
     public static void main(String[] args) {
 
     }
@@ -14,7 +13,7 @@ class CompileArithmetic {
         b = 2;
         c = 1;
         d = 1;
-        x = a.foo(b,c).gato(d) + 1 + 2;
-        return 1;
+        x = this.foo(a,3).bar(2,b);
+        return 2;
     }
 }

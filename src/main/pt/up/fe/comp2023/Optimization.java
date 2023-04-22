@@ -274,9 +274,9 @@ public class Optimization implements JmmOptimization {
             left = left.getJmmChild(0);
         }
         List<JmmNode> identifiers = dotOp.getChildren();
-        identifiers.removeIf(node -> !Objects.equals(node.getKind(), "Identifier"));
+        identifiers.removeIf(node -> (!node.hasAttribute("value")));
         if(Objects.equals(left.get("value"), "this")){
-            retString.append("invokevirtual(").append(temp).append("\"").append(dotOp.get("method")).append("\"");
+            retString.append("invokevirtual(").append(temp).append(", ").append("\"").append(dotOp.get("method")).append("\"");
             for(JmmNode node : identifiers){
                 retString.append(", ").append(getVarOrType(node, instance, "var"));
             }
@@ -286,7 +286,7 @@ public class Optimization implements JmmOptimization {
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
             if(Objects.equals(localVar.getName(), left.get("value"))){
-                retString.append("invokevirtual(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
+                retString.append("invokevirtual(").append(temp).append(", ").append(", \"").append(dotOp.get("method")).append("\"");
                 for(JmmNode node : identifiers){
                     retString.append(", ").append(getVarOrType(node, instance, "var"));
                 }
