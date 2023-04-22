@@ -21,7 +21,7 @@ public class Reports {
     }
 
     public static Report reportcheckAssignment(JmmNode jmmNode){
-        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkAssignement");
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkAssignment");
     }
 
     public static Report reportCheckReservedExpr(JmmNode jmmNode){
@@ -45,6 +45,9 @@ public class Reports {
         return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkReturnStmt");
     }
 
+    public static Report reportCheckDotOp(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkDotOp");
+    }
 
 }
 

@@ -59,11 +59,11 @@ public class Launcher {
             JmmSemanticsResult semanticAnalysis = new JmmSemanticsResult(parserResult.getRootNode(), mySymbolTable, null, null);
 
 
-            //BuildingAnalysis analyser = new BuildingAnalysis();
-            //analyser.semanticAnalysis(parserResult);
+            BuildingAnalysis analyser = new BuildingAnalysis();
+            analyser.semanticAnalysis(parserResult);
 
-            Optimization optimization = new Optimization();
-            optimization.toOllir(semanticAnalysis);
+            //Optimization optimization = new Optimization();
+            //optimization.toOllir(semanticAnalysis);
 
         }
 

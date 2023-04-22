@@ -53,7 +53,15 @@ public class MySymbolTable implements SymbolTable {
 
     @Override
     public Type getReturnType(String s) {
-        return mainClass.getMethodDescriptor().get(s).getReturnType();
+
+        MethodDescriptor method = mainClass.getMethodDescriptor().get(s);
+
+        if (method == null) {
+            return null;
+        }
+        else {
+            return method.getReturnType();
+        }
     }
 
     @Override
