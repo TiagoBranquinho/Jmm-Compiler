@@ -186,6 +186,17 @@ public class Optimization implements JmmOptimization {
                 return retString.toString();
             }
         }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), var)){
+                int tempNumber = this.getTempNumber();
+                //ollirCode.append()
+                if(Objects.equals(condition, "var")){
+                    retString.append(var);
+                }
+                retString.append(typeToOllir(localVar.getType()));
+                return retString.toString();
+            }
+        }
         int i = 1;
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(parameter.getName(), var)){
@@ -263,6 +274,23 @@ public class Optimization implements JmmOptimization {
             ollirCode.append("ret.V;\n");
     }
 
+    public boolean isField(JmmNode node){
+        String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), var)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int addGetField(JmmNode node, String s){
+        String value = node.get("value");
+        int tempNumber = this.getTempNumber();
+        ollirCode.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" getfield(this, ").append(value).append(s).append(")").append(s);
+        ollirCode.append(";\n");
+        return tempNumber;
+    }
 
 
 

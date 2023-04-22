@@ -1,7 +1,5 @@
-import io;
-
-class CompileArithmetic extends io{
-
+class CompileArithmetic {
+    int e;
     public static void main(String[] args) {
         int a;
         int b;
@@ -28,6 +26,7 @@ class CompileArithmetic extends io{
         io.println(c);
         d = a + this.add(b,c);
         io.println(d);
-        return d;
+        e = 5;
+        return a + e;
     }
 }
