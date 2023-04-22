@@ -267,6 +267,54 @@ public class Optimization implements JmmOptimization {
         return retString.toString();
     }
 
+    public String getInvoke(JmmNode dotOp, JmmNode instance, String temp) {
+        StringBuilder retString = new StringBuilder();
+        JmmNode left = dotOp.getJmmChild(0);
+        while (!left.hasAttribute("value")){
+            left = left.getJmmChild(0);
+        }
+        List<JmmNode> identifiers = dotOp.getChildren();
+        identifiers.removeIf(node -> !Objects.equals(node.getKind(), "Identifier"));
+        if(Objects.equals(left.get("value"), "this")){
+            retString.append("invokevirtual(").append(temp).append("\"").append(dotOp.get("method")).append("\"");
+            for(JmmNode node : identifiers){
+                retString.append(", ").append(getVarOrType(node, instance, "var"));
+            }
+            retString.append(")");
+            return retString.toString();
+        }
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                retString.append("invokevirtual(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
+                for(JmmNode node : identifiers){
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                }
+                retString.append(")");
+                return retString.toString();
+            }
+        }
+        int i = 1;
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), left.get("value"))){
+                retString.append("invokevirtual(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
+                for(JmmNode node : identifiers){
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                }
+                retString.append(")");
+                return retString.toString();
+            }
+            i++;
+        }
+
+        retString.append("invokestatic(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
+        for(JmmNode node : identifiers){
+            retString.append(", ").append(getVarOrType(node, instance, "var"));
+        }
+        retString.append(")");
+        return retString.toString();
+    }
+
     public void checkVoidMethod(JmmNode instance){
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
 

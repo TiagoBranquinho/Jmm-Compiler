@@ -1,16 +1,7 @@
 class CompileArithmetic {
     int e;
     public static void main(String[] args) {
-        int a;
-        int b;
-        int c;
-        int d;
-        a = 1;
-        b = 2;
-        c = 1 + 100;
-        c = c * 130;
-        c = c + 135724;
-        io.println(c);
+
     }
 
     public int foo() {
@@ -18,15 +9,12 @@ class CompileArithmetic {
         int b;
         int c;
         int d;
+        int x;
         a = 1;
         b = 2;
-        c = 1 + 100;
-        c = c * 130;
-        c = c + 135724;
-        io.println(c);
-        d = a + this.add(b,c);
-        io.println(d);
-        e = 5;
+        c = 1;
+        d = 1;
+        x = 1 + a.foo(b,c).gato(d);
         return a + e;
     }
 }
