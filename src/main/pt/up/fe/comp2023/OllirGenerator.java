@@ -90,7 +90,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
-        return this.optimization.getVarOrType(jmmNode, instance, "var");
+        if(optimization.isField(jmmNode)){
+            int number = optimization.addGetField(jmmNode, s);
+            return "temp_" + number + s;
+        }
+        else{
+            return optimization.getVarOrType(jmmNode, instance, "var");
+        }
     }
 
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
@@ -220,9 +226,18 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         JmmNode instance = parent.getJmmChild(0);
         String var = optimization.getVarOrType(jmmNode, instance, "var");
         String type = optimization.getVarOrType(jmmNode, instance, "type");
-        ret.append(var).append(" :=").append(type).append(" ");
         for (JmmNode node : jmmNode.getChildren()){
-            ret.append(visit(node, type));
+            if(optimization.isField(jmmNode)){
+                ret.append("putfield(this, ").append(var);
+                ret.append(", ");
+                ret.append(visit(node, type));
+                ret.append(").V");
+            }
+            else{
+
+                ret.append(var).append(" :=").append(type).append(" ");
+                ret.append(visit(node, type));
+            }
         }
         this.optimization.appendToOllir(ret + ";\n");
         return "";

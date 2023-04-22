@@ -7,6 +7,7 @@ import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -62,8 +63,19 @@ public class Launcher {
             BuildingAnalysis analyser = new BuildingAnalysis();
             analyser.semanticAnalysis(parserResult);
 
-            //Optimization optimization = new Optimization();
-            //optimization.toOllir(semanticAnalysis);
+            Optimization optimization = new Optimization();
+            OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+
+            //Instantiate JasminBackender
+            var jasminBackend = new JasminBackender();
+
+            var jasminResult = jasminBackend.toJasmin(ollirResult);
+
+            // Generate .class file
+            jasminResult.compile(new File("jasminResult"));
+
+            // Run .class file
+            jasminResult.run();
 
         }
 
@@ -84,15 +96,6 @@ public class Launcher {
 
 
         // ... add remaining stages
-
-        /* Instantiate JasminBackender
-        var jasminBackend = new JasminBackender();
-
-        var backendResult = jasminBackend.toJasmin(ollirResult);
-
-        // Generate .class file
-        backendResult.compile(path.toFile());
-         */
     }
 
     private static Map<String, String> parseArgs(String[] args) {
