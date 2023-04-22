@@ -14,7 +14,7 @@ class CompileArithmetic {
         b = 2;
         c = 1;
         d = 1;
-        x = 1 + a.foo(b,c).gato(d);
+        x = a.foo(b,c).gato(d) + 1 + 2;
         return 1;
     }
 }

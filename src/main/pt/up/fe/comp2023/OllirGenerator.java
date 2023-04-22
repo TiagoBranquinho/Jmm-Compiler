@@ -106,8 +106,9 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         StringBuilder code = new StringBuilder();
         for (JmmNode node : jmmNode.getChildren()){
             if(Objects.equals(node.getKind(), "BinaryOp")){
+                String retString = visit(node, s);
                 int tempNumber = optimization.getTempNumber();
-                code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(visit(node, s));
+                code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(retString);
                 code.append(";\n");
                 optimization.appendToOllir(code.toString());
                 ret.append("temp_").append(tempNumber).append(s).append(" ").append(jmmNode.get("op")).append(s).append(" ");
