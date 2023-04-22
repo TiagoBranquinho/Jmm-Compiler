@@ -49,6 +49,10 @@ public class Reports {
         return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkDotOp");
     }
 
+    public static Report reportCheckLoopStatement(JmmNode jmmNode){
+        return new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(jmmNode.get("lineStart")), Integer.parseInt(jmmNode.get("colStart")), "There has been an error concerning checkLoopStatement");
+    }
+
 }
 
 //    public Report(pt.up.fe.comp.jmm.report.ReportType type, pt.up.fe.comp.jmm.report.Stage stage, int line, java.lang.String message) { /* compiled code */ }

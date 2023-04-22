@@ -63,7 +63,7 @@ public class Launcher {
             BuildingAnalysis analyser = new BuildingAnalysis();
             analyser.semanticAnalysis(parserResult);
 
-            Optimization optimization = new Optimization();
+            /*Optimization optimization = new Optimization();
             OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
 
             //Instantiate JasminBackender
@@ -75,7 +75,7 @@ public class Launcher {
             jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            jasminResult.run();
+            jasminResult.run();*/
 
         }
 
