@@ -26,6 +26,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     public List<Report> globalReports = new ArrayList<>();
 
     final List<String> _PERMITTED_TYPES = List.of(new String[]{"int", "boolean", "void", "String[]", "int[]", "String"});
+    final List<String> _BOOLEAN_OPERATORS = List.of(new String[]{"&&", "||", ">", "<", ">=", "<=", "==", "!="});
+
     //receber a symbolTable
     //reports (depois têm de ser concatenados)
     @Override
@@ -310,11 +312,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));
 
 
-
-        String childValue = children.get(0).get("value");
-        System.out.println("child 0 value:" + children.get(0).get("value"));
-
-
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
             || children.get(0).get("isArray").equals("true")
             || children.get(1).get("isArray").equals("true")){
@@ -337,7 +334,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             //Se não for um operador que permita a utilização de booleanos
             //e a situação de aceder a elementos de arrays?
-            if(op.equals("&&") || op.equals("||")){
+            if(_BOOLEAN_OPERATORS.contains(op)){
                 System.out.println("operador é boolean");
                 jmmNode.put("type", "boolean");
                 jmmNode.put("isArray", "false");
@@ -363,9 +360,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             }
 
 
-            /*String value = children.get(0).get("type");
-            jmmNode.put("type", value);
-            jmmNode.put("isArray", "false");*/
 
         }
 
@@ -413,18 +407,21 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("children: " + jmmNode.getChildren());
 
         if(jmmNode.getChildren().get(0).get("type").equals("none")){
+            System.out.println("primeiro if");
             jmmNode.put("type", "none");
             jmmNode.put("type", "false");
             return globalReports;
 
         }else if(!jmmNode.getChildren().get(0).get("type").equals("boolean") || jmmNode.getChildren().get(0).get("isArray").equals("true")){
 
+            System.out.println("segundo if");
             jmmNode.put("type", "none");
             jmmNode.put("type", "false");
             globalReports.add(Reports.reportCheckLoopStatement(jmmNode));
             return globalReports;
         }
 
+        System.out.println("default");
         jmmNode.put("type", "none");
         jmmNode.put("type", "false");
 

@@ -60,6 +60,7 @@ statement : '{' ( statement )* '}' # Stmt
     | 'return' expression? ';' # ReturnStmt;
 
 expression : '(' expression ')' #PrecedenceOp
+    | expression '[' expression ']' #SubscriptOp
     | op='!' expression #BinaryOp
     | expression '.' method='length' #DotOp
     | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
@@ -67,7 +68,6 @@ expression : '(' expression ')' #PrecedenceOp
     | expression op=('+' | '-') expression #BinaryOp
     | expression op=('<' | '>' | '==' | '<=' | '>=' | '!=') expression #BinaryOp
     | expression op=('&&' | '||') expression #BinaryOp
-    | expression '[' expression ']' #SubscriptOp
     | 'new' 'int' '[' expression ']' #ArrayDeclaration
     | 'new' objClass=ID '(' ')' #ObjectDeclaration
     | value=INTEGER #Integer

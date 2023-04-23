@@ -1,38 +1,11 @@
-import A;
+class T5NoReports {
 
-class CallToMethodAssumedInExtends extends A {
+    int foo(int a) {
 
-    public static void main(String[] args) {
+        while(a < 10) {
+            a = a + 1;
+        }
 
-    }
-
-    public int foo() {
-        CallToMethodAssumedInExtends a;
-        a = new CallToMethodAssumedInExtends();
-
-        // Assume bar() is in A
-        a.bar();
-
-        return 0;
+        return a;
     }
 }
-
-/*import A;
-
-class CallToMethodAssumedInExtends extends A {
-
-    public static void main(String[] args) {
-
-    }
-
-    public int foo() {
-        CallToMethodAssumedInExtends a;
-        a = new CallToMethodAssumedInExtends();
-
-        // Assume bar() is in A
-        a.bar();
-        a.length;
-
-        return 0;
-    }
-}*/
