@@ -664,14 +664,25 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
         String className = mySymbolTable.getClassName();
+        String methodNode = null;
+        Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
+
+        if (instanceDeclaration.isPresent()) {
+            methodNode = instanceDeclaration.get().get("instance");
+        } else {
+            methodNode = "main";
+        }
 
         if(jmmNode.get("value").equals("this")){
             //FAZER EXCEÇÃO SE FOR STATIC
+            System.out.println("dentro do if do this");
+            System.out.println("className: " + className);
 
-            if(className.equals("main")){
+            if(methodNode.equals("main")){
+                System.out.println("é da main");
                 jmmNode.put("type", "none");
                 jmmNode.put("isArray", "false");
-                globalReports.add(Reports.reportCheckDotOp(jmmNode));
+                globalReports.add(Reports.reportCheckReservedExpr(jmmNode));
                 return globalReports;
             }
 
