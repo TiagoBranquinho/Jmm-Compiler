@@ -663,9 +663,24 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             return globalReports;
         }
 
-        //
-        // FALTA FAZER PARA O THIS
-        //
+        String className = mySymbolTable.getClassName();
+
+        if(jmmNode.get("value").equals("this")){
+            //FAZER EXCEÇÃO SE FOR STATIC
+
+            if(className.equals("main")){
+                jmmNode.put("type", "none");
+                jmmNode.put("isArray", "false");
+                globalReports.add(Reports.reportCheckDotOp(jmmNode));
+                return globalReports;
+            }
+
+            jmmNode.put("type", className);
+            jmmNode.put("isArray", "false");
+            return globalReports;
+        }
+
+
 
 
         if(parent.isPresent()){
@@ -808,6 +823,9 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
 
+
+
+
         String methodNode = jmmNode.get("method");
         System.out.println("methodNode: " + methodNode);
 
@@ -822,9 +840,28 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         List<String> imports = mySymbolTable.getImports();
         String extendedClassName = mySymbolTable.getSuper();
         String className = mySymbolTable.getClassName();
+
+        /*if(jmmNode.getChildren().get(0).get("value").equals("this")){
+            //FAZER EXCEÇÃO SE FOR STATIC
+
+            if(className.equals("main")){
+                jmmNode.put("type", "none");
+                jmmNode.put("isArray", "false");
+                globalReports.add(Reports.reportCheckDotOp(jmmNode));
+                return globalReports;
+            }
+
+            jmmNode.put("type", className);
+            jmmNode.put("isArray", "false");
+            return globalReports;
+        }*/
+
+
         System.out.println("import: " + imports);
         System.out.println("jmmNode.getChildren().get(0).get(\"type\"): " + jmmNode.getChildren().get(0).get("type"));
         System.out.println("extendedClassName: " + extendedClassName);
+
+
 
 
         //Se for de um import
