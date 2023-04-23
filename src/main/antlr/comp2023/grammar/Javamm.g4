@@ -61,7 +61,7 @@ statement : '{' ( statement )* '}' # Stmt
 
 expression : '(' expression ')' #PrecedenceOp
     | op='!' expression #BinaryOp
-    | expression '.' 'length' #DotOp
+    | expression '.' method='length' #DotOp
     | expression '.' method=ID '(' ( expression ( ',' expression )* )? ')' #DotOp
     | expression op=('*' | '/') expression #BinaryOp
     | expression op=('+' | '-') expression #BinaryOp

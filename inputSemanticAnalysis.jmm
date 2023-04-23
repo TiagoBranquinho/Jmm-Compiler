@@ -1,28 +1,21 @@
-/*class CallToUndeclaredMethod {
+import A;
+
+class CallToMethodAssumedInExtends extends A {
 
     public static void main(String[] args) {
 
     }
 
     public int foo() {
-        CallToUndeclaredMethod a;
-        a = new CallToUndeclaredMethod();
+        CallToMethodAssumedInExtends a;
+        a = new CallToMethodAssumedInExtends();
 
+        // Assume bar() is in A
         a.bar();
 
         return 0;
     }
-}*/
-
-class Array_Index_Bad {
-
-	public static void main(String[] args) {
-        int[] arr;
-
-		arr[true] = 10;
-	}
 }
-
 
 /*import A;
 
