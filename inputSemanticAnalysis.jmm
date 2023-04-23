@@ -1,4 +1,4 @@
-class CallToUndeclaredMethod {
+/*class CallToUndeclaredMethod {
 
     public static void main(String[] args) {
 
@@ -12,6 +12,15 @@ class CallToUndeclaredMethod {
 
         return 0;
     }
+}*/
+
+class Array_Index_Bad {
+
+	public static void main(String[] args) {
+        int[] arr;
+
+		arr[true] = 10;
+	}
 }
 
 

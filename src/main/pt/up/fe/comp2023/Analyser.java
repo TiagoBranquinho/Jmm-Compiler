@@ -445,13 +445,13 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
     private List<Report> checkAssignment(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
-        List<JmmNode> children = jmmNode.getChildren();
-
         System.out.println("checkAssignment");
 
         System.out.println("node: " + jmmNode);
         System.out.println("node attributes: " + jmmNode.getAttributes());
-        System.out.println("var: " + jmmNode.get("var"));
+        //System.out.println("var: " + jmmNode.get("var"));
+
+        List<JmmNode> children = jmmNode.getChildren();
 
         System.out.println("children: " + children);
 
@@ -611,13 +611,15 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("node attributtes: " + jmmNode.getAttributes());
 
         System.out.println("children: " + jmmNode.getChildren());
+        System.out.println("parent: " + parent);
 
         String value = jmmNode.get("value");
 
-        if(Objects.equals(value, "true") || Objects.equals(value, "false")){
+        if(value.equals("true") || value.equals("false")){
             jmmNode.put("type", "boolean");
             jmmNode.put("isArray", "false");
             System.out.println("type:" + jmmNode.get("type"));
+            return globalReports;
         }
 
         //
