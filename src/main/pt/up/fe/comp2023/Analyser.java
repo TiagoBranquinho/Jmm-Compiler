@@ -385,9 +385,15 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("child 2 attributes: " + children.get(2).getAttributes());
 
 
+
+
+        if(jmmNode.getChildren().get(0).get("type").equals("boolean")){
+            return globalReports;
+        }
+
         String op = children.get(0).get("op");
 
-        if(Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "*") ||Objects.equals(op, "/")){
+        if(!_BOOLEAN_OPERATORS.contains(op)){
             globalReports.add(Reports.reportcheckConditionalStatement(jmmNode));
             System.out.println("globalReports checkCondition: " + globalReports);
             return globalReports;
@@ -436,6 +442,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("attributes: " + jmmNode.getAttributes());
         System.out.println("children: " + jmmNode.getChildren());
 
+        jmmNode.put("type", "none");
+        jmmNode.put("type", "false");
 
 
         return globalReports;
