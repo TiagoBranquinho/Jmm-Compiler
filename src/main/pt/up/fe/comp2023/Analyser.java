@@ -547,6 +547,27 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("extendedClassName: " + extendedClassName);
         System.out.println("className: " + className);
 
+        //Primeiro é um int resultante de um array
+        if(jmmNode.getChildren().size() > 1){
+
+            System.out.println("children number > 1");
+
+
+            if(!jmmNode.getChildren().get(0).get("type").equals(jmmNode.getChildren().get(1).get("type"))){
+
+                System.out.println("children have different types 1");
+                jmmNode.put("type", "none");
+                jmmNode.put("isArray", "false");
+                globalReports.add(Reports.reportcheckAssignment(jmmNode));
+                return globalReports;
+            }else{
+                System.out.println("all good, children have the same type");
+                return globalReports;
+
+            }
+
+        }
+
         if (jmmNode.get("type").equals("none") && jmmNode.getChildren().get(0).get("type").equals("none")) {
             System.out.println("primeiro if");
             return globalReports;
@@ -563,10 +584,10 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             return globalReports;
 
-        }else if(jmmNode.get("type").equals(extendedClassName) && jmmNode.getChildren().get(0).get("type").equals(className)){
+        } else if (jmmNode.get("type").equals(extendedClassName) && jmmNode.getChildren().get(0).get("type").equals(className)) {
 
             return globalReports;
-        }else if (imports.contains(jmmNode.get("type")) && imports.contains(jmmNode.getChildren().get(0).get("type"))) { //se ambos forem um import
+        } else if (imports.contains(jmmNode.get("type")) && imports.contains(jmmNode.getChildren().get(0).get("type"))) { //se ambos forem um import
             System.out.println("quarto if");
 
             return globalReports;
