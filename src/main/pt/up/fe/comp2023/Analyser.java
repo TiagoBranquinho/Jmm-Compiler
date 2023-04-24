@@ -51,7 +51,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         addVisit("Stmt", this::checkWithStmt);
         addVisit("ReturnStmt", this::checkReturnStmt);
         //addVisit("ReturnType", this::dealWithReturnType);
-        //addVisit("ParameterType", this::dealWithParameterType);
+        addVisit("ParameterType", this::checkParameterType);
         addVisit("Assignment", this::checkAssignment);
         addVisit("ArrayDeclaration", this::checkArrayDeclaration);
         addVisit("SubscriptOp", this::checkSubscriptOp);
@@ -484,7 +484,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("children: " + children);
 
         System.out.println("assignment child 0: " + children.get(0).getAttributes());
-        System.out.println("child 0 type: " + children.get(0).get("type"));
+        //System.out.println("child 0 type: " + children.get(0).get("type"));
         String methodNode = null;
         Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
 
@@ -550,10 +550,10 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         String extendedClassName = mySymbolTable.getSuper();
         String className = mySymbolTable.getClassName();
 
-        System.out.println("jmmNode.getChildren().get(0).get(\"type\")" + jmmNode.getChildren().get(0).get("type"));
+        /*System.out.println("jmmNode.getChildren().get(0).get(\"type\")" + jmmNode.getChildren().get(0).get("type"));
         System.out.println("imports: " + imports);
         System.out.println("extendedClassName: " + extendedClassName);
-        System.out.println("className: " + className);
+        System.out.println("className: " + className);*/
 
         //Primeiro é um int resultante de um array
         if(jmmNode.getChildren().size() > 1){
@@ -782,7 +782,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             return globalReports;
         }
 
-
+        jmmNode.put("type","none");
+        jmmNode.put("isArray", "false");
         globalReports.add(Reports.reportCheckObjectDeclaration(jmmNode));
         return globalReports;
     }
@@ -1019,6 +1020,24 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
         //return globalReports;
+    }
+
+    private List<Report> checkParameterType(JmmNode jmmNode, MySymbolTable mySymbolTable){
+
+
+        System.out.println("checkParameterType");
+
+        System.out.println("node: " + jmmNode);
+        System.out.println("node attributes: " + jmmNode.getAttributes());
+
+        System.out.println("children: " + jmmNode.getChildren());
+
+        jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
+        jmmNode.put("isArray", jmmNode.getChildren().get(0).get("isArray"));
+
+
+
+        return globalReports;
     }
 
 }
