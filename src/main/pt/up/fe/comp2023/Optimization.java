@@ -283,6 +283,7 @@ public class Optimization implements JmmOptimization {
                 retString.append(", ").append(getVarOrType(node, instance, "var"));
         }
         retString.append(")");
+        this.decreaseTempNumber();
         return retString.toString();
     }
 
