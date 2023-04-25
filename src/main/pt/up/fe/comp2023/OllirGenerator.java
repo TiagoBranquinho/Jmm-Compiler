@@ -91,6 +91,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         }
         JmmNode instance = parent.getJmmChild(0);
         if(optimization.isField(jmmNode)){
+            System.out.println("yeeeeeeeeeee");
             int number = optimization.addGetField(jmmNode, s);
             return "temp_" + number + s;
         }
@@ -267,12 +268,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         for(JmmNode node : jmmNode.getChildren()){
             if(Objects.equals(node.getKind(), "DotOp")){
                 childret = visit(node, s);
+                String invoke = optimization.getInvoke(jmmNode, instance, childret);
                 int tempNumber = optimization.getTempNumber();
                 if(!Objects.equals(s, ".V")){
                     code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
                 }
                 System.out.println("called getInvoke parent");
-                code.append(optimization.getInvoke(jmmNode, instance, childret)).append(s);
+                code.append(invoke).append(s);
                 if(!Objects.equals(s, ".V")){
                     code.append(";\n");
                 }
@@ -284,12 +286,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
             }
         }
+        String invoke = optimization.getInvoke(jmmNode, instance);
         int tempNumber = optimization.getTempNumber();
         if(!Objects.equals(s, ".V")){
             code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
         }
         System.out.println("called getInvoke last");
-        code.append(optimization.getInvoke(jmmNode, instance)).append(s);
+        code.append(invoke).append(s);
         if(!Objects.equals(s, ".V")){
             code.append(";\n");
         }

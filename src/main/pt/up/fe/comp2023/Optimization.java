@@ -188,7 +188,7 @@ public class Optimization implements JmmOptimization {
         }
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
             if(Objects.equals(localVar.getName(), var)){
-                int tempNumber = this.getTempNumber();
+                //int tempNumber = this.getTempNumber();
                 //ollirCode.append()
                 if(Objects.equals(condition, "var")){
                     retString.append(var);
@@ -230,8 +230,12 @@ public class Optimization implements JmmOptimization {
         if(Objects.equals(left.get("value"), "this")){
             retString.append("invokevirtual(this, \"").append(dotOp.get("method")).append("\"");
             for(JmmNode node : identifiers){
-                retString.append(", ").append(getVarOrType(node, instance, "var"));
-            }
+                if(isField(node)){
+                    String type = getVarOrType(node, instance, "type");
+                    retString.append(", temp_").append(addGetField(node, type)).append(type);
+                }
+                else
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));            }
             retString.append(")");
             return retString.toString();
         }
@@ -240,7 +244,12 @@ public class Optimization implements JmmOptimization {
             if(Objects.equals(localVar.getName(), left.get("value"))){
                 retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
                 for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                    if(isField(node)){
+                        String type = getVarOrType(node, instance, "type");
+                        retString.append(", temp_").append(addGetField(node, type)).append(type);
+                    }
+                    else
+                        retString.append(", ").append(getVarOrType(node, instance, "var"));
                 }
                 retString.append(")");
                 return retString.toString();
@@ -251,7 +260,12 @@ public class Optimization implements JmmOptimization {
             if(Objects.equals(parameter.getName(), left.get("value"))){
                 retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
                 for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
+                    if(isField(node)){
+                        String type = getVarOrType(node, instance, "type");
+                        retString.append(", temp_").append(addGetField(node, type)).append(type);
+                    }
+                    else
+                        retString.append(", ").append(getVarOrType(node, instance, "var"));
                 }
                 retString.append(")");
                 return retString.toString();
@@ -261,7 +275,12 @@ public class Optimization implements JmmOptimization {
 
         retString.append("invokestatic(").append(left.get("value")).append(", \"").append(dotOp.get("method")).append("\"");
         for(JmmNode node : identifiers){
-            retString.append(", ").append(getVarOrType(node, instance, "var"));
+            if(isField(node)){
+                String type = getVarOrType(node, instance, "type");
+                retString.append(", temp_").append(addGetField(node, type)).append(type);
+            }
+            else
+                retString.append(", ").append(getVarOrType(node, instance, "var"));
         }
         retString.append(")");
         return retString.toString();
@@ -278,8 +297,12 @@ public class Optimization implements JmmOptimization {
         if(Objects.equals(left.get("value"), "this")){
             retString.append("invokevirtual(").append(temp).append(", ").append("\"").append(dotOp.get("method")).append("\"");
             for(JmmNode node : identifiers){
-                retString.append(", ").append(getVarOrType(node, instance, "var"));
-            }
+                if(isField(node)){
+                    String type = getVarOrType(node, instance, "type");
+                    retString.append(", temp_").append(addGetField(node, type)).append(type);
+                }
+                else
+                    retString.append(", ").append(getVarOrType(node, instance, "var"));            }
             retString.append(")");
             return retString.toString();
         }
@@ -288,8 +311,12 @@ public class Optimization implements JmmOptimization {
             if(Objects.equals(localVar.getName(), left.get("value"))){
                 retString.append("invokevirtual(").append(temp).append(", ").append(", \"").append(dotOp.get("method")).append("\"");
                 for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
+                    if(isField(node)){
+                        String type = getVarOrType(node, instance, "type");
+                        retString.append(", temp_").append(addGetField(node, type)).append(type);
+                    }
+                    else
+                        retString.append(", ").append(getVarOrType(node, instance, "var"));                }
                 retString.append(")");
                 return retString.toString();
             }
@@ -299,8 +326,12 @@ public class Optimization implements JmmOptimization {
             if(Objects.equals(parameter.getName(), left.get("value"))){
                 retString.append("invokevirtual(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
                 for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
+                    if(isField(node)){
+                        String type = getVarOrType(node, instance, "type");
+                        retString.append(", temp_").append(addGetField(node, type)).append(type);
+                    }
+                    else
+                        retString.append(", ").append(getVarOrType(node, instance, "var"));                }
                 retString.append(")");
                 return retString.toString();
             }
@@ -309,8 +340,12 @@ public class Optimization implements JmmOptimization {
 
         retString.append("invokestatic(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
         for(JmmNode node : identifiers){
-            retString.append(", ").append(getVarOrType(node, instance, "var"));
-        }
+            if(isField(node)){
+                String type = getVarOrType(node, instance, "type");
+                retString.append(", temp_").append(addGetField(node, type)).append(type);
+            }
+            else
+                retString.append(", ").append(getVarOrType(node, instance, "var"));        }
         retString.append(")");
         return retString.toString();
     }
@@ -324,8 +359,10 @@ public class Optimization implements JmmOptimization {
 
     public boolean isField(JmmNode node){
         String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), var)){
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getFields()){
+            System.out.print("field is ");
+            System.out.println(field.getName());
+            if(Objects.equals(field.getName(), var)){
                 return true;
             }
         }
