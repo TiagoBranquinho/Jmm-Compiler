@@ -841,38 +841,17 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
 
-
-
-
         String methodNode = jmmNode.get("method");
         System.out.println("methodNode: " + methodNode);
 
 
-        //String returnTypeString = mySymbolTable.getReturnType(methodNode).getName();
 
         Type returnType = mySymbolTable.getReturnType(methodNode);
 
-        //System.out.println("returnType: " + returnTypeString);
-        //System.out.println("returnType isArray: " + returnType.isArray());
 
         List<String> imports = mySymbolTable.getImports();
         String extendedClassName = mySymbolTable.getSuper();
         String className = mySymbolTable.getClassName();
-
-        /*if(jmmNode.getChildren().get(0).get("value").equals("this")){
-            //FAZER EXCEÇÃO SE FOR STATIC
-
-            if(className.equals("main")){
-                jmmNode.put("type", "none");
-                jmmNode.put("isArray", "false");
-                globalReports.add(Reports.reportCheckDotOp(jmmNode));
-                return globalReports;
-            }
-
-            jmmNode.put("type", className);
-            jmmNode.put("isArray", "false");
-            return globalReports;
-        }*/
 
 
         System.out.println("import: " + imports);
@@ -968,6 +947,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
                 }
 
+                System.out.println("parameterTypes: " + parameterTypes);
+
                 List<String> parameterTypesCalled = new ArrayList<>();
 
                 for (int i = 0; i < jmmNode.getChildren().size(); i++) {
@@ -979,7 +960,18 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
                 }
 
+                System.out.println("parameterTypesCalled: " + parameterTypesCalled);
+
+                if(parameterTypes.size() != parameterTypesCalled.size()){
+                    System.out.println("different sizes");
+                    jmmNode.put("type", "none");
+                    jmmNode.put("isArray", "false");
+                    globalReports.add(Reports.reportCheckDotOp(jmmNode));
+                    return globalReports;
+                }
+
                 for (int i = 0; i < parameterTypesCalled.size(); i++) {
+                    System.out.println("i: " + i);
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
                     System.out.println("parameterTypesCalled: " + i + " " + parameterTypesCalled.get(i));
                     if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))) {
