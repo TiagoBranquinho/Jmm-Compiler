@@ -282,10 +282,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
 
-
-
-
-        // TO DO criar reports em caso de erro
         jmmNode.put("type", "none");
         jmmNode.put("isArray", "false");
         globalReports.add(Reports.reportCheckType(jmmNode));
@@ -859,8 +855,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("extendedClassName: " + extendedClassName);
 
 
-
-
         //Se for de um import
         if(imports.contains(jmmNode.getChildren().get(0).get("type")) ||
                 (className.equals(jmmNode.getChildren().get(0).get("type")) && extendedClassName != null)) {
@@ -974,7 +968,9 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     System.out.println("i: " + i);
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
                     System.out.println("parameterTypesCalled: " + i + " " + parameterTypesCalled.get(i));
-                    if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))) {
+                    if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))
+                    && !parameterTypes.get(i).equals("none")
+                    && !parameterTypesCalled.get(i).equals("none")) {
                         System.out.println("returnType: " + returnType.getName());
                         System.out.println("returnType isArray: " + returnType.isArray());
                         jmmNode.put("type", returnType.getName());
@@ -984,12 +980,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     }
                 }
 
-                if (parameterTypes.size() != parameterTypesCalled.size()) {
-                    jmmNode.put("type", "none");
-                    jmmNode.put("isArray", "false");
-                    globalReports.add(Reports.reportCheckDotOp(jmmNode));
-                    return globalReports;
-                }
 
 
                 System.out.println("returnType: " + returnType.getName());
