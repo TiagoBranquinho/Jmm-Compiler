@@ -300,9 +300,8 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         }
         int tempNumber = optimization.getTempNumber();
 
-        if(!Objects.equals(s, ".V")) {
-            code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
-        }
+        code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
+
         code.append(invoke);
         code.append(")").append(s);
 
