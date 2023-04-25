@@ -1,24 +1,8 @@
-class CompileArithmetic {
-    int z;
-    public static void main(String[] args) {
-
-    }
-
-    public int foo() {
-        int a;
-        int b;
-        int c;
-        int d;
-        int x;
-        a = 1;
-        b = 2;
-        c = 1;
-        d = 1;
-        x = 1 + 2 + c + d;
-        return 2;
-    }
-
-    public boolean gato(){
-        return true;
-    }
+import io;
+class AddMultConstants {
+	public static void main(String[] args) {
+		io.println(1+2*3);
+		io.println(1+2*3+5);
+		io.println(1+2*3+6/3);
+	}
 }

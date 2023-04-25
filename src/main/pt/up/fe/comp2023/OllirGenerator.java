@@ -105,18 +105,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         System.out.println("in binary op");
         System.out.println(s);
 
-        if(Objects.equals(s, ".V")){
-            JmmNode child = jmmNode.getJmmChild(0);
-            while(!child.hasAttribute("value")){
-                child = child.getJmmChild(0);
-            }
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            s = optimization.getVarOrType(child, instance, "type");
-        }
+        s = ".i32";
 
 
 
