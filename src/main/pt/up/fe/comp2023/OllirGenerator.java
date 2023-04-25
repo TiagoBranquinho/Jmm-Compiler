@@ -91,7 +91,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
-        if(optimization.isField(jmmNode)){
+        if(optimization.isField(jmmNode, instance)){
             s = optimization.getVarOrType(jmmNode, instance, "type");
             int number = optimization.addGetField(jmmNode, s);
             return "temp_" + number + s;
@@ -263,7 +263,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         String var = optimization.getVarOrType(jmmNode, instance, "var");
         String type = optimization.getVarOrType(jmmNode, instance, "type");
         for (JmmNode node : jmmNode.getChildren()){
-            if(optimization.isField(jmmNode)){
+            if(optimization.isField(jmmNode, instance)){
                 ret.append("putfield(this, ").append(var);
                 ret.append(", ");
                 ret.append(visit(node, type));

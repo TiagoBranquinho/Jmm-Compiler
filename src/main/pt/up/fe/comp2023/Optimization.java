@@ -252,11 +252,17 @@ public class Optimization implements JmmOptimization {
             ollirCode.append("ret.V;\n");
     }
 
-    public boolean isField(JmmNode node){
+    public boolean isField(JmmNode node, JmmNode instance){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
+
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(field.getName(), var)){
+                return false;
+            }
+        }
+
         for(Symbol field : jmmSemanticsResult.getSymbolTable().getFields()){
-            System.out.print("field is ");
-            System.out.println(field.getName());
             if(Objects.equals(field.getName(), var)){
                 return true;
             }
