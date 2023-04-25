@@ -36,8 +36,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         addVisit("ClassDeclaration", this::);
         addVisit("ImportDeclaration", this::);*/
         addVisit("FieldDeclaration", this::checkFieldDeclaration);
-        /*addVisit("MethodDeclaration", this::);
-        addVisit("InstanceDeclaration", this::);*/
+        //addVisit("MethodDeclaration", this::);
+        addVisit("InstanceDeclaration", this::checkInstanceDeclaration);
         /*addVisit("MainDeclaration", this::dealWithInstanceDeclaration);*/
         addVisit("VarDeclarationStmt", this::checkVarDeclarationStmt);
         addVisit("Identifier", this::checkDeclaration);
@@ -866,22 +866,29 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
                 List<String> parameterTypes = new ArrayList<>();
 
+                List<String> parameterArrays = new ArrayList<>();
+
                 for (int i = 0; i < parameters.size(); i++) {
                     System.out.println("parameters");
                     System.out.println(parameters.get(i));
                     System.out.println(parameters.get(i).getName());
 
                     parameterTypes.add(parameters.get(i).getType().getName());
+                    parameterArrays.add(String.valueOf(parameters.get(i).getType().isArray()));
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
+                    System.out.println("parameterArrays: " + i + " " + parameterArrays.get(i));
 
                 }
 
                 List<String> parameterTypesCalled = new ArrayList<>();
+                List<String> parameterIsArrayCalled = new ArrayList<>();
 
                 for (int i = 0; i < jmmNode.getChildren().size(); i++) {
                     if (i > 0) {
-                        System.out.println("child > 0: " + jmmNode.getChildren().get(i).get("type"));
+                        System.out.println("child > 0 type: " + jmmNode.getChildren().get(i).get("type"));
+                        System.out.println("child > 0 isArray: " + jmmNode.getChildren().get(i).get("isArray"));
                         parameterTypesCalled.add(jmmNode.getChildren().get(i).get("type"));
+                        parameterIsArrayCalled.add(jmmNode.getChildren().get(i).get("isArray"));
 
                     }
 
@@ -890,7 +897,10 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 for (int i = 0; i < parameterTypesCalled.size(); i++) {
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
                     System.out.println("parameterTypesCalled: " + i + " " + parameterTypesCalled.get(i));
-                    if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))) {
+                    System.out.println("parameterArrays: " + i + " " + parameterArrays.get(i));
+                    System.out.println("parameterIsArrayCalled: " + i + " " + parameterIsArrayCalled.get(i));
+                    if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))
+                    || !parameterArrays.get(i).equals(parameterIsArrayCalled.get(i))) {
                         System.out.println("returnType: " + returnType.getName());
                         System.out.println("returnType isArray: " + returnType.isArray());
                         jmmNode.put("type", returnType.getName());
@@ -930,6 +940,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 List<Symbol> parameters = mySymbolTable.getParameters(methodNode);
 
                 List<String> parameterTypes = new ArrayList<>();
+                List<String> parameterArrays = new ArrayList<>();
 
                 for (int i = 0; i < parameters.size(); i++) {
                     System.out.println("parameters");
@@ -938,23 +949,28 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
                     parameterTypes.add(parameters.get(i).getType().getName());
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
-
+                    parameterArrays.add(String.valueOf(parameters.get(i).getType().isArray()));
+                    System.out.println("parameterArrays: "+ i + " " + parameterTypes.get(i));
                 }
 
                 System.out.println("parameterTypes: " + parameterTypes);
 
                 List<String> parameterTypesCalled = new ArrayList<>();
+                List<String> parameterIsArrayCalled = new ArrayList<>();
 
                 for (int i = 0; i < jmmNode.getChildren().size(); i++) {
                     if (i > 0) {
-                        System.out.println("child > 0: " + jmmNode.getChildren().get(i).get("type"));
+                        System.out.println("child > 0 type: " + jmmNode.getChildren().get(i).get("type"));
+                        System.out.println("child > 0 isArray: " + jmmNode.getChildren().get(i).get("isArray"));
                         parameterTypesCalled.add(jmmNode.getChildren().get(i).get("type"));
+                        parameterIsArrayCalled.add(jmmNode.getChildren().get(i).get("isArray"));
 
                     }
 
                 }
 
                 System.out.println("parameterTypesCalled: " + parameterTypesCalled);
+                System.out.println("parameterIsArrayCalled: " + parameterIsArrayCalled);
 
                 if(parameterTypes.size() != parameterTypesCalled.size()){
                     System.out.println("different sizes");
@@ -968,9 +984,10 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     System.out.println("i: " + i);
                     System.out.println("parameterTypes: " + i + " " + parameterTypes.get(i));
                     System.out.println("parameterTypesCalled: " + i + " " + parameterTypesCalled.get(i));
-                    if (!parameterTypes.get(i).equals(parameterTypesCalled.get(i))
+                    if ((!parameterTypes.get(i).equals(parameterTypesCalled.get(i))
                     && !parameterTypes.get(i).equals("none")
-                    && !parameterTypesCalled.get(i).equals("none")) {
+                    && !parameterTypesCalled.get(i).equals("none"))
+                    || !parameterArrays.get(i).equals(parameterIsArrayCalled.get(i))) {
                         System.out.println("returnType: " + returnType.getName());
                         System.out.println("returnType isArray: " + returnType.isArray());
                         jmmNode.put("type", returnType.getName());
@@ -1015,6 +1032,30 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
         jmmNode.put("isArray", jmmNode.getChildren().get(0).get("isArray"));
 
+
+
+        return globalReports;
+    }
+
+    private List<Report> checkInstanceDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable){
+
+        System.out.println("checkInstanceDeclaration");
+
+        System.out.println("node: " + jmmNode);
+        System.out.println("node attributes: " + jmmNode.getAttributes());
+
+        System.out.println("children: " + jmmNode.getChildren());
+
+        if(jmmNode.getChildren().size() > 2){
+            if (jmmNode.getChildren().get(2).hasAttribute("type") && jmmNode.getChildren().get(2).hasAttribute("isArray")){
+                jmmNode.put("type", jmmNode.getChildren().get(2).get("type"));
+                jmmNode.put("isArray", jmmNode.getChildren().get(2).get("isArray"));
+                System.out.println("node attributes after the put: " + jmmNode.getAttributes());
+            }
+        }else{
+            jmmNode.put("type", "none");
+            jmmNode.put("isArray", "false");
+        }
 
 
         return globalReports;
