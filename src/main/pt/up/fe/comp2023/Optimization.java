@@ -228,21 +228,26 @@ public class Optimization implements JmmOptimization {
             left = left.getJmmChild(0);
         }
         if(Objects.equals(left.get("value"), "this")){
-            return "invokevirtual(";
+            return "invokevirtual";
         }
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
             if(Objects.equals(localVar.getName(), left.get("value"))){
-                return "invokevirtual(";
+                return "invokevirtual";
+            }
+        }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                return "invokevirtual";
             }
         }
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(parameter.getName(), left.get("value"))){
-                return "invokevirtual(";
+                return "invokevirtual";
             }
         }
 
-        return "invokestatic(";
+        return "invokestatic";
     }
 
     public void checkVoidMethod(JmmNode instance){
@@ -276,6 +281,40 @@ public class Optimization implements JmmOptimization {
         ollirCode.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" getfield(this, ").append(value).append(s).append(")").append(s);
         ollirCode.append(";\n");
         return tempNumber;
+    }
+
+    public String getDotOpType(JmmNode dotOp, JmmNode instance){
+        JmmNode left = dotOp.getJmmChild(0);
+        while(!left.hasAttribute("value")){
+            left = left.getJmmChild(0);
+        }
+        if(Objects.equals(left.get("value"), "this")){
+            return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+        }
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), left.get("value"))){
+                if(Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+
+        return ".V";
     }
 
 

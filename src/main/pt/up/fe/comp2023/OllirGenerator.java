@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
@@ -283,16 +284,22 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         StringBuilder code = new StringBuilder();
         JmmNode parent = jmmNode.getJmmParent();
         StringBuilder ret = new StringBuilder();
+        String oldS = s;
         while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
 
         StringBuilder invoke = new StringBuilder();
-        invoke.append(optimization.getInvoke(jmmNode, instance));
+        String invokeType = optimization.getInvoke(jmmNode, instance);
+        invoke.append(invokeType).append("(");
         List<JmmNode> children = jmmNode.getChildren();
 
+        if(Objects.equals(invokeType, "invokevirtual") && Objects.equals(s, ".V")){
+            s = optimization.getDotOpType(jmmNode, instance);
+        }
         invoke.append(visit(children.get(0), s));
+
         children.remove(0);
         invoke.append(", \"").append(jmmNode.get("method")).append("\"");
         for(JmmNode node : children){
@@ -300,12 +307,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         }
         int tempNumber = optimization.getTempNumber();
 
-        code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
-
+        if(!Objects.equals(s, ".V")) {
+            code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
+        }
         code.append(invoke);
         code.append(")").append(s);
 
-        if(!Objects.equals(s, ".V")){
+        if(!Objects.equals(oldS, ".V")){
             code.append(";\n");
             ret.append("temp_").append(tempNumber).append(s);
         }
