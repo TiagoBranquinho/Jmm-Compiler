@@ -17,4 +17,8 @@ class CompileArithmetic {
         io.println(1 + 2);
         return 2;
     }
+
+    public boolean gato(){
+        return true;
+    }
 }

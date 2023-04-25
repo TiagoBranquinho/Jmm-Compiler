@@ -187,7 +187,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         return "";
     }
 
-    private String dealWithReservedExpr(JmmNode jmmNode, String s){return jmmNode.get("value");}
+    private String dealWithReservedExpr(JmmNode jmmNode, String s){
+        String value = jmmNode.get("value");
+        if(Objects.equals(value, "true") || Objects.equals(value, "false")){
+            return value + ".bool";
+        }
+        return jmmNode.get("value");
+    }
 
     private String dealWithStmt(JmmNode jmmNode, String s){
         for (JmmNode node : jmmNode.getChildren()){
