@@ -104,6 +104,22 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
         System.out.println("in binary op");
         System.out.println(s);
+
+        if(Objects.equals(s, ".V")){
+            JmmNode child = jmmNode.getJmmChild(0);
+            while(!child.hasAttribute("value")){
+                child = child.getJmmChild(0);
+            }
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            JmmNode instance = parent.getJmmChild(0);
+            s = optimization.getVarOrType(child, instance, "type");
+        }
+
+
+
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
         for (JmmNode node : jmmNode.getChildren()){
@@ -120,7 +136,19 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
             }
         }
-        return ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length()).toString();
+        ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp")){
+            int tempNumber = optimization.getTempNumber();
+            StringBuilder temp = new StringBuilder();
+            temp.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(ret);
+            temp.append(";\n");
+            optimization.appendToOllir(temp.toString());
+            StringBuilder newRet = new StringBuilder();
+            newRet.append("temp_").append(tempNumber).append(s);
+            return newRet.toString();
+        }
+        else
+            return ret.toString();
 
     }
 
