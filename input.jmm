@@ -14,8 +14,7 @@ class CompileArithmetic {
         b = 2;
         c = 1;
         d = 1;
-        io.println(z);
-        x = this.foo(a,z).bar(d);
+        io.println(1 + 2);
         return 2;
     }
 }

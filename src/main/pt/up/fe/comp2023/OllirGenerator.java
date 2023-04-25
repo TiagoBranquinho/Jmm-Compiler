@@ -3,6 +3,7 @@ package pt.up.fe.comp2023;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
 import java.util.Objects;
 
 public class OllirGenerator extends AJmmVisitor <String , String > {
@@ -186,7 +187,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         return "";
     }
 
-    private String dealWithReservedExpr(JmmNode jmmNode, String s){return "";}
+    private String dealWithReservedExpr(JmmNode jmmNode, String s){return jmmNode.get("value");}
 
     private String dealWithStmt(JmmNode jmmNode, String s){
         for (JmmNode node : jmmNode.getChildren()){
@@ -256,7 +257,6 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithDotOp(JmmNode jmmNode, String s){
-        String childret;
         StringBuilder code = new StringBuilder();
         JmmNode parent = jmmNode.getJmmParent();
         StringBuilder ret = new StringBuilder();
@@ -265,41 +265,32 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         }
         JmmNode instance = parent.getJmmChild(0);
 
-        for(JmmNode node : jmmNode.getChildren()){
-            if(Objects.equals(node.getKind(), "DotOp")){
-                childret = visit(node, s);
-                String invoke = optimization.getInvoke(jmmNode, instance, childret);
-                int tempNumber = optimization.getTempNumber();
-                if(!Objects.equals(s, ".V")){
-                    code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
-                }
-                System.out.println("called getInvoke parent");
-                code.append(invoke).append(s);
-                if(!Objects.equals(s, ".V")){
-                    code.append(";\n");
-                }
-                optimization.appendToOllir(code.toString());
-                if(!Objects.equals(s, ".V")){
-                    ret.append("temp_").append(tempNumber).append(s);
-                }
-                return ret.toString();
+        StringBuilder invoke = new StringBuilder();
+        invoke.append(optimization.getInvoke(jmmNode, instance));
+        List<JmmNode> children = jmmNode.getChildren();
 
-            }
+        invoke.append(visit(children.get(0), s));
+        children.remove(0);
+        invoke.append(", \"").append(jmmNode.get("method")).append("\"");
+        for(JmmNode node : children){
+            invoke.append(", ").append(visit(node, s));
         }
-        String invoke = optimization.getInvoke(jmmNode, instance);
         int tempNumber = optimization.getTempNumber();
-        if(!Objects.equals(s, ".V")){
+
+        if(!Objects.equals(s, ".V")) {
             code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
         }
-        System.out.println("called getInvoke last");
-        code.append(invoke).append(s);
+        code.append(invoke);
+        code.append(")").append(s);
+
         if(!Objects.equals(s, ".V")){
             code.append(";\n");
-        }
-        optimization.appendToOllir(code.toString());
-        if(!Objects.equals(s, ".V")){
             ret.append("temp_").append(tempNumber).append(s);
         }
+        else{
+            optimization.decreaseTempNumber();
+        }
+        optimization.appendToOllir(code.toString());
         return ret.toString();
     }
 
