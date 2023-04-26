@@ -186,6 +186,16 @@ public class Optimization implements JmmOptimization {
                 return retString.toString();
             }
         }
+        int i = 1;
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), var)){
+                if(Objects.equals(condition, "var"))
+                    retString.append("$").append(i).append(".").append(var);
+                retString.append(typeToOllir(parameter.getType()));
+                return retString.toString();
+            }
+            i++;
+        }
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
             if(Objects.equals(localVar.getName(), var)){
                 //int tempNumber = this.getTempNumber();
@@ -196,16 +206,6 @@ public class Optimization implements JmmOptimization {
                 retString.append(typeToOllir(localVar.getType()));
                 return retString.toString();
             }
-        }
-        int i = 1;
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(parameter.getName(), var)){
-                if(Objects.equals(condition, "var"))
-                    retString.append("$").append(i).append(".").append(var);
-                retString.append(typeToOllir(parameter.getType()));
-                return retString.toString();
-            }
-            i++;
         }
         return node.get("value");
     }
@@ -262,6 +262,12 @@ public class Optimization implements JmmOptimization {
         String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
 
         for(Symbol field : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(field.getName(), var)){
+                return false;
+            }
+        }
+
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(field.getName(), var)){
                 return false;
             }
