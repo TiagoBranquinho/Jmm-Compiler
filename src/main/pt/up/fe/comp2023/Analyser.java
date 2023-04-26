@@ -495,6 +495,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         String var = jmmNode.get("var");
 
+        Boolean checkFields = true;
+
         //Se for um type que não é pârametro
         for (int i = 0; i < tipo.size(); i++) {
             System.out.println(tipo.get(i));
@@ -505,6 +507,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 System.out.println("ainda nas localVariables");
                 System.out.println("type: " + jmmNode.get("type"));
                 System.out.println("isArray: " + jmmNode.get("isArray"));
+                checkFields = false;
                 break;
 
 
@@ -513,10 +516,13 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         List<Symbol> parameters = mySymbolTable.getParameters(methodNode);
 
+
         //Se for um type que não é pârametro
         for (int i = 0; i < parameters.size(); i++) {
-            System.out.println(parameters.get(i));
+            System.out.println("parameters at " + i + " " +parameters.get(i));
+
             if (Objects.equals(parameters.get(i).getName(), var)) {
+                System.out.println("parameters tem uma variável igual a var");
                 jmmNode.put("type", parameters.get(i).getType().getName());
                 jmmNode.put("isArray", String.valueOf(parameters.get(i).getType().isArray()));
                 break;
@@ -524,23 +530,29 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             }
         }
 
-        List<Symbol> fields = mySymbolTable.getFields();
+        if(checkFields){
+            System.out.println("checkfields is true");
+            List<Symbol> fields = mySymbolTable.getFields();
+            //Se for um type que não é pârametro
+            for (int i = 0; i < fields.size(); i++) {
+                System.out.println(fields.get(i));
+                if (Objects.equals(fields.get(i).getName(), var)) {
+                    jmmNode.put("type", fields.get(i).getType().getName());
+                    jmmNode.put("isArray", String.valueOf(fields.get(i).getType().isArray()));
 
-        //Se for um type que não é pârametro
-        for (int i = 0; i < fields.size(); i++) {
-            System.out.println(fields.get(i));
-            if (Objects.equals(fields.get(i).getName(), var)) {
-                jmmNode.put("type", fields.get(i).getType().getName());
-                jmmNode.put("isArray", String.valueOf(fields.get(i).getType().isArray()));
-
-                if (methodNode.equals("main")) {
-                    //trata do caso mesmo que seja static
-                    globalReports.add(Reports.reportcheckAssignment(jmmNode));
-                    return globalReports;
+                    /*if (methodNode.equals("main")) {
+                        //trata do caso mesmo que seja static
+                        System.out.println("é main");
+                        globalReports.add(Reports.reportcheckAssignment(jmmNode));
+                        return globalReports;
+                    }*/
+                    break;
                 }
-                break;
             }
         }
+
+
+
 
         List<String> imports = mySymbolTable.getImports();
         String extendedClassName = mySymbolTable.getSuper();
@@ -587,14 +599,16 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             } else if (jmmNode.get("type").equals(extendedClassName) && jmmNode.getChildren().get(0).get("type").equals(className)) {
 
+                System.out.println("quarto if");
+
                 return globalReports;
             } else if (imports.contains(jmmNode.get("type")) && imports.contains(jmmNode.getChildren().get(0).get("type"))) { //se ambos forem um import
-                System.out.println("quarto if");
+                System.out.println("quinto if");
 
                 return globalReports;
 
             } else if (!jmmNode.get("type").equals(jmmNode.getChildren().get(0).get("type"))) {
-                System.out.println("quinto if");
+                System.out.println("sexto if");
 
                 System.out.println("node type: " + jmmNode.get("type"));
                 System.out.println("child 0  type: " + jmmNode.getChildren().get(0).get("type"));
@@ -603,11 +617,11 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
             }else if(jmmNode.get("type").equals(jmmNode.getChildren().get(0).get("type"))) {
 
-                System.out.println("sexto if");
+                System.out.println("sétimo if");
                 return globalReports;
             }
         }else{ //ou um ou outro ou ambos são unknown, nunca nenhum foi declarado
-                System.out.println("sétimo if");
+                System.out.println("oitavo if");
 
                 jmmNode.put("type", "none");
                 jmmNode.put("isArray", "false");
@@ -616,6 +630,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
 
+        System.out.println("não é nenhum dos ifs");
 
 
         jmmNode.put("type", "none");
