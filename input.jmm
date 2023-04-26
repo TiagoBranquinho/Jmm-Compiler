@@ -1,19 +1,17 @@
-class CompileArithmetic {
-    public static void main(String[] args) {
+import io;
 
+class A {
+    int a;
+
+    public int x(int a){
+        a = 10;
+        io.print(a);
+        return a;
     }
 
-    public int foo() {
-        int a;
-        int b;
-        int c;
-        int d;
-        int x;
-        a = 1;
-        b = 2;
-        c = 1;
-        d = 1;
-        x = this.foo(a,3) + this.foo(b,5) + this.foo(c,2);
-        return 2;
+    public static void main(String[] args){
+        A a;
+        a = new A();
+        a.x(2);
     }
 }

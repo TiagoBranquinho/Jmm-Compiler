@@ -1,8 +1,10 @@
 package pt.up.fe.comp2023;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
 import java.util.Objects;
 
 public class OllirGenerator extends AJmmVisitor <String , String > {
@@ -90,7 +92,8 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
-        if(optimization.isField(jmmNode)){
+        if(optimization.isField(jmmNode, instance)){
+            s = optimization.getVarOrType(jmmNode, instance, "type");
             int number = optimization.addGetField(jmmNode, s);
             return "temp_" + number + s;
         }
@@ -102,6 +105,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
         System.out.println("in binary op");
         System.out.println(s);
+
+        s = ".i32";
+
+
+
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
         for (JmmNode node : jmmNode.getChildren()){
@@ -118,7 +126,19 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
             }
         }
-        return ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length()).toString();
+        ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp")){
+            int tempNumber = optimization.getTempNumber();
+            StringBuilder temp = new StringBuilder();
+            temp.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(ret);
+            temp.append(";\n");
+            optimization.appendToOllir(temp.toString());
+            StringBuilder newRet = new StringBuilder();
+            newRet.append("temp_").append(tempNumber).append(s);
+            return newRet.toString();
+        }
+        else
+            return ret.toString();
 
     }
 
@@ -185,7 +205,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         return "";
     }
 
-    private String dealWithReservedExpr(JmmNode jmmNode, String s){return "";}
+    private String dealWithReservedExpr(JmmNode jmmNode, String s){
+        String value = jmmNode.get("value");
+        if(Objects.equals(value, "true") || Objects.equals(value, "false")){
+            return value + ".bool";
+        }
+        return jmmNode.get("value");
+    }
 
     private String dealWithStmt(JmmNode jmmNode, String s){
         for (JmmNode node : jmmNode.getChildren()){
@@ -238,7 +264,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         String var = optimization.getVarOrType(jmmNode, instance, "var");
         String type = optimization.getVarOrType(jmmNode, instance, "type");
         for (JmmNode node : jmmNode.getChildren()){
-            if(optimization.isField(jmmNode)){
+            if(optimization.isField(jmmNode, instance)){
                 ret.append("putfield(this, ").append(var);
                 ret.append(", ");
                 ret.append(visit(node, type));
@@ -255,48 +281,46 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithDotOp(JmmNode jmmNode, String s){
-        String childret;
         StringBuilder code = new StringBuilder();
         JmmNode parent = jmmNode.getJmmParent();
         StringBuilder ret = new StringBuilder();
+        String oldS = s;
         while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
 
-        for(JmmNode node : jmmNode.getChildren()){
-            if(Objects.equals(node.getKind(), "DotOp")){
-                childret = visit(node, s);
-                int tempNumber = optimization.getTempNumber();
-                if(!Objects.equals(s, ".V")){
-                    code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
-                }
-                System.out.println("called getInvoke parent");
-                code.append(optimization.getInvoke(jmmNode, instance, childret)).append(s);
-                if(!Objects.equals(s, ".V")){
-                    code.append(";\n");
-                }
-                optimization.appendToOllir(code.toString());
-                if(!Objects.equals(s, ".V")){
-                    ret.append("temp_").append(tempNumber).append(s);
-                }
-                return ret.toString();
+        StringBuilder invoke = new StringBuilder();
+        String invokeType = optimization.getInvoke(jmmNode, instance);
+        invoke.append(invokeType).append("(");
+        List<JmmNode> children = jmmNode.getChildren();
 
-            }
+        if(Objects.equals(invokeType, "invokevirtual") && Objects.equals(s, ".V")){
+            s = optimization.getDotOpType(jmmNode, instance);
+        }
+        invoke.append(visit(children.get(0), s));
+
+        children.remove(0);
+        invoke.append(", \"").append(jmmNode.get("method")).append("\"");
+        for(JmmNode node : children){
+            invoke.append(", ").append(visit(node, s));
         }
         int tempNumber = optimization.getTempNumber();
-        if(!Objects.equals(s, ".V")){
+
+        if(!Objects.equals(s, ".V")) {
             code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
         }
-        System.out.println("called getInvoke last");
-        code.append(optimization.getInvoke(jmmNode, instance)).append(s);
-        if(!Objects.equals(s, ".V")){
+        code.append(invoke);
+        code.append(")").append(s);
+
+        if(!Objects.equals(oldS, ".V")){
             code.append(";\n");
-        }
-        optimization.appendToOllir(code.toString());
-        if(!Objects.equals(s, ".V")){
             ret.append("temp_").append(tempNumber).append(s);
         }
+        else{
+            optimization.decreaseTempNumber();
+        }
+        optimization.appendToOllir(code.toString());
         return ret.toString();
     }
 

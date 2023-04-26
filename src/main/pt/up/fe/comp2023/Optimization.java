@@ -186,17 +186,6 @@ public class Optimization implements JmmOptimization {
                 return retString.toString();
             }
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), var)){
-                int tempNumber = this.getTempNumber();
-                //ollirCode.append()
-                if(Objects.equals(condition, "var")){
-                    retString.append(var);
-                }
-                retString.append(typeToOllir(localVar.getType()));
-                return retString.toString();
-            }
-        }
         int i = 1;
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(parameter.getName(), var)){
@@ -207,7 +196,18 @@ public class Optimization implements JmmOptimization {
             }
             i++;
         }
-        return "error";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), var)){
+                //int tempNumber = this.getTempNumber();
+                //ollirCode.append()
+                if(Objects.equals(condition, "var")){
+                    retString.append(var);
+                }
+                retString.append(typeToOllir(localVar.getType()));
+                return retString.toString();
+            }
+        }
+        return node.get("value");
     }
 
     public static boolean isNumeric(String strNum) {
@@ -223,96 +223,31 @@ public class Optimization implements JmmOptimization {
     }
 
     public String getInvoke(JmmNode dotOp, JmmNode instance) {
-        StringBuilder retString = new StringBuilder();
         JmmNode left = dotOp.getJmmChild(0);
-        List<JmmNode> identifiers = dotOp.getChildren();
-        identifiers.remove(0);
-        if(Objects.equals(left.get("value"), "this")){
-            retString.append("invokevirtual(this, \"").append(dotOp.get("method")).append("\"");
-            for(JmmNode node : identifiers){
-                retString.append(", ").append(getVarOrType(node, instance, "var"));
-            }
-            retString.append(")");
-            return retString.toString();
-        }
-        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), left.get("value"))){
-                retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
-                for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
-                retString.append(")");
-                return retString.toString();
-            }
-        }
-        int i = 1;
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(parameter.getName(), left.get("value"))){
-                retString.append("invokevirtual(").append(getVarOrType(left, instance, "var")).append(", \"").append(dotOp.get("method")).append("\"");
-                for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
-                retString.append(")");
-                return retString.toString();
-            }
-            i++;
-        }
-
-        retString.append("invokestatic(").append(left.get("value")).append(", \"").append(dotOp.get("method")).append("\"");
-        for(JmmNode node : identifiers){
-            retString.append(", ").append(getVarOrType(node, instance, "var"));
-        }
-        retString.append(")");
-        return retString.toString();
-    }
-
-    public String getInvoke(JmmNode dotOp, JmmNode instance, String temp) {
-        StringBuilder retString = new StringBuilder();
-        JmmNode left = dotOp.getJmmChild(0);
-        while (!left.hasAttribute("value")){
+        while(!left.hasAttribute("value")){
             left = left.getJmmChild(0);
         }
-        List<JmmNode> identifiers = dotOp.getChildren();
-        identifiers.removeIf(node -> (!node.hasAttribute("value")));
         if(Objects.equals(left.get("value"), "this")){
-            retString.append("invokevirtual(").append(temp).append(", ").append("\"").append(dotOp.get("method")).append("\"");
-            for(JmmNode node : identifiers){
-                retString.append(", ").append(getVarOrType(node, instance, "var"));
-            }
-            retString.append(")");
-            return retString.toString();
+            return "invokevirtual";
         }
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
             if(Objects.equals(localVar.getName(), left.get("value"))){
-                retString.append("invokevirtual(").append(temp).append(", ").append(", \"").append(dotOp.get("method")).append("\"");
-                for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
-                retString.append(")");
-                return retString.toString();
+                return "invokevirtual";
             }
         }
-        int i = 1;
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                return "invokevirtual";
+            }
+        }
         for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
             if(Objects.equals(parameter.getName(), left.get("value"))){
-                retString.append("invokevirtual(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
-                for(JmmNode node : identifiers){
-                    retString.append(", ").append(getVarOrType(node, instance, "var"));
-                }
-                retString.append(")");
-                return retString.toString();
+                return "invokevirtual";
             }
-            i++;
         }
 
-        retString.append("invokestatic(").append(temp).append(", \"").append(dotOp.get("method")).append("\"");
-        for(JmmNode node : identifiers){
-            retString.append(", ").append(getVarOrType(node, instance, "var"));
-        }
-        retString.append(")");
-        return retString.toString();
+        return "invokestatic";
     }
 
     public void checkVoidMethod(JmmNode instance){
@@ -322,10 +257,24 @@ public class Optimization implements JmmOptimization {
             ollirCode.append("ret.V;\n");
     }
 
-    public boolean isField(JmmNode node){
+    public boolean isField(JmmNode node, JmmNode instance){
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), var)){
+
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(field.getName(), var)){
+                return false;
+            }
+        }
+
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(field.getName(), var)){
+                return false;
+            }
+        }
+
+        for(Symbol field : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(field.getName(), var)){
                 return true;
             }
         }
@@ -340,6 +289,39 @@ public class Optimization implements JmmOptimization {
         return tempNumber;
     }
 
+    public String getDotOpType(JmmNode dotOp, JmmNode instance){
+        JmmNode left = dotOp.getJmmChild(0);
+        while(!left.hasAttribute("value")){
+            left = left.getJmmChild(0);
+        }
+        if(Objects.equals(left.get("value"), "this")){
+            return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+        }
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), left.get("value"))){
+                if(Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+
+        return ".V";
+    }
 
 
 }
