@@ -540,12 +540,12 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     jmmNode.put("type", fields.get(i).getType().getName());
                     jmmNode.put("isArray", String.valueOf(fields.get(i).getType().isArray()));
 
-                    /*if (methodNode.equals("main")) {
+                    if (methodNode.equals("main")) {
                         //trata do caso mesmo que seja static
                         System.out.println("é main");
                         globalReports.add(Reports.reportcheckAssignment(jmmNode));
                         return globalReports;
-                    }*/
+                    }
                     break;
                 }
             }
