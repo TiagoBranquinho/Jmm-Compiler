@@ -63,53 +63,28 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithProgramSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null){
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            return "";
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
         }
-        else{
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            optimization.appendToOllir("\n\n}");
         return "";
-        }
     }
 
     private String dealWithClassDeclarationSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null){
-            symbolTable.addClass(jmmNode);
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            return "";
+        symbolTable.addClass(jmmNode);
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
         }
-        else{
-            optimization.addClass();
-            for(JmmNode child : jmmNode.getChildren()){
-                if(Objects.equals(child.getKind(), "FieldDeclaration")){
-                    optimization.addField(child);
-                }
-            }
-            optimization.addConstructor();
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            return "";
-        }
+        return "";
 
     }
 
     private String dealWithImportDeclarationSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null) symbolTable.addImport(jmmNode);
-        else this.optimization.addImport(jmmNode);
+        symbolTable.addImport(jmmNode);
         return "";
     }
 
     private String dealWithFieldDeclarationSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null) symbolTable.addField(jmmNode);
+        symbolTable.addField(jmmNode);
         for (JmmNode node : jmmNode.getChildren()){
             visit(node);
         }
@@ -121,22 +96,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithBinaryOpSymbolTable(JmmNode jmmNode, String s) {
-        if(this.optimization != null){
-            System.out.println("in binary op");
-            System.out.println(s);
-            StringBuilder ret = new StringBuilder();
-
-            for (JmmNode node : jmmNode.getChildren()){
-                ret.append(visit(node, s)).append(" ").append(jmmNode.get("op")).append(s);
-            }
-            return "";
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
         }
-        else{
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            return "";
-        }
+        return "";
 
     }
 
@@ -148,21 +111,11 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithMethodDeclarationSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null){
-            symbolTable.addMethod(jmmNode);
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            return "";
+        symbolTable.addMethod(jmmNode);
+        for (JmmNode node : jmmNode.getChildren()){
+            visit(node);
         }
-        else{
-            optimization.addMethod(jmmNode);
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-            optimization.appendToOllir("}\n\n");
-            return "";
-        }
+        return "";
 
     }
 
@@ -171,45 +124,28 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithParameterTypeSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            if(Objects.equals(parent.getKind(), "InstanceDeclaration")){
-                symbolTable.addLocalArg(parent.get("instance"), jmmNode);
-            }
-            else if(Objects.equals(parent.getKind(), "MainDeclaration")){
-                symbolTable.addLocalArg("main", jmmNode);
-            }
-            return "";
+        JmmNode parent = jmmNode.getJmmParent();
+        if(Objects.equals(parent.getKind(), "InstanceDeclaration")){
+            symbolTable.addLocalArg(parent.get("instance"), jmmNode);
         }
-        else{
-            return "";
+        else if(Objects.equals(parent.getKind(), "MainDeclaration")){
+            symbolTable.addLocalArg("main", jmmNode);
         }
+        return "";
     }
 
     private String dealWithVarDeclarationStmtSymbolTable(JmmNode jmmNode, String s) {
-        if(this.symbolTable != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
-                symbolTable.addLocalVar(instance.get("instance"), jmmNode);
-            }
-            else
-                symbolTable.addLocalVar("main", jmmNode);
-            return "";
+        JmmNode parent = jmmNode.getJmmParent();
+        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+            parent = parent.getJmmParent();
         }
-        else{
-            /*JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            optimization.addVar(instance, jmmNode);*/
+        JmmNode instance = parent.getJmmChild(0);
+        if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
+            symbolTable.addLocalVar(instance.get("instance"), jmmNode);
         }
+        else
+            symbolTable.addLocalVar("main", jmmNode);
         return "";
-
     }
 
     private String dealWithInstanceDeclarationSymbolTable(JmmNode jmmNode, String s){
@@ -227,9 +163,6 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithIntegerSymbolTable(JmmNode jmmNode, String s){
-        if(this.optimization != null){
-            return this.optimization.intToOllir(jmmNode);
-        }
         return "";
     }
 
@@ -250,35 +183,20 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithReturnStmtSymbolTable(JmmNode jmmNode, String s){
-        if(this.optimization != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            optimization.addMethodRetType(instance, jmmNode);
-        }
         return "";
     }
 
     private String dealWithReturnTypeSymbolTable(JmmNode jmmNode, String s){
-        if(this.symbolTable != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
-                symbolTable.getMainClass().getMethodDescriptor().get(instance.get("instance")).setReturnType(jmmNode);
-            }
-            else{
-                symbolTable.getMainClass().getMethodDescriptor().get("main").setReturnType(jmmNode);
-            }
-
-            return "";
+        JmmNode parent = jmmNode.getJmmParent();
+        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+            parent = parent.getJmmParent();
+        }
+        JmmNode instance = parent.getJmmChild(0);
+        if(Objects.equals(instance.getKind(), "InstanceDeclaration")){
+            symbolTable.getMainClass().getMethodDescriptor().get(instance.get("instance")).setReturnType(jmmNode);
         }
         else{
-
+            symbolTable.getMainClass().getMethodDescriptor().get("main").setReturnType(jmmNode);
         }
 
         return "";
@@ -286,63 +204,10 @@ public class MyVisitor extends AJmmVisitor <String , String > {
 
 
     private String dealWithAssignmentSymbolTable(JmmNode jmmNode, String s){
-        if(this.optimization != null){
-            StringBuilder ret = new StringBuilder();
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            String var = optimization.getVarOrType(jmmNode, instance, "var");
-            String type = optimization.getVarOrType(jmmNode, instance, "type");
-            ret.append(var).append(" :=").append(type).append(" ");
-            for (JmmNode node : jmmNode.getChildren()){
-                ret.append(visit(node, type));
-            }
-            this.optimization.appendToOllir(ret.toString() + ";\n");
-        }
-        return "";
-    }
-
-    private String dealWithDotOpSymbolTable(JmmNode jmmNode, String type, String s){
-        if(this.optimization != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            StringBuilder code = new StringBuilder();
-            int tempNumber = optimization.getTempNumber();
-            code.append("temp_").append(tempNumber).append(type).append(" :=").append(type).append(" ");
-            code.append(optimization.getInvoke(jmmNode, instance)).append(type);
-            code.append(";\n");
-            optimization.appendToOllir(code.toString());
-
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-        }
         return "";
     }
 
     private String dealWithDotOpSymbolTable(JmmNode jmmNode, String s){
-        if(this.optimization != null){
-            JmmNode parent = jmmNode.getJmmParent();
-            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-                parent = parent.getJmmParent();
-            }
-            JmmNode instance = parent.getJmmChild(0);
-            StringBuilder code = new StringBuilder();
-            int tempNumber = optimization.getTempNumber();
-            code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ");
-            code.append(optimization.getInvoke(jmmNode, instance)).append(s);
-            code.append(";\n");
-            optimization.appendToOllir(code.toString());
-
-            for (JmmNode node : jmmNode.getChildren()){
-                visit(node);
-            }
-        }
         return "";
     }
 
@@ -351,19 +216,7 @@ public class MyVisitor extends AJmmVisitor <String , String > {
     }
 
     private String dealWithObjectDeclaration(JmmNode jmmNode, String s){
-        if(this.optimization != null){
-            JmmNode assignment = jmmNode.getJmmParent();
-            while (!Objects.equals(assignment.getKind(), "Assignment")){
-                assignment = assignment.getJmmParent();
-            }
-            JmmNode instance = jmmNode.getJmmParent();
-            while (!Objects.equals(instance.getKind(), "Assignment")){
-                instance = instance.getJmmParent();
-            }
-            this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
-        }
         return "";
     }
-
 
 }
