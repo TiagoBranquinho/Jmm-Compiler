@@ -41,6 +41,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         addVisit("DotOp", this::dealWithDotOp);
         addVisit("AccessModifier", this::dealWithAccessModifier);
         addVisit("ObjectDeclaration", this::dealWithObjectDeclaration);
+        addVisit("ArrayDeclaration", this::dealWithArrayDeclaration);
         this.setDefaultVisit(this::defaultVisitor);
 
 
@@ -188,12 +189,23 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithInteger(JmmNode jmmNode, String s){
-        JmmNode parent = jmmNode.getJmmParent();
-        while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
-            parent = parent.getJmmParent();
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration")){
+            StringBuilder code = new StringBuilder();
+            int tempNumber = optimization.getTempNumber();
+            code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
+            code.append(";\n");
+            optimization.appendToOllir(code.toString());
+            return "temp_" + tempNumber + ".i32";
         }
-        JmmNode instance = parent.getJmmChild(0);
-        return this.optimization.getVarOrType(jmmNode, instance, "var");
+        else{
+            JmmNode parent = jmmNode.getJmmParent();
+            while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
+                parent = parent.getJmmParent();
+            }
+            JmmNode instance = parent.getJmmChild(0);
+            return this.optimization.getVarOrType(jmmNode, instance, "var");
+        }
+
     }
 
     private String dealWithLoopStatement(JmmNode jmmNode, String s){
@@ -334,6 +346,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             instance = instance.getJmmParent();
         }
         return this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
+
+    }
+
+    private String dealWithArrayDeclaration(JmmNode jmmNode, String s){
+        StringBuilder ret = new StringBuilder();
+        ret.append("new(array, ").append(visit(jmmNode.getJmmChild(0), s)).append(")").append(s);
+        return ret.toString();
 
     }
 
