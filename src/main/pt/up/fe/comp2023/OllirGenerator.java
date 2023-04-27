@@ -103,8 +103,6 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
-        System.out.println("in binary op");
-        System.out.println(s);
 
         s = ".i32";
 
@@ -228,7 +226,6 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             parent = parent.getJmmParent();
         }
         JmmNode instance = parent.getJmmChild(0);
-        //optimization.addMethodRetType(instance, jmmNode);
 
         String retType = optimization.getMethodRetType(instance);
         ret.append("ret").append(retType).append(" ");
@@ -243,7 +240,6 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             else{
                 ret.append(visit(node, retType));
             }
-            //ret.append("temp_").append(optimization.getTempNumber()).append(retType);
         }
         this.optimization.appendToOllir(ret + ";\n");
         return "";

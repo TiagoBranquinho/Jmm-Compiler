@@ -198,8 +198,6 @@ public class Optimization implements JmmOptimization {
         }
         for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
             if(Objects.equals(localVar.getName(), var)){
-                //int tempNumber = this.getTempNumber();
-                //ollirCode.append()
                 if(Objects.equals(condition, "var")){
                     retString.append(var);
                 }
