@@ -56,7 +56,7 @@ statement : '{' ( statement )* '}' # Stmt
     | 'while' '(' expression ')' statement # LoopStmt
     | expression ';' # ExprStmt
     | var=ID '=' expression ';' # Assignment
-    | var=ID '[' expression ']' '=' expression ';' # Assignment
+    | var=ID '[' expression ']' '=' expression ';' # ArrayAssignment
     | 'return' expression? ';' # ReturnStmt;
 
 expression : '(' expression ')' #PrecedenceOp
