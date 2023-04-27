@@ -8,13 +8,8 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import java.util.Objects;
 
 public class MyVisitor extends AJmmVisitor <String , String > {
-    private String className;
-
     private MySymbolTable symbolTable;
 
-    private Optimization optimization;
-
-    private int a = 0;
     public MyVisitor(MySymbolTable symbolTable) {
         this.symbolTable = symbolTable;
     }
