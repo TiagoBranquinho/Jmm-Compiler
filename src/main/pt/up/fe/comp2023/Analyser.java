@@ -12,7 +12,6 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp2023.MySymbolTable;
 
-
 import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,13 +247,20 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     }
 
     private List<Report> checkBinaryOp(JmmNode jmmNode, MySymbolTable mySymbolTable){
-
+        System.out.println("checkBinaryOp");
 
 
         List<JmmNode> children = jmmNode.getChildren();
         String op = jmmNode.get("op");
 
+        System.out.println("node: " + jmmNode);
+        System.out.println("node attributes: " + jmmNode.getAttributes());
 
+        System.out.println("children: " + jmmNode.getChildren());
+        System.out.println("child 0 attributes: " + jmmNode.getChildren().get(0).getAttributes());
+        System.out.println("child 1 attributes: " + jmmNode.getChildren().get(1).getAttributes());
+        System.out.println("child 0 type: " + jmmNode.getChildren().get(0).get("type"));
+        System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));
 
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
             || children.get(0).get("isArray").equals("true")
@@ -288,6 +294,19 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 else{
                     jmmNode.put("type", "int");
                     jmmNode.put("isArray", "false");
+
+
+                    System.out.println("erro antes do if");
+                    //Otimização do fold
+                    if(jmmNode.getChildren().get(0).hasAttribute("value") && jmmNode.getChildren().get(1).hasAttribute("value")) {
+                        if (isStringOfIntegers(jmmNode.getChildren().get(0).get("value")) && isStringOfIntegers(jmmNode.getChildren().get(1).get("value"))) {
+                            int val = Integer.parseInt(jmmNode.getChildren().get(0).get("value")) + Integer.parseInt(jmmNode.getChildren().get(1).get("value"));
+                            jmmNode.put("value", String.valueOf(val));
+                            System.out.println("binaryOp node value: " + jmmNode.get("value"));
+                        }
+                    }
+
+
                     return globalReports;
                 }
 
@@ -823,4 +842,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         return globalReports;
     }
 
+    public static boolean isStringOfIntegers(String str) {
+        return str.matches("\\d+"); //matches one or more digits
+    }
 }
