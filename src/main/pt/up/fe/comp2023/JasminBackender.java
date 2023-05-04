@@ -18,6 +18,8 @@ public class JasminBackender implements JasminBackend {
     int limit_stack = 99;
     int limit_locals = 99;
 
+    int conditionalAux = 0;
+
     @Override
     public JasminResult toJasmin(OllirResult ollirResult) {
         try {
@@ -206,21 +208,51 @@ public class JasminBackender implements JasminBackend {
         return switch (instruction.getInstType()) {
             case ASSIGN -> this.getAssignInstruction((AssignInstruction) instruction, varTable);
             case CALL -> this.getCallInstruction((CallInstruction) instruction, varTable);
-            //case GOTO -> this.getGotoInstruction((GotoInstruction) instruction);
+            case GOTO -> "\tgoto " + ((GotoInstruction) instruction).getLabel() + "\n";
+            case BRANCH -> this.getBranchInstruction((CondBranchInstruction) instruction, varTable);
             case RETURN -> this.getReturnInstruction((ReturnInstruction) instruction, varTable);
             case PUTFIELD -> this.getPutFieldInstruction((PutFieldInstruction) instruction, varTable);
             case GETFIELD -> this.getGetFieldInstruction((GetFieldInstruction) instruction, varTable);
-            //case UNARYOPER -> this.getUnaryOperationInstruction((UnaryOpInstruction) instruction, varTable);
+            case UNARYOPER -> this.getUnaryOperationInstruction((UnaryOpInstruction) instruction, varTable);
             case BINARYOPER -> this.getBinaryOperationInstruction((BinaryOpInstruction) instruction, varTable);
             case NOPER -> this.getLoadToStackInstruction(((SingleOpInstruction) instruction).getSingleOperand(), varTable);
             default -> stringBuilder.append("; ERROR: instruction type is not supported\n").toString();
         };
     }
 
+    private String getUnaryOperationInstruction(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation()));
+
+        if (instruction.getOperation().getOpType() == OperationType.NOTB) {
+            stringBuilder.append(" TRUE" + this.conditionalAux + "\n" + "\ticonst_0\n" + "\tgoto NEXT" + this.conditionalAux + "\n" + "TRUE" + this.conditionalAux + ":\n" + "\ticonst_1\n" + "NEXT" + this.conditionalAux++ + ":");
+        } else {
+            stringBuilder.append("; ERROR: Unary operator not supported\n");
+        }
+
+        stringBuilder.append("\n");
+        return stringBuilder.toString();
+    }
+
     private String getBinaryOperationInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append(this.getLoadToStackInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation())).append("\n");
+        stringBuilder.append(this.getLoadToStackInstruction(instruction.getLeftOperand(), varTable)).append(this.getLoadToStackInstruction(instruction.getRightOperand(), varTable)).append("\t").append(this.getOperation(instruction.getOperation()));
+
+        boolean booleanOperation =
+                instruction.getOperation().getOpType() == OperationType.EQ
+                        || instruction.getOperation().getOpType() == OperationType.GTH
+                        || instruction.getOperation().getOpType() == OperationType.GTE
+                        || instruction.getOperation().getOpType() == OperationType.LTH
+                        || instruction.getOperation().getOpType() == OperationType.LTE
+                        || instruction.getOperation().getOpType() == OperationType.NEQ;
+
+        if (booleanOperation) {
+            stringBuilder.append(" TRUE" + this.conditionalAux + "\n" + "\ticonst_0\n" + "\tgoto NEXT" + this.conditionalAux + "\n" + "TRUE" + this.conditionalAux + ":\n" + "\ticonst_1\n" + "NEXT" + this.conditionalAux++ + ":");
+        }
+
+        stringBuilder.append("\n");
 
         return stringBuilder.toString();
     }
@@ -231,6 +263,14 @@ public class JasminBackender implements JasminBackend {
             case SUB -> "isub";
             case MUL -> "imul";
             case DIV -> "idiv";
+            case LTH -> "if_icmplt";
+            case GTH -> "if_icmpgt";
+            case LTE -> "if_icmple";
+            case GTE -> "if_icmpge";
+            case EQ -> "if_icmpeq";
+            case NEQ -> "if_icmpne";
+            case ANDB -> "iand";
+            case NOTB -> "ifeq";
 
             default -> "; ERROR: operation not supported: " + operation.getOpType() + "\n";
         };
@@ -262,6 +302,12 @@ public class JasminBackender implements JasminBackend {
             } else {
                 stringBuilder.append("\tldc ").append(((LiteralElement) element).getLiteral());
             }
+        } else if (element instanceof ArrayOperand) {
+
+            stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) element).getName(), varTable)).append("\n");
+
+            stringBuilder.append(getLoadToStackInstruction(((ArrayOperand) element).getIndexOperands().get(0), varTable));
+            stringBuilder.append("\tiaload");
 
         } else if (element instanceof Operand) {
             switch (((Operand) element).getType().getTypeOfElement()) {
@@ -303,34 +349,38 @@ public class JasminBackender implements JasminBackend {
     private String getAssignInstruction(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (instruction.getRhs().getInstType() == BINARYOPER) {
-            BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+        if(instruction.getDest() instanceof ArrayOperand){
+            stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) instruction.getDest()).getName(), varTable)).append("\n").append(getLoadToStackInstruction(((ArrayOperand) instruction.getDest()).getIndexOperands().get(0), varTable));
+        }
+        else {
+            if (instruction.getRhs().getInstType() == BINARYOPER) {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
+                    boolean left_literal = binaryOpInstruction.getLeftOperand().isLiteral();
+                    boolean right_literal = binaryOpInstruction.getRightOperand().isLiteral();
 
-            if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
-                boolean left_literal = binaryOpInstruction.getLeftOperand().isLiteral();
-                boolean right_literal = binaryOpInstruction.getRightOperand().isLiteral();
+                    Operand operand = null;
+                    LiteralElement literal = null;
 
-                Operand operand = null;
-                LiteralElement literal = null;
+                    if (left_literal && !right_literal) {
+                        literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
+                        operand = (Operand) binaryOpInstruction.getRightOperand();
+                    } else if (!left_literal && right_literal) {
+                        literal = (LiteralElement) binaryOpInstruction.getRightOperand();
+                        operand = (Operand) binaryOpInstruction.getLeftOperand();
+                    }
 
-                if (left_literal && !right_literal) {
-                    literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
-                    operand = (Operand) binaryOpInstruction.getRightOperand();
-                } else if (!left_literal && right_literal) {
-                    literal = (LiteralElement) binaryOpInstruction.getRightOperand();
-                    operand = (Operand) binaryOpInstruction.getLeftOperand();
-                }
+                    if (literal != null && operand != null) {
+                        if (operand.getName().equals(((Operand) instruction.getDest()).getName())) {
+                            int literalValue = Integer.parseInt((literal).getLiteral());
 
-                if (literal != null && operand != null) {
-                    if (operand.getName().equals(((Operand) instruction.getDest()).getName())) {
-                        int literalValue = Integer.parseInt((literal).getLiteral());
-
-                        if (literalValue >= -128 && literalValue <= 127) {
-                            return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            if (literalValue >= -128 && literalValue <= 127) {
+                                return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
 
@@ -344,7 +394,12 @@ public class JasminBackender implements JasminBackend {
 
         switch (dest.getType().getTypeOfElement()) {
             case INT32, BOOLEAN -> {
-                stringBuilder.append("\tistore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                if(varTable.get(dest.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF){
+                    stringBuilder.append("\tiastore").append("\n");
+                }
+                else {
+                    stringBuilder.append("\tistore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                }
             }
             case OBJECTREF, THIS, STRING, ARRAYREF -> {
                 stringBuilder.append("\tastore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
@@ -485,11 +540,10 @@ public class JasminBackender implements JasminBackend {
 
                     boolean name_is_full = true;
 
-                    if(((Operand) instruction.getFirstArg()).getName().equals("this")){
+                    if (((Operand) instruction.getFirstArg()).getName().equals("this")) {
                         stringBuilder.append("\tnew ").append(this.classUnit.getClassName()).append("\n");
                         name_is_full = false;
-                    }
-                    else{
+                    } else {
                         for (String importName : this.classUnit.getImports()) {
                             if (importName.endsWith(((Operand) instruction.getFirstArg()).getName())) {
                                 stringBuilder.append("\tnew ").append(importName.replaceAll("\\.", "/")).append("\n");
@@ -502,10 +556,26 @@ public class JasminBackender implements JasminBackend {
                     if (name_is_full) {
                         stringBuilder.append("\tnew ").append(((Operand) instruction.getFirstArg()).getName()).append("\n");
                     }
+                } else if(elementType == ElementType.ARRAYREF) {
+                    for(Element element : instruction.getListOfOperands()) {
+                        stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
+                    }
+
+                    stringBuilder.append("\tnewarray");
+                    if(instruction.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32){
+                        stringBuilder.append(" int\n");
+                    }
+                    else{
+                        stringBuilder.append("; ERROR: array type not supported\n");
+                    }
 
                 } else {
                     stringBuilder.append("; ERROR: new invocation type not supported\n");
                 }
+            }
+            case arraylength -> {
+                stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
+                stringBuilder.append("\tarraylength\n");
             }
             case ldc -> stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
             default -> stringBuilder.append("; ERROR: call instruction not supported\n");
@@ -587,6 +657,128 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstOperand(), varTable) + "\tgetfield " + className + "/" + ((Operand) instruction.getSecondOperand()).getName() + " " + this.getFieldDescriptor(instruction.getSecondOperand().getType()) + "\n");
+
+        return stringBuilder.toString();
+    }
+
+    private String getBranchInstruction(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Instruction condition;
+        if (instruction instanceof SingleOpCondInstruction) {
+            SingleOpCondInstruction singleOpCondInstruction = (SingleOpCondInstruction) instruction;
+            condition = singleOpCondInstruction.getCondition();
+
+        } else if (instruction instanceof OpCondInstruction) {
+            OpCondInstruction opCondInstruction = (OpCondInstruction) instruction;
+            condition = opCondInstruction.getCondition();
+
+        } else {
+            return "; ERROR: invalid CondBranchInstruction instance\n";
+        }
+
+        String operation;
+        switch (condition.getInstType()) {
+            case BINARYOPER -> {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) condition;
+                switch (binaryOpInstruction.getOperation().getOpType()) {
+                    case LTH -> {
+                        Element leftElement = binaryOpInstruction.getLeftOperand();
+                        Element rightElement = binaryOpInstruction.getRightOperand();
+
+                        Integer parsedInt = null;
+                        Element otherElement = null;
+                        operation = "if_icmplt";
+
+                        // instruction selection for 0 < x
+                        if (leftElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) leftElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = rightElement;
+                            operation = "ifgt";
+
+                            // instruction selection for x < 0
+                        } else if (rightElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) rightElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = leftElement;
+                            operation = "iflt";
+                        }
+
+                        if (parsedInt != null && parsedInt == 0) {
+                            stringBuilder.append(this.getLoadToStackInstruction(otherElement, varTable));
+
+                        } else {
+                            stringBuilder.append(this.getLoadToStackInstruction(leftElement, varTable)).append(this.getLoadToStackInstruction(rightElement, varTable));
+
+                            operation = "if_icmplt";
+                        }
+
+                    }
+                    case LTE -> {
+                        Element leftElement = binaryOpInstruction.getLeftOperand();
+                        Element rightElement = binaryOpInstruction.getRightOperand();
+
+                        Integer parsedInt = null;
+                        Element otherElement = null;
+                        operation = "if_icmple";
+
+                        // instruction selection for 0 < x
+                        if (leftElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) leftElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = rightElement;
+                            operation = "ifge";
+
+                            // instruction selection for x < 0
+                        } else if (rightElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) rightElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = leftElement;
+                            operation = "ifle";
+                        }
+
+                        if (parsedInt != null && parsedInt == 0) {
+                            stringBuilder.append(this.getLoadToStackInstruction(otherElement, varTable));
+
+                        } else {
+                            stringBuilder.append(this.getLoadToStackInstruction(leftElement, varTable)).append(this.getLoadToStackInstruction(rightElement, varTable));
+
+                            operation = "if_icmple";
+                        }
+
+                    }
+                    case ANDB -> {
+                        stringBuilder.append(this.getInstruction(condition, varTable));
+                        operation = "ifne";
+                    }
+                    default -> {
+                        // not supposed to happen
+                        stringBuilder.append("; ERROR: Unsupported binary operator in branch\n");
+                        stringBuilder.append(this.getInstruction(condition, varTable));
+                        operation = "ifne";
+                    }
+                }
+            }
+            case UNARYOPER -> {
+                UnaryOpInstruction unaryOpInstruction = (UnaryOpInstruction) condition;
+                if (unaryOpInstruction.getOperation().getOpType() == OperationType.NOTB) {
+                    stringBuilder.append(this.getLoadToStackInstruction(unaryOpInstruction.getOperand(), varTable));
+                    operation = "ifeq";
+                } else {
+                    // not supposed to happen
+                    stringBuilder.append("; ERROR: Unsupported unary operator in branch\n");
+                    stringBuilder.append(this.getInstruction(condition, varTable));
+                    operation = "ifne";
+                }
+            }
+            default -> {
+                stringBuilder.append(this.getInstruction(condition, varTable));
+                operation = "ifne";
+            }
+        }
+
+        stringBuilder.append("\t").append(operation).append(" ").append(instruction.getLabel()).append("\n");
 
         return stringBuilder.toString();
     }
