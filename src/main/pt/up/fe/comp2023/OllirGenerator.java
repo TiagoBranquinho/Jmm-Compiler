@@ -42,6 +42,10 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         addVisit("AccessModifier", this::dealWithAccessModifier);
         addVisit("ObjectDeclaration", this::dealWithObjectDeclaration);
         addVisit("ArrayDeclaration", this::dealWithArrayDeclaration);
+        addVisit("ArrayAssignment", this::dealWithArrayAssignment);
+        addVisit("SubscriptOp", this::dealWithSubscriptOp);
+        addVisit("LengthOp", this::dealWithLengthOp);
+
         this.setDefaultVisit(this::defaultVisitor);
 
 
@@ -189,8 +193,18 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithInteger(JmmNode jmmNode, String s){
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
             StringBuilder code = new StringBuilder();
+            System.out.println("yes");
+            int tempNumber = optimization.getTempNumber();
+            code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
+            code.append(";\n");
+            optimization.appendToOllir(code.toString());
+            return "temp_" + tempNumber + ".i32";
+        }
+        else if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment") && jmmNode.getIndexOfSelf() == 0){
+            StringBuilder code = new StringBuilder();
+            System.out.println("no");
             int tempNumber = optimization.getTempNumber();
             code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
             code.append(";\n");
@@ -342,7 +356,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             assignment = assignment.getJmmParent();
         }
         JmmNode instance = jmmNode.getJmmParent();
-        while (!Objects.equals(instance.getKind(), "Assignment")){
+        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
         return this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
@@ -354,6 +368,56 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         ret.append("new(array, ").append(visit(jmmNode.getJmmChild(0), s)).append(")").append(s);
         return ret.toString();
 
+    }
+
+    private String dealWithArrayAssignment(JmmNode jmmNode, String s){
+        String index, value;
+        JmmNode instance = jmmNode.getJmmParent();
+        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
+            instance = instance.getJmmParent();
+        }
+        s = optimization.getVarOrType(jmmNode, instance, "type");
+        s = optimization.getSubstringAfterSecondDot(s);
+        index = visit(jmmNode.getJmmChild(0), s);
+        value = visit(jmmNode.getJmmChild(1), s);
+        StringBuilder ret = new StringBuilder();
+        ret.append(jmmNode.get("var")).append("[").append(index).append("]").append(s).append(" :=").append(s).append(" ").append(value);
+        this.optimization.appendToOllir(ret + ";\n");
+        return "";
+    }
+
+    private String dealWithSubscriptOp(JmmNode jmmNode, String s){
+        StringBuilder ret = new StringBuilder();
+        StringBuilder code = new StringBuilder();
+        String index, value, temp;
+        index = visit(jmmNode.getJmmChild(1), s);
+        int tempNumber = optimization.getTempNumber();
+        JmmNode instance = jmmNode.getJmmParent();
+        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
+            instance = instance.getJmmParent();
+        }
+        s = optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "type");
+        s = optimization.getSubstringAfterSecondDot(s);
+        code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(jmmNode.getJmmChild(0).get("value")).append("[").append(index).append("]").append(s);
+        optimization.appendToOllir(code + ";\n");
+        ret.append("temp_").append(tempNumber).append(s);
+        return ret.toString();
+    }
+
+    private String dealWithLengthOp(JmmNode jmmNode, String s){
+        StringBuilder ret = new StringBuilder();
+        StringBuilder code = new StringBuilder();
+        String index, value, temp;
+        int tempNumber = optimization.getTempNumber();
+        JmmNode instance = jmmNode.getJmmParent();
+        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
+            instance = instance.getJmmParent();
+        }
+        s = optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "var");
+        code.append("temp_").append(tempNumber).append(".i32 :=.i32 arraylength(").append(s).append(").i32");
+        optimization.appendToOllir(code + ";\n");
+        ret.append("temp_").append(tempNumber).append(".i32");
+        return ret.toString();
     }
 
 

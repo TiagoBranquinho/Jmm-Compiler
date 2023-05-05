@@ -174,7 +174,7 @@ public class Optimization implements JmmOptimization {
         StringBuilder retString = new StringBuilder();
 
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
+        String var = Objects.equals(node.getKind(), "Assignment") || Objects.equals(node.getKind(), "ArrayAssignment") ? node.get("var") : node.get("value");
         if(isNumeric(var)){
             return this.intToOllir(node);
         }
@@ -319,6 +319,19 @@ public class Optimization implements JmmOptimization {
         }
 
         return ".V";
+    }
+
+    public String getSubstringAfterSecondDot(String str) {
+        int firstDotIndex = str.indexOf(".");
+        if (firstDotIndex == -1 || firstDotIndex == str.length() - 1) {
+            return "";
+        }
+        int secondDotIndex = str.indexOf(".", firstDotIndex + 1);
+        if (secondDotIndex == -1 || secondDotIndex == str.length() - 1) {
+            return "";
+        } else {
+            return str.substring(secondDotIndex);
+        }
     }
 
 
