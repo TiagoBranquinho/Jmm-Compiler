@@ -61,7 +61,7 @@ public class Launcher {
 
 
             BuildingAnalysis analyser = new BuildingAnalysis();
-            analyser.semanticAnalysis(parserResult);
+            //analyser.semanticAnalysis(parserResult);
 
             Optimization optimization = new Optimization();
             OllirResult ollirResult = optimization.toOllir(semanticAnalysis);

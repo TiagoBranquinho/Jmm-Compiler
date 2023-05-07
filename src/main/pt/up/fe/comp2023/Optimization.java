@@ -334,5 +334,33 @@ public class Optimization implements JmmOptimization {
         }
     }
 
+    public String getArrayString(JmmNode subscriptOp, JmmNode instance) {
+        StringBuilder retString = new StringBuilder();
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        String var = subscriptOp.getJmmChild(0).get("value");
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), var)){
+                retString.append(var);
+                return retString.toString();
+            }
+        }
+        int i = 1;
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            System.out.println(parameter.getName());
+            if(Objects.equals(parameter.getName(), var)){
+                retString.append("$").append(i).append(".").append(var);
+                return retString.toString();
+            }
+            i++;
+        }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), var)){
+                retString.append(var);
+                return retString.toString();
+            }
+        }
+        return "error";
+    }
+
 
 }

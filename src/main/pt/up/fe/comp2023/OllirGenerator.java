@@ -92,6 +92,15 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithLiteral(JmmNode jmmNode, String s) {
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
+            StringBuilder code = new StringBuilder();
+            System.out.println("yes");
+            int tempNumber = optimization.getTempNumber();
+            code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
+            code.append(";\n");
+            optimization.appendToOllir(code.toString());
+            return "temp_" + tempNumber + ".i32";
+        }
         JmmNode parent = jmmNode.getJmmParent();
         while (!Objects.equals(parent.getKind(), "MethodDeclaration")){
             parent = parent.getJmmParent();
@@ -130,7 +139,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             }
         }
         ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
             int tempNumber = optimization.getTempNumber();
             StringBuilder temp = new StringBuilder();
             temp.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(ret);
@@ -376,6 +385,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
+        instance = instance.getJmmChild(0);
         s = optimization.getVarOrType(jmmNode, instance, "type");
         s = optimization.getSubstringAfterSecondDot(s);
         index = visit(jmmNode.getJmmChild(0), s);
@@ -390,15 +400,16 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
         String index, value, temp;
-        index = visit(jmmNode.getJmmChild(1), s);
-        int tempNumber = optimization.getTempNumber();
         JmmNode instance = jmmNode.getJmmParent();
         while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
-        s = optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "type");
+        s= optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "type");
         s = optimization.getSubstringAfterSecondDot(s);
-        code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(jmmNode.getJmmChild(0).get("value")).append("[").append(index).append("]").append(s);
+        index = visit(jmmNode.getJmmChild(1), s);
+        int tempNumber = optimization.getTempNumber();
+        instance = instance.getJmmChild(0);
+        code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(optimization.getArrayString(jmmNode, instance)).append("[").append(index).append("]").append(s);
         optimization.appendToOllir(code + ";\n");
         ret.append("temp_").append(tempNumber).append(s);
         return ret.toString();
