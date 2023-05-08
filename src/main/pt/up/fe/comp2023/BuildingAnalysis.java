@@ -23,7 +23,7 @@ public class BuildingAnalysis implements JmmAnalysis{
         System.out.println(mySymbolTable);
 
         reports.addAll(semanticAnalysis);
-        //System.out.println("os reports finais: " + reports);
+        System.out.println("os reports finais: " + reports);
 
         // juntar os symbolTableReports com os da semanticAnalysis e meter aqui
         return new JmmSemanticsResult(parserResult, mySymbolTable, reports);
