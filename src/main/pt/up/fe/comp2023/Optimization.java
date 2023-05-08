@@ -362,5 +362,16 @@ public class Optimization implements JmmOptimization {
         return "error";
     }
 
+    public String getOp(JmmNode node) {
+        String op = node.get("op");
+        if(Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "/") || Objects.equals(op, "*")){
+            op += ".i32";
+        }
+        else{
+            op += ".bool";
+        }
+        return op;
+    }
+
 
 }

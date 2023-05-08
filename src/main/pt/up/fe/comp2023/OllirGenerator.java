@@ -131,10 +131,10 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
                 code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(retString);
                 code.append(";\n");
                 optimization.appendToOllir(code.toString());
-                ret.append("temp_").append(tempNumber).append(s).append(" ").append(jmmNode.get("op")).append(s).append(" ");
+                ret.append("temp_").append(tempNumber).append(s).append(" ").append(optimization.getOp(jmmNode)).append(" ");
             }
             else{
-                ret.append(visit(node, s)).append(" ").append(jmmNode.get("op")).append(s).append(" ");
+                ret.append(visit(node, s)).append(" ").append(optimization.getOp(jmmNode)).append(" ");
 
             }
         }
