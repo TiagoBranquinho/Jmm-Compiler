@@ -18,6 +18,10 @@ public class Optimization implements JmmOptimization {
     private JmmSemanticsResult jmmSemanticsResult;
 
     private int tempNumber = 0;
+    private int whileNumber = 0;
+    private int ifNumber = 0;
+
+
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult jmmSemanticsResult) {
@@ -34,6 +38,16 @@ public class Optimization implements JmmOptimization {
     public int getTempNumber(){
         return tempNumber++;
     }
+
+    public int getWhileNumber(){
+        return whileNumber++;
+    }
+
+    public int getIfNumber(){
+        return ifNumber++;
+    }
+
+
 
     public void decreaseTempNumber(){tempNumber--;}
 
@@ -174,6 +188,7 @@ public class Optimization implements JmmOptimization {
         StringBuilder retString = new StringBuilder();
 
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        System.out.println(name);
         String var = Objects.equals(node.getKind(), "Assignment") || Objects.equals(node.getKind(), "ArrayAssignment") ? node.get("var") : node.get("value");
         if(isNumeric(var)){
             return this.intToOllir(node);
@@ -371,6 +386,12 @@ public class Optimization implements JmmOptimization {
             op += ".bool";
         }
         return op;
+    }
+
+    public String getCondition(String insideIf) {
+        StringBuilder ret = new StringBuilder();
+        ret.append("if (").append(insideIf).append(") ");
+        return ret.toString();
     }
 
 

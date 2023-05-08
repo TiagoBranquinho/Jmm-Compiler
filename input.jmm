@@ -1,22 +1,28 @@
 import ioPlus;
-class SwitchStat {
+class SimpleIfElseStat {
 
-
-    public int func(int a){
-        boolean b;
-        b = 1 < 0;
-    }
 
 	public static void main(String[] args) {
-        SwitchStat d;
-        int a;
-        d = new SwitchStat();
-        a = d.func(0);
-        a = d.func(1);
-        a= d.func(2);
-        a= d.func(3);
-        a= d.func(4);
-        a= d.func(5);
-        a= d.func(6);
+		int a;
+		int b;
+
+		a = 5;
+		b = 10;
+
+        if(a < b){
+          ioPlus.printResult(a);
+        } else {
+           ioPlus.printResult(b);
+        }
+
+		a = 10;
+		b = 8;
+
+        if(a < b){
+          ioPlus.printResult(a);
+        } else {
+           ioPlus.printResult(b);
+        }
+
 	}
 }

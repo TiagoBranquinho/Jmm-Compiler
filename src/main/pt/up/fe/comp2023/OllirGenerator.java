@@ -195,9 +195,20 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithConditionalStatement(JmmNode jmmNode, String s){
-        for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
-        }
+        String insideIf = visit(jmmNode.getJmmChild(0));
+        StringBuilder code = new StringBuilder();
+        int ifNumber = optimization.getIfNumber();
+        StringBuilder initialIf = new StringBuilder();
+        optimization.appendToOllir("\n");
+        insideIf = insideIf.charAt(insideIf.length() - 1) == ' ' ? insideIf.substring(0, insideIf.length() - 1) : insideIf;
+        initialIf.append(optimization.getCondition(insideIf)).append("goto ifbody_").append(ifNumber).append(";\n");
+        optimization.appendToOllir(initialIf.toString());
+        visit(jmmNode.getJmmChild(2));
+        code.append("goto endif_").append(ifNumber).append(";\n");
+        code.append("ifbody_").append(ifNumber).append(":\n");
+        optimization.appendToOllir(code.toString());
+        visit(jmmNode.getJmmChild(1));
+        optimization.appendToOllir("endif_" + ifNumber + ":\n");
         return "";
     }
 
@@ -232,9 +243,21 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithLoopStatement(JmmNode jmmNode, String s){
+        String insideIf = visit(jmmNode.getJmmChild(0));
+        StringBuilder code = new StringBuilder();
+        int whileNumber = optimization.getWhileNumber();
+        StringBuilder initialIf = new StringBuilder();
+        initialIf.append(optimization.getCondition(insideIf.substring(0, insideIf.length() - 1))).append("goto whilebody_").append(whileNumber).append(";\n");
+        code.append(initialIf);
+        code.append("goto endwhile_").append(whileNumber).append(";\n");
+        code.append("whilebody_").append(whileNumber).append(":\n");
+        optimization.appendToOllir(code.toString());
         for (JmmNode node : jmmNode.getChildren()){
             visit(node);
         }
+        StringBuilder newCode = new StringBuilder();
+        newCode.append(initialIf).append("endwhile_").append(whileNumber).append(":\n\n");
+        optimization.appendToOllir(newCode.toString());
         return "";
     }
 
@@ -404,11 +427,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
+        instance = instance.getJmmChild(0);
         s= optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "type");
         s = optimization.getSubstringAfterSecondDot(s);
         index = visit(jmmNode.getJmmChild(1), s);
         int tempNumber = optimization.getTempNumber();
-        instance = instance.getJmmChild(0);
         code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(optimization.getArrayString(jmmNode, instance)).append("[").append(index).append("]").append(s);
         optimization.appendToOllir(code + ";\n");
         ret.append("temp_").append(tempNumber).append(s);
