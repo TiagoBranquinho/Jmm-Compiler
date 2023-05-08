@@ -32,17 +32,12 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     //reports (depois têm de ser concatenados)
     @Override
     protected void buildVisitor() {
-        /*addVisit("Program", this::);
-        addVisit("ClassDeclaration", this::);
-        addVisit("ImportDeclaration", this::);*/
         addVisit("FieldDeclaration", this::checkFieldDeclaration);
-        //addVisit("MethodDeclaration", this::);
         addVisit("InstanceDeclaration", this::checkInstanceDeclaration);
-        /*addVisit("MainDeclaration", this::dealWithInstanceDeclaration);*/
         addVisit("VarDeclarationStmt", this::checkVarDeclarationStmt);
         addVisit("Identifier", this::checkDeclaration);
         addVisit("BinaryOp", this::checkBinaryOp);
-        addVisit("LengthOP", this::checkLengthOp);
+        addVisit("LengthOp", this::checkLengthOp);
         addVisit("Type", this::checkType);
         addVisit("CondicionalStmt", this::checkConditionalStatement);
         addVisit("LoopStmt", this::checkLoopStatement);
@@ -50,7 +45,6 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         addVisit("ReservedExpr", this::checkReservedExpr);
         addVisit("Stmt", this::checkWithStmt);
         addVisit("ReturnStmt", this::checkReturnStmt);
-        //addVisit("ReturnType", this::dealWithReturnType);
         addVisit("ParameterType", this::checkParameterType);
         addVisit("Assignment", this::checkAssignment);
         addVisit("ArrayAssignment", this::checkAssignment);
@@ -294,19 +288,14 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
     private List<Report> checkBinaryOp(JmmNode jmmNode, MySymbolTable mySymbolTable){
 
         System.out.println("checkBinaryOp");
-
+        System.out.println("node: " + jmmNode);
+        System.out.println("node attributes: " + jmmNode.getAttributes());
+        System.out.println("children: " + jmmNode.getChildren());
 
         List<JmmNode> children = jmmNode.getChildren();
         String op = jmmNode.get("op");
 
-        System.out.println("node: " + jmmNode);
-        System.out.println("node attributes: " + jmmNode.getAttributes());
 
-        System.out.println("children: " + jmmNode.getChildren());
-        System.out.println("child 0 attributes: " + jmmNode.getChildren().get(0).getAttributes());
-        System.out.println("child 1 attributes: " + jmmNode.getChildren().get(1).getAttributes());
-        System.out.println("child 0 type: " + jmmNode.getChildren().get(0).get("type"));
-        System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));
 
 
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
@@ -316,9 +305,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
             // diferentes, logo não dá
             //fazer um report
 
-            System.out.println("inside the if");
-            System.out.println("child 0 attributes: " + jmmNode.getChildren().get(0).getAttributes());
-            System.out.println("child 1 attributes: " + jmmNode.getChildren().get(1).getAttributes());
+
 
             jmmNode.put("type", "none");
             jmmNode.put("isArray", "false");
@@ -1084,15 +1071,13 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         System.out.println("node: " + jmmNode);
         System.out.println("node attributes: " + jmmNode.getAttributes());
 
-        System.out.println("children: " + jmmNode.getChildren());
-        System.out.println("child 0 children: " + jmmNode.getChildren().get(0).getChildren());
-        //System.out.println("child 1 children: " + jmmNode.getChildren().get(1).getChildren());
-
         String methodString = jmmNode.get("method");
 
         System.out.println("é .length");
         jmmNode.put("type", "int");
         jmmNode.put("isArray", "false");
+
+        System.out.println("node attributes after the put: " + jmmNode.getAttributes());
 
         return globalReports;
 
