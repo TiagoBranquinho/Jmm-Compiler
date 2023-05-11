@@ -15,9 +15,9 @@ import static org.specs.comp.ollir.InstructionType.RETURN;
 public class JasminBackender implements JasminBackend {
     ClassUnit classUnit = null;
     String superClass;
-    int limit_stack = 99;
-    int limit_locals = 99;
-
+    int limit_stack = 0;
+    int limit_method = 0;
+    int limit_locals = 0;
     int conditionalAux = 0;
 
     @Override
@@ -171,8 +171,11 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getMethodStatements(Method method) {
-
-        return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + this.getMethodInstructions(method);
+        this.limit_stack = 0;
+        this.limit_method = 0;
+        this.limit_locals = getLimitLocals(method);
+        String methodInstructions = this.getMethodInstructions(method);
+        return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + methodInstructions;
     }
 
     private String getMethodInstructions(Method method) {
@@ -190,6 +193,7 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append(this.getInstruction(instruction, method.getVarTable()));
             if (instruction.getInstType() == InstructionType.CALL && ((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
                 stringBuilder.append("\tpop\n");
+                this.updateStackLimits(-1);
             }
 
         }
@@ -254,6 +258,8 @@ public class JasminBackender implements JasminBackend {
 
         stringBuilder.append("\n");
 
+        this.updateStackLimits(-1);
+
         return stringBuilder.toString();
     }
 
@@ -302,12 +308,19 @@ public class JasminBackender implements JasminBackend {
             } else {
                 stringBuilder.append("\tldc ").append(((LiteralElement) element).getLiteral());
             }
+
+            this.updateStackLimits(1);
+
         } else if (element instanceof ArrayOperand) {
 
             stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) element).getName(), varTable)).append("\n");
 
+            this.updateStackLimits(1);
+
             stringBuilder.append(getLoadToStackInstruction(((ArrayOperand) element).getIndexOperands().get(0), varTable));
             stringBuilder.append("\tiaload");
+
+            this.updateStackLimits(-1);
 
         } else if (element instanceof Operand) {
             switch (((Operand) element).getType().getTypeOfElement()) {
@@ -316,6 +329,9 @@ public class JasminBackender implements JasminBackend {
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(((Operand) element).getType().getTypeOfElement()).append("\n");
             }
+
+            this.updateStackLimits(1);
+
         } else {
             stringBuilder.append("; ERROR: getLoadToStack() unsupported element instance\n");
         }
@@ -350,6 +366,7 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
 
         if(instruction.getDest() instanceof ArrayOperand){
+            this.updateStackLimits(1);
             stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) instruction.getDest()).getName(), varTable)).append("\n").append(getLoadToStackInstruction(((ArrayOperand) instruction.getDest()).getIndexOperands().get(0), varTable));
         }
         else {
@@ -396,13 +413,16 @@ public class JasminBackender implements JasminBackend {
             case INT32, BOOLEAN -> {
                 if(varTable.get(dest.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF){
                     stringBuilder.append("\tiastore").append("\n");
+                    this.updateStackLimits(-3);
                 }
                 else {
                     stringBuilder.append("\tistore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                    this.updateStackLimits(-1);
                 }
             }
             case OBJECTREF, THIS, STRING, ARRAYREF -> {
                 stringBuilder.append("\tastore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                this.updateStackLimits(-1);
             }
             default -> stringBuilder.append("; ERROR: getStore() type of element not supported\n");
         }
@@ -413,13 +433,16 @@ public class JasminBackender implements JasminBackend {
     private String getCallInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
+        int counter = 0;
 
         switch (instruction.getInvocationType()) {
             case invokevirtual -> {
                 stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
+                counter++;
 
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
+                    counter++;
                 }
 
                 boolean name_is_full = true;
@@ -449,6 +472,7 @@ public class JasminBackender implements JasminBackend {
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
 
                 if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    counter--;
                 }
 
             }
@@ -456,6 +480,8 @@ public class JasminBackender implements JasminBackend {
                 stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
 
                 stringBuilder.append("\tinvokespecial ");
+
+                counter++;
 
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) {
                     stringBuilder.append(this.superClass);
@@ -492,6 +518,7 @@ public class JasminBackender implements JasminBackend {
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
 
                 if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    counter--;
                 }
 
             }
@@ -499,6 +526,7 @@ public class JasminBackender implements JasminBackend {
 
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
+                    counter++;
                 }
 
                 boolean name_is_full = true;
@@ -528,14 +556,21 @@ public class JasminBackender implements JasminBackend {
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
 
+                if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    counter--;
+                }
+
             }
             case NEW -> {
+
+                counter--;
 
                 ElementType elementType = instruction.getReturnType().getTypeOfElement();
 
                 if (elementType == ElementType.OBJECTREF) {
                     for (Element element : instruction.getListOfOperands()) {
                         stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
+                        counter++;
                     }
 
                     boolean name_is_full = true;
@@ -559,6 +594,7 @@ public class JasminBackender implements JasminBackend {
                 } else if(elementType == ElementType.ARRAYREF) {
                     for(Element element : instruction.getListOfOperands()) {
                         stringBuilder.append(this.getLoadToStackInstruction(element, varTable));
+                        counter--;
                     }
 
                     stringBuilder.append("\tnewarray");
@@ -580,6 +616,8 @@ public class JasminBackender implements JasminBackend {
             case ldc -> stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstArg(), varTable));
             default -> stringBuilder.append("; ERROR: call instruction not supported\n");
         }
+
+        this.updateStackLimits(-counter);
 
         return stringBuilder.toString();
     }
@@ -628,6 +666,8 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append(this.getLoadToStackInstruction(instruction.getFirstOperand(), varTable) + this.getLoadToStackInstruction(instruction.getThirdOperand(), varTable) + "\tputfield " + className + "/" + ((Operand) instruction.getSecondOperand()).getName() + " " + this.getFieldDescriptor(instruction.getSecondOperand().getType()) + "\n");
+
+        this.updateStackLimits(-2);
 
         return stringBuilder.toString();
     }
@@ -780,7 +820,31 @@ public class JasminBackender implements JasminBackend {
 
         stringBuilder.append("\t").append(operation).append(" ").append(instruction.getLabel()).append("\n");
 
+        if (operation.equals("if_icmplt") || operation.equals("if_icmple")) {
+            this.updateStackLimits(-2);
+        } else {
+            this.updateStackLimits(-1);
+        }
+
         return stringBuilder.toString();
+    }
+
+    private void updateStackLimits(int update) {
+        this.limit_method += update;
+        if(this.limit_method > this.limit_stack) {
+            this.limit_stack = this.limit_method;
+        }
+    }
+
+    public static int getLimitLocals(Method method) {
+        Set<Integer> virtualRegs = new TreeSet<>();
+        virtualRegs.add(0);
+
+        for(Descriptor descriptor : method.getVarTable().values()) {
+            virtualRegs.add(descriptor.getVirtualReg());
+        }
+
+        return virtualRegs.size();
     }
 
 }
