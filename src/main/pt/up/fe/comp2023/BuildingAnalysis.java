@@ -17,7 +17,7 @@ public class BuildingAnalysis implements JmmAnalysis{
 
         List<Report> reports = new ArrayList<>();
 
-        List<Report> semanticAnalysis = new OptimizationAnalyser().visit(parserResult.getRootNode(), mySymbolTable);
+        List<Report> semanticAnalysis = new Analyser().visit(parserResult.getRootNode(), mySymbolTable);
         //mandar como parâmetro uma lista de reports, que depois conforme as visitas que faz acrescenta os reports de erro
 
         System.out.println(mySymbolTable);
