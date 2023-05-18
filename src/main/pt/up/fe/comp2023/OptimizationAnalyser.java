@@ -292,14 +292,14 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
         List<JmmNode> children = jmmNode.getChildren();
         String op = jmmNode.get("op");
 
-        System.out.println("node: " + jmmNode);
+        /*System.out.println("node: " + jmmNode);
         System.out.println("node attributes: " + jmmNode.getAttributes());
 
         System.out.println("children: " + jmmNode.getChildren());
         System.out.println("child 0 attributes: " + jmmNode.getChildren().get(0).getAttributes());
         System.out.println("child 1 attributes: " + jmmNode.getChildren().get(1).getAttributes());
         System.out.println("child 0 type: " + jmmNode.getChildren().get(0).get("type"));
-        System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));
+        System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));*/
 
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
                 || children.get(0).get("isArray").equals("true")
