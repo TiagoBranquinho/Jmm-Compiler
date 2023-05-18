@@ -295,7 +295,16 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         List<JmmNode> children = jmmNode.getChildren();
         String op = jmmNode.get("op");
 
+        System.out.println("op: " + jmmNode.get("op"));
 
+        if(jmmNode.get("op").equals("!") && children.get(0).get("type").equals("boolean")){
+            return globalReports;
+        } else if(jmmNode.get("op").equals("!") && !children.get(0).get("type").equals("boolean")){
+
+            globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "children nodes have different types"));
+            System.out.println("globalReports: " + globalReports);
+            return globalReports;
+        }
 
 
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
@@ -466,6 +475,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         List<JmmNode> children = jmmNode.getChildren();
 
         System.out.println("children: " + children);
+        System.out.println("child 0 attributes: " + children.get(0).getAttributes());
+        System.out.println("child 0 children: " + children.get(0).getChildren());
 
         System.out.println("assignment child 0: " + children.get(0).getAttributes());
         //System.out.println("child 0 type: " + children.get(0).get("type"));
@@ -569,7 +580,18 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         }
 
         if(jmmNode.hasAttribute("type")){
-            if (jmmNode.get("type").equals("none") && jmmNode.getChildren().get(0).get("type").equals("none")) {
+
+            if(jmmNode.getChildren().get(0).hasAttribute("op")){
+                if(jmmNode.getChildren().get(0).get("op").equals("!")){
+                    if(jmmNode.get("type").equals(jmmNode.getChildren().get(0).getChildren().get(0).get("type"))
+                            && jmmNode.get("type").equals("booelan")){
+                        return globalReports;
+                    } else {
+                        globalReports.add(Reports.reportcheckAssignment(jmmNode));
+                        return globalReports;
+                    }
+                }
+            } else if (jmmNode.get("type").equals("none") && jmmNode.getChildren().get(0).get("type").equals("none")) {
                 System.out.println("primeiro if");
                 return globalReports;
 
@@ -608,7 +630,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                 System.out.println("sétimo if");
                 return globalReports;
             }
-        }else{ //ou um ou outro ou ambos são unknown, nunca nenhum foi declarado
+        } else{ //ou um ou outro ou ambos são unknown, nunca nenhum foi declarado
             System.out.println("oitavo if");
 
             jmmNode.put("type", "none");
