@@ -372,7 +372,7 @@ public class JasminBackender implements JasminBackend {
         else {
             if (instruction.getRhs().getInstType() == BINARYOPER) {
                 BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
-                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD || binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
                     boolean left_literal = binaryOpInstruction.getLeftOperand().isLiteral();
                     boolean right_literal = binaryOpInstruction.getRightOperand().isLiteral();
 
@@ -391,8 +391,12 @@ public class JasminBackender implements JasminBackend {
                         if (operand.getName().equals(((Operand) instruction.getDest()).getName())) {
                             int literalValue = Integer.parseInt((literal).getLiteral());
 
-                            if (literalValue >= -128 && literalValue <= 127) {
+                            if (literalValue <= 127 && binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
                                 return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            }
+
+                            if (literalValue <= 127 && binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
+                                return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " -" + literalValue + "\n";
                             }
                         }
                     }
