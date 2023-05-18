@@ -395,7 +395,7 @@ public class JasminBackender implements JasminBackend {
                                 return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
                             }
 
-                            if (literalValue <= 127 && binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
+                            if (literalValue <= 128 && binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
                                 return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " -" + literalValue + "\n";
                             }
                         }
