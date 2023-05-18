@@ -118,12 +118,15 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
 
+
         s = ".i32";
-
-
-
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
+
+        if(Objects.equals(jmmNode.get("op"), "!")){
+            ret.append(jmmNode.get("op")).append(".bool ").append(visit(jmmNode.getJmmChild(0)));
+            return ret.toString();
+        }
         for (JmmNode node : jmmNode.getChildren()){
             if(Objects.equals(node.getKind(), "BinaryOp")){
                 String retString = visit(node, s);
