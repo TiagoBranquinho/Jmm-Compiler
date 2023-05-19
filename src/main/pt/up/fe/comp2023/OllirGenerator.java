@@ -125,6 +125,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
 
         for (JmmNode node : jmmNode.getChildren()){
+            code = new StringBuilder();
             if(Objects.equals(node.getKind(), "BinaryOp")){
                 String retString = visit(node, s);
                 int tempNumber = optimization.getTempNumber();
@@ -357,7 +358,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         invoke.append(invokeType).append("(");
         List<JmmNode> children = jmmNode.getChildren();
 
-        if(Objects.equals(invokeType, "invokevirtual") && Objects.equals(s, ".V")){
+        if(Objects.equals(invokeType, "invokevirtual") && !Objects.equals(s, ".V")){
             s = optimization.getDotOpType(jmmNode, instance);
         }
         invoke.append(visit(children.get(0), s));
