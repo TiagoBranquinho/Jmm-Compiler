@@ -581,17 +581,18 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         if(jmmNode.hasAttribute("type")){
 
-            if(jmmNode.getChildren().get(0).hasAttribute("op")){
-                if(jmmNode.getChildren().get(0).get("op").equals("!")){
-                    if(jmmNode.get("type").equals(jmmNode.getChildren().get(0).getChildren().get(0).get("type"))
-                            && jmmNode.get("type").equals("booelan")){
+            if(jmmNode.getChildren().get(0).hasAttribute("op")) {
+                if (jmmNode.getChildren().get(0).get("op").equals("!")) {
+                    if (jmmNode.get("type").equals(jmmNode.getChildren().get(0).getChildren().get(0).get("type"))
+                            && jmmNode.get("type").equals("booelan")) {
                         return globalReports;
                     } else {
                         globalReports.add(Reports.reportcheckAssignment(jmmNode));
                         return globalReports;
                     }
                 }
-            } else if (jmmNode.get("type").equals("none") && jmmNode.getChildren().get(0).get("type").equals("none")) {
+            }
+            if (jmmNode.get("type").equals("none") && jmmNode.getChildren().get(0).get("type").equals("none")) {
                 System.out.println("primeiro if");
                 return globalReports;
 
