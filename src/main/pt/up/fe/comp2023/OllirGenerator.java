@@ -118,13 +118,14 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
 
-        s = ".i32";
 
-
-
+        s = optimization.getSubstringAfterFirstDot(optimization.getOp(jmmNode));
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
+
+
         for (JmmNode node : jmmNode.getChildren()){
+            code = new StringBuilder();
             if(Objects.equals(node.getKind(), "BinaryOp")){
                 String retString = visit(node, s);
                 int tempNumber = optimization.getTempNumber();
@@ -134,11 +135,19 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
                 ret.append("temp_").append(tempNumber).append(s).append(" ").append(optimization.getOp(jmmNode)).append(" ");
             }
             else{
-                ret.append(visit(node, s)).append(" ").append(optimization.getOp(jmmNode)).append(" ");
+                if(Objects.equals(jmmNode.get("op"), "!")){
+                    ret.append(jmmNode.get("op")).append(".bool ").append(visit(node));
+                }
+                else{
+                    ret.append(visit(node, s)).append(" ").append(optimization.getOp(jmmNode)).append(" ");
+                }
 
             }
         }
-        ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        if(!Objects.equals(jmmNode.get("op"), "!")){
+            ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        }
+
         if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
             int tempNumber = optimization.getTempNumber();
             StringBuilder temp = new StringBuilder();
@@ -349,7 +358,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         invoke.append(invokeType).append("(");
         List<JmmNode> children = jmmNode.getChildren();
 
-        if(Objects.equals(invokeType, "invokevirtual") && Objects.equals(s, ".V")){
+        if(Objects.equals(invokeType, "invokevirtual") && !Objects.equals(s, ".V")){
             s = optimization.getDotOpType(jmmNode, instance);
         }
         invoke.append(visit(children.get(0), s));
@@ -383,15 +392,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithObjectDeclaration(JmmNode jmmNode, String s){
-        JmmNode assignment = jmmNode.getJmmParent();
-        while (!Objects.equals(assignment.getKind(), "Assignment")){
-            assignment = assignment.getJmmParent();
-        }
-        JmmNode instance = jmmNode.getJmmParent();
-        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
-            instance = instance.getJmmParent();
-        }
-        return this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
+        return this.optimization.initObjectDeclaration(jmmNode);
 
     }
 

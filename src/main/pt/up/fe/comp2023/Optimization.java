@@ -55,7 +55,7 @@ public class Optimization implements JmmOptimization {
         return integer.get("value") + typeToOllir(new Type("int", false));
     }
 
-    public String initObjectDeclaration(JmmNode declaration, JmmNode assignment, JmmNode instance){
+    public String initObjectDeclaration(JmmNode declaration){
         StringBuilder ret = new StringBuilder();
         String objClass = declaration.get("objClass");
         String type = typeToOllir(new Type(objClass, false));
@@ -347,6 +347,14 @@ public class Optimization implements JmmOptimization {
         } else {
             return str.substring(secondDotIndex);
         }
+    }
+
+    public String getSubstringAfterFirstDot(String str) {
+        int firstDotIndex = str.indexOf(".");
+        if (firstDotIndex == -1 || firstDotIndex == str.length() - 1) {
+            return "";
+        }
+        return str.substring(firstDotIndex);
     }
 
     public String getArrayString(JmmNode subscriptOp, JmmNode instance) {
