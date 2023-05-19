@@ -386,15 +386,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithObjectDeclaration(JmmNode jmmNode, String s){
-        JmmNode assignment = jmmNode.getJmmParent();
-        while (!Objects.equals(assignment.getKind(), "Assignment")){
-            assignment = assignment.getJmmParent();
-        }
-        JmmNode instance = jmmNode.getJmmParent();
-        while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
-            instance = instance.getJmmParent();
-        }
-        return this.optimization.initObjectDeclaration(jmmNode, assignment, instance);
+        return this.optimization.initObjectDeclaration(jmmNode);
 
     }
 

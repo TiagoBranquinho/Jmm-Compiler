@@ -55,7 +55,7 @@ public class Optimization implements JmmOptimization {
         return integer.get("value") + typeToOllir(new Type("int", false));
     }
 
-    public String initObjectDeclaration(JmmNode declaration, JmmNode assignment, JmmNode instance){
+    public String initObjectDeclaration(JmmNode declaration){
         StringBuilder ret = new StringBuilder();
         String objClass = declaration.get("objClass");
         String type = typeToOllir(new Type(objClass, false));
