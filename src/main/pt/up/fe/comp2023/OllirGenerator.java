@@ -119,14 +119,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     private String dealWithBinaryOp(JmmNode jmmNode, String s) {
 
 
-        s = ".i32";
+        s = optimization.getSubstringAfterFirstDot(optimization.getOp(jmmNode));
         StringBuilder ret = new StringBuilder();
         StringBuilder code = new StringBuilder();
 
-        if(Objects.equals(jmmNode.get("op"), "!")){
-            ret.append(jmmNode.get("op")).append(".bool ").append(visit(jmmNode.getJmmChild(0)));
-            return ret.toString();
-        }
+
         for (JmmNode node : jmmNode.getChildren()){
             if(Objects.equals(node.getKind(), "BinaryOp")){
                 String retString = visit(node, s);
@@ -137,11 +134,19 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
                 ret.append("temp_").append(tempNumber).append(s).append(" ").append(optimization.getOp(jmmNode)).append(" ");
             }
             else{
-                ret.append(visit(node, s)).append(" ").append(optimization.getOp(jmmNode)).append(" ");
+                if(Objects.equals(jmmNode.get("op"), "!")){
+                    ret.append(jmmNode.get("op")).append(".bool ").append(visit(node));
+                }
+                else{
+                    ret.append(visit(node, s)).append(" ").append(optimization.getOp(jmmNode)).append(" ");
+                }
 
             }
         }
-        ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        if(!Objects.equals(jmmNode.get("op"), "!")){
+            ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+        }
+
         if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
             int tempNumber = optimization.getTempNumber();
             StringBuilder temp = new StringBuilder();

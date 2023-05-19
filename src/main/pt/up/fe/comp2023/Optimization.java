@@ -349,6 +349,14 @@ public class Optimization implements JmmOptimization {
         }
     }
 
+    public String getSubstringAfterFirstDot(String str) {
+        int firstDotIndex = str.indexOf(".");
+        if (firstDotIndex == -1 || firstDotIndex == str.length() - 1) {
+            return "";
+        }
+        return str.substring(firstDotIndex);
+    }
+
     public String getArrayString(JmmNode subscriptOp, JmmNode instance) {
         StringBuilder retString = new StringBuilder();
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
