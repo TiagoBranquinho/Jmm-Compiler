@@ -10,7 +10,7 @@ class Fac{
 
     public static void main(String[] args){
     if(new Fac().gato(10)){
-                io.println(2);
+                io.println(new Fac().compFac(2));
     }
     else{
         io.println(3);
