@@ -279,11 +279,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithReservedExpr(JmmNode jmmNode, String s){
-        String value = jmmNode.get("value");
-        if(Objects.equals(value, "true") || Objects.equals(value, "false")){
-            return value + ".bool";
-        }
-        return jmmNode.get("value");
+        return optimization.getReservedExpr(jmmNode);
     }
 
     private String dealWithStmt(JmmNode jmmNode, String s){
@@ -336,7 +332,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         String type = optimization.getVarOrType(jmmNode, instance, "type");
         for (JmmNode node : jmmNode.getChildren()){
             if(optimization.isField(jmmNode, instance)){
-                ret.append("putfield(this, ").append(var);
+                ret.append(optimization.getPutField()).append(var);
                 ret.append(", ");
                 ret.append(visit(node, type));
                 ret.append(").V");
