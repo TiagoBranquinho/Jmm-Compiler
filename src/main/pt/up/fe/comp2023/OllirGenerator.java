@@ -369,6 +369,8 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         if(Objects.equals(invokeType, "invokevirtual")){
             s = optimization.getDotOpType(jmmNode, instance);
             System.out.println("YEE");
+            if(s.equals(".V"))
+                s = oldS;
         }
         invoke.append(visit(children.get(0), s));
 

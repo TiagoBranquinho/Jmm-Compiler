@@ -1,31 +1,29 @@
-import io;
-class myClass {
-    int a;
+import ioPlus;
+import M;
+class T {
+    int[] test_arr;
+    public static void main(String[] args) {
+        T fm;
+        M m;
+        int max;
 
-    public int get(){
-        int lala;
-        lala = 1 * 5 + 6 / (6 + 5);
-        return a;
-    }
-    public int put(int n){
-        a = n;
-        return a;
-    }
+        max = m.oh_no();
+        fm = new T();
+        fm.build_test_arr();
 
-    public int m1(){
-        myClass c1;
-        a = 2;
-        io.println(this.get());
-        c1 = new myClass();
-        io.println(c1.get());
-        c1.put(2);
-        io.println(c1.get());
-        return a;
+        max = fm.find_maximum(fm.get_array());
+        ioPlus.printResult(max);
     }
 
-    public static void main(String[] args){
-        myClass A;
-        A = new myClass();
-        A.m1();
+    public int find_maximum(int[] n){
+        return 1;
+    }
+
+    public int[] get_array(){
+        return test_arr;
+    }
+
+    public int build_test_arr() {
+        return 0;
     }
 }
