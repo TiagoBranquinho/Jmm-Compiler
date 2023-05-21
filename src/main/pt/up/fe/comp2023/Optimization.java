@@ -315,41 +315,42 @@ public class Optimization implements JmmOptimization {
         while(!left.hasAttribute("value") && !left.hasAttribute("objClass")){
             left = left.getJmmChild(0);
         }
-        if(left.hasAttribute("value")){
-            if(Objects.equals(left.get("value"), "this")){
-                return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
-            }
-            String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-            for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-                if(Objects.equals(localVar.getName(), left.get("value"))){
-                    if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
-                        return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
-                    }
-                }
-            }
-            for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-                if(Objects.equals(localVar.getName(), left.get("value"))){
-                    if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
-                        return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
-                    }
-                }
-            }
-            for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-                if(Objects.equals(parameter.getName(), left.get("value"))){
-                    if(Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
-                        return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
-                    }
-                }
-            }
-            return ".V";
+
+        if(!left.hasAttribute("value")) {
+            if (left.get("objClass").equals(jmmSemanticsResult.getSymbolTable().getClassName()))
+                left.put("value", "this");
         }
-        else{
-            return "." + left.get("objClass");
+        if(Objects.equals(left.get("value"), "this")){
+            return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
         }
-
-
-
+        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
+            if(Objects.equals(localVar.getName(), left.get("value"))){
+                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+            if(Objects.equals(parameter.getName(), left.get("value"))){
+                if(Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+                    return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
+                }
+            }
+        }
+        return ".V";
     }
+
+
+
+
 
     public String getSubstringAfterSecondDot(String str) {
         int firstDotIndex = str.indexOf(".");
