@@ -1,16 +1,34 @@
-import ioPlus;
+import io;
+class Fac {
+    int b;
+    boolean fieldBool;
+    int[] arr;
 
-class IfWhileNested {
+    public int compFac(int num){
+        int num_aux;
+        int[] a;
+        boolean localBool;
+
+        //arr[b] = num_aux;
+        a[b] = num_aux;
+        b = 3;
+
+        fieldBool = false;
+        localBool = fieldBool;
+        a[5] = num_aux;
+        a[num_aux+4] = num_aux;
+        a[num_aux] = b;
+        num_aux = 5;
 
 
-    public int func(int a){
-        return 1;
+        return num_aux;
     }
 
-	public static void main(String[] args) {
-        int f;
-        f = 10;
-        boolean b;
-        b = f < 5 && this.func(f) > 10;
-	}
+    public boolean boolReturn(boolean boolParam1, boolean boolParam2){
+        boolean boolVar;
+
+        boolVar = boolParam2;
+        return true;
+    }
+
 }

@@ -92,7 +92,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithLiteral(JmmNode jmmNode, String s) {
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp") || (Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment") && jmmNode.getIndexOfSelf() == 0)){
             StringBuilder code = new StringBuilder();
             System.out.println("yes");
             int tempNumber = optimization.getTempNumber();
@@ -148,7 +148,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
         }
 
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment")){
             int tempNumber = optimization.getTempNumber();
             StringBuilder temp = new StringBuilder();
             temp.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(ret);
