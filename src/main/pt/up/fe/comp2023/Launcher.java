@@ -70,13 +70,15 @@ public class Launcher {
             JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
 
             //Para testar com o Launcher:
+            //analyser.semanticAnalysis(parserResult);
+
 
             Optimization optimization = new Optimization();
 
             System.out.println("antes da optimization " + semanticResults.getConfig());
             System.out.println("aa: " + semanticAnalysis.getConfig());
 
-            semanticResults.getConfig().put("optimize", "true");
+            //semanticResults.getConfig().put("optimize", "true");
 
             JmmSemanticsResult semanticResultsOptimized = semanticResults;
 
@@ -101,7 +103,7 @@ public class Launcher {
 
 
 
-            /*OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+            OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
 
 
 
@@ -115,7 +117,7 @@ public class Launcher {
             jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            jasminResult.run();*/
+            jasminResult.run();
 
         }
 

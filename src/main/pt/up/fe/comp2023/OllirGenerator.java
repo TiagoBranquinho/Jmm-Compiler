@@ -45,6 +45,8 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         addVisit("ArrayAssignment", this::dealWithArrayAssignment);
         addVisit("SubscriptOp", this::dealWithSubscriptOp);
         addVisit("LengthOp", this::dealWithLengthOp);
+        addVisit("PrecedenceOp", this::dealWithPrecedenceOp);
+
 
         this.setDefaultVisit(this::defaultVisitor);
 
@@ -92,7 +94,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     }
 
     private String dealWithLiteral(JmmNode jmmNode, String s) {
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp") || (Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment") && jmmNode.getIndexOfSelf() == 0)){
             StringBuilder code = new StringBuilder();
             System.out.println("yes");
             int tempNumber = optimization.getTempNumber();
@@ -126,7 +128,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
         for (JmmNode node : jmmNode.getChildren()){
             code = new StringBuilder();
-            if(Objects.equals(node.getKind(), "BinaryOp")){
+            if(Objects.equals(node.getKind(), "BinaryOp") || Objects.equals(node.getKind(), "PrecedenceOp")){
                 String retString = visit(node, s);
                 int tempNumber = optimization.getTempNumber();
                 code.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(retString);
@@ -145,10 +147,13 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             }
         }
         if(!Objects.equals(jmmNode.get("op"), "!")){
-            ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+            if(Objects.equals(jmmNode.get("op"), "+") || Objects.equals(jmmNode.get("op"), "-") || Objects.equals(jmmNode.get("op"), "*") || Objects.equals(jmmNode.get("op"), "/"))
+                ret.delete(ret.length() - optimization.getOp(jmmNode).length() - 2, ret.length());
+            else
+                ret.delete(ret.length() - optimization.getOp(jmmNode).length() - 1, ret.length());
         }
 
-        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
+        if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment")){
             int tempNumber = optimization.getTempNumber();
             StringBuilder temp = new StringBuilder();
             temp.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" ").append(ret);
@@ -261,8 +266,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         code.append("goto endwhile_").append(whileNumber).append(";\n");
         code.append("whilebody_").append(whileNumber).append(":\n");
         optimization.appendToOllir(code.toString());
+        int i = 0;
         for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+            if(i > 0)
+                visit(node);
+            i++;
         }
         StringBuilder newCode = new StringBuilder();
         newCode.append(initialIf).append("endwhile_").append(whileNumber).append(":\n\n");
@@ -358,8 +366,9 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         invoke.append(invokeType).append("(");
         List<JmmNode> children = jmmNode.getChildren();
 
-        if(Objects.equals(invokeType, "invokevirtual") && !Objects.equals(s, ".V")){
+        if(Objects.equals(invokeType, "invokevirtual")){
             s = optimization.getDotOpType(jmmNode, instance);
+            System.out.println("YEE");
         }
         invoke.append(visit(children.get(0), s));
 
@@ -376,11 +385,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         code.append(invoke);
         code.append(")").append(s);
 
-        if(!Objects.equals(oldS, ".V")){
+        if(!Objects.equals(s, ".V") && !Objects.equals(jmmNode.getJmmParent().getKind(), "ExprStmt")){
             code.append(";\n");
             ret.append("temp_").append(tempNumber).append(s);
         }
-        else{
+        else if(Objects.equals(s, ".V")){
             optimization.decreaseTempNumber();
         }
         optimization.appendToOllir(code.toString());
@@ -448,11 +457,17 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
+        instance = instance.getJmmChild(0);
         s = optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "var");
         code.append("temp_").append(tempNumber).append(".i32 :=.i32 arraylength(").append(s).append(").i32");
         optimization.appendToOllir(code + ";\n");
         ret.append("temp_").append(tempNumber).append(".i32");
+        System.out.println("PASSOU");
         return ret.toString();
+    }
+
+    private String dealWithPrecedenceOp(JmmNode jmmNode, String s){
+        return visit(jmmNode.getJmmChild(0));
     }
 
 
