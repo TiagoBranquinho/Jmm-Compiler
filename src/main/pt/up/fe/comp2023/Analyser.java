@@ -52,6 +52,7 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
         addVisit("SubscriptOp", this::checkSubscriptOp);
         addVisit("ObjectDeclaration", this::checkObjectDeclaration);
         addVisit("DotOp", this::checkDotOp);
+        addVisit("PrecedenceOp", this::checkPrecedenceOp);
         this.setDefaultVisit(this::defaultVisitor);
     }
 
@@ -347,6 +348,8 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     jmmNode.put("type", "int");
                     jmmNode.put("isArray", "false");
                     System.out.println("globalReports 3: " + globalReports);
+
+
                     return globalReports;
                 }
 
@@ -1104,6 +1107,18 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 
         return globalReports;
 
+    }
+
+    private List<Report> checkPrecedenceOp(JmmNode jmmNode, MySymbolTable mySymbolTable){
+        System.out.println("checkPrecedenceOp");
+        System.out.println("node: " + jmmNode);
+        System.out.println("children: " + jmmNode.getChildren());
+
+        jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
+        jmmNode.put("isArray", jmmNode.getChildren().get(0).get("isArray"));
+        //System.out.println("children attributes: " + jmmNode.getChildren().);
+
+        return globalReports;
     }
 
 }
