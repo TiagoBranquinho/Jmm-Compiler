@@ -3,7 +3,9 @@ package pt.up.fe.comp2023;
 
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
+import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp2023.MyVisitor;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -59,6 +61,77 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
         return globalReports;
     }
 
+    private boolean checkIfIsConstant(JmmNode jmmNode, MySymbolTable mySymbolTable){
+
+        System.out.println("checkIfIsConstant");
+
+        String methodNode = null;
+        Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
+
+        System.out.println("instanceDeclaration: " + instanceDeclaration);
+
+        if(instanceDeclaration.isPresent()){
+            methodNode = instanceDeclaration.get().get("instance");
+        }else{
+            methodNode = "main";
+        }
+
+
+        List<Symbol> tipo = mySymbolTable.getLocalVariables(methodNode);
+
+
+        String var = jmmNode.get("var");
+
+        //Se for um type que não é pârametro
+        /*for (int i = 0; i < tipo.size(); i++) {
+            System.out.println("getLocalVariables");
+            System.out.println(tipo.get(i));
+            //significa que a variável é
+            if(Objects.equals(tipo.get(i).getName(), var)){
+                jmmNode.put("type", tipo.get(i).getType().getName());
+                jmmNode.put("isArray", String.valueOf(tipo.get(i).getType().isArray()));
+
+                return false;
+            }
+        }*/
+
+        //Se fôr parâmetro
+
+        List<Symbol> parameters = mySymbolTable.getParameters(methodNode);
+
+        //Se for um type que não é pârametro
+        for (int i = 0; i < parameters.size(); i++) {
+            System.out.println("getParameters");
+            System.out.println(parameters.get(i));
+            //significa que o variável é um parâmetro
+            if(Objects.equals(parameters.get(i).getName(), var)){
+
+                return false;
+            }
+        }
+
+        List<Symbol> fields = mySymbolTable.getFields();
+
+
+        //Se for uma variável da classe/ ou seja, um field
+        for (int i = 0; i < fields.size(); i++) {
+            System.out.println("getFields");
+            System.out.println(fields.get(i));
+            if(Objects.equals(fields.get(i).getName(), var)){
+                System.out.println("Objects.equals(fields.get(i).getName(), var)");
+                jmmNode.put("type", fields.get(i).getType().getName());
+                jmmNode.put("isArray", String.valueOf(fields.get(i).getType().isArray()));
+
+                if(methodNode.equals("main")){
+                    //trata do caso mesmo que seja static
+                    //globalReports.add(Reports.reportCheckDeclaration(jmmNode));
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private List<Report> checkVarDeclarationStmt(JmmNode jmmNode, SymbolTable symbolTable){
 
@@ -92,6 +165,16 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
         List<JmmNode> children = jmmNode.getChildren();
 
         System.out.println("children: " + children);
+
+        /*if(checkIfIsConstant(jmmNode, mySymbolTable)){
+            jmmNode.put("value", jmmNode.getChildren().get(0).get("value"));
+            System.out.println("depois de se verificar que é constante, value: " + jmmNode.get("value"));
+            jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
+            System.out.println("depois de se verificar que é constante, type: " + jmmNode.get("type"));
+            jmmNode.put("isArray", jmmNode.getChildren().get(0).get("isArray"));
+            System.out.println("depois de se verificar que é constante, isArray: " + jmmNode.get("isArray"));
+            return globalReports;
+        }*/
 
         /*System.out.println("child1: " + children.get(0).getAttributes());
         System.out.println("child1 type: " + children.get(0).get("type"));
@@ -301,6 +384,18 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
         System.out.println("child 0 type: " + jmmNode.getChildren().get(0).get("type"));
         System.out.println("child 1 type: " + jmmNode.getChildren().get(1).get("type"));*/
 
+
+        System.out.println("op: " + jmmNode.get("op"));
+
+        if(jmmNode.get("op").equals("!") && children.get(0).get("type").equals("boolean")){
+            return globalReports;
+        } else if(jmmNode.get("op").equals("!") && !children.get(0).get("type").equals("boolean")){
+
+            globalReports.add(Reports.reportCheckBinaryOp(jmmNode, "children nodes have different types"));
+            System.out.println("globalReports: " + globalReports);
+            return globalReports;
+        }
+
         if (!Objects.equals(children.get(0).get("type"), children.get(1).get("type"))
                 || children.get(0).get("isArray").equals("true")
                 || children.get(1).get("isArray").equals("true")){
@@ -472,8 +567,27 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
 
         System.out.println("children: " + children);
 
+        addVisit("Identifier", this::checkDeclaration);
+
+
+
         System.out.println("assignment child 0: " + children.get(0).getAttributes());
         //System.out.println("child 0 type: " + children.get(0).get("type"));
+
+        /*if(checkIfIsConstant(jmmNode, mySymbolTable)){
+            if(jmmNode.getNumChildren() > 0){
+                jmmNode.replace(jmmNode.getChildren().get(0));
+                jmmNode.put("value", jmmNode.getChildren().get(0).get("value"));
+                System.out.println("depois de se verificar que é constante, value: " + jmmNode.get("value"));
+                jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
+                System.out.println("depois de se verificar que é constante, type: " + jmmNode.get("type"));
+                jmmNode.put("isArray", jmmNode.getChildren().get(0).get("isArray"));
+                System.out.println("depois de se verificar que é constante, isArray: " + jmmNode.get("isArray"));
+                return globalReports;
+            }
+
+        }*/
+
         String methodNode = null;
         Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
 
@@ -800,6 +914,16 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
         System.out.println("children: " + jmmNode.getChildren());
         System.out.println("child 0 attributes:" + jmmNode.getChildren().get(0).getAttributes());
 
+        //JmmNode node = new Jm
+
+
+        /*if(jmmNode.getChildren().get(0).getKind().equals("Identifier") ){
+            //e for constante, por isso no if
+
+
+            jmmNode.getChildren().get(0).replace();
+        }*/
+
         String methodNode = null;
         Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
 
@@ -819,6 +943,8 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Lis
             globalReports.add(Reports.checkReturnStmt(jmmNode));
             return globalReports;
         }
+
+        System.out.println("returnStatement no fim: " + jmmNode);
 
         return globalReports;
     }

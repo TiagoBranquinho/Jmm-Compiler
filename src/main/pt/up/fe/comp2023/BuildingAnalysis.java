@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 //extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
 public class BuildingAnalysis implements JmmAnalysis{
@@ -15,9 +16,22 @@ public class BuildingAnalysis implements JmmAnalysis{
 
         MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
-        List<Report> reports = new ArrayList<>();
+        System.out.println("parserResult.getConfig().get(\"optimize\"): " + parserResult.getConfig().get("optimize"));
 
-        List<Report> semanticAnalysis = new Analyser().visit(parserResult.getRootNode(), mySymbolTable);
+
+        List<Report> reports = new ArrayList<>();
+        List<Report> semanticAnalysis = new ArrayList<>();
+
+        /*if(parserResult.getConfig().get("optimize").equals("true")){
+            semanticAnalysis = new OptimizationAnalyser().visit(parserResult.getRootNode(), mySymbolTable);
+
+        } else{
+            semanticAnalysis = new Analyser().visit(parserResult.getRootNode(), mySymbolTable);
+        }*/
+
+        semanticAnalysis = new Analyser().visit(parserResult.getRootNode(), mySymbolTable);
+
+
         //mandar como parâmetro uma lista de reports, que depois conforme as visitas que faz acrescenta os reports de erro
 
         System.out.println(mySymbolTable);

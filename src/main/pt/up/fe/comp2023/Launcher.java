@@ -1,11 +1,13 @@
 package pt.up.fe.comp2023;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
@@ -22,6 +24,11 @@ public class Launcher {
 
         // Parse arguments as a map with predefined options
         var config = parseArgs(args);
+
+
+        //Map<String, String> arguments = parseArgs(args);
+
+
 
         // Get input file
         File inputFile = new File(config.get("inputFile"));
@@ -59,13 +66,45 @@ public class Launcher {
             //System.out.println(mySymbolTable.getImports());
             JmmSemanticsResult semanticAnalysis = new JmmSemanticsResult(parserResult.getRootNode(), mySymbolTable, null, null);
 
-
-
             BuildingAnalysis analyser = new BuildingAnalysis();
-            analyser.semanticAnalysis(parserResult);
+            JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
+
+            //Para testar com o Launcher:
 
             Optimization optimization = new Optimization();
-            OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+
+            System.out.println("antes da optimization " + semanticResults.getConfig());
+            System.out.println("aa: " + semanticAnalysis.getConfig());
+
+            semanticResults.getConfig().put("optimize", "true");
+
+            JmmSemanticsResult semanticResultsOptimized = semanticResults;
+
+            System.out.println("-----------------------Separação do normal com as otimizações-----------------------");
+
+            if (semanticResults.getConfig() != null) {
+
+                //System.out.println("se está empty: " + semanticsResult.getConfig().isEmpty());
+                System.out.println("se tem a key: " + semanticResults.getConfig().containsKey("optimize"));
+                System.out.println("se está a true: " + semanticResults.getConfig().get("optimize").equals("true"));
+
+                if (!semanticResults.getConfig().isEmpty() && semanticResults.getConfig().containsKey("optimize") && semanticResults.getConfig().get("optimize").equals("true")) {
+                    System.out.println("otimização: ");
+                    semanticResultsOptimized = optimization.optimize(semanticAnalysis);
+                    System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
+
+
+                }
+            }
+            System.out.println("depois da optimization: " + semanticResults.getConfig());
+            System.out.println(semanticResultsOptimized);
+
+
+
+            /*OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+
+
+
 
             //Instantiate JasminBackender
             var jasminBackend = new JasminBackender();
@@ -76,7 +115,7 @@ public class Launcher {
             jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            jasminResult.run();
+            jasminResult.run();*/
 
         }
 
@@ -113,6 +152,13 @@ public class Launcher {
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
+
+        for(int i = 0; i < args.length; i++){
+            String arg = args[i];
+            if(arg.contains("-o")){
+                config.put("optimize", "true");
+            }
+        }
 
         return config;
     }

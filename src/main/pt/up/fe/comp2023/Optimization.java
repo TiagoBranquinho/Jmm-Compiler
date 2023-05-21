@@ -6,11 +6,13 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.jmm.report.Report;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
 
 public class Optimization implements JmmOptimization {
     private StringBuilder ollirCode = new StringBuilder();
@@ -400,6 +402,24 @@ public class Optimization implements JmmOptimization {
         StringBuilder ret = new StringBuilder();
         ret.append("if (").append(insideIf).append(") ");
         return ret.toString();
+    }
+
+    @Override
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+
+
+        MySymbolTable mySymbolTable = new MySymbolTable(semanticsResult.getRootNode());
+
+
+        List<Report> reports = new ArrayList<>();
+        List<Report> semanticAnalysis = new ArrayList<>();
+
+        semanticAnalysis = new OptimizationAnalyser().visit(semanticsResult.getRootNode(), mySymbolTable);
+        reports.addAll(semanticAnalysis);
+        System.out.println("os reports finais na otimização: " + reports);
+
+
+        return semanticsResult;
     }
 
 
