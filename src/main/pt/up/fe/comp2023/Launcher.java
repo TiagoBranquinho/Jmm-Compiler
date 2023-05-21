@@ -66,8 +66,8 @@ public class Launcher {
             //System.out.println(mySymbolTable.getImports());
             JmmSemanticsResult semanticAnalysis = new JmmSemanticsResult(parserResult.getRootNode(), mySymbolTable, null, null);
 
-            //BuildingAnalysis analyser = new BuildingAnalysis();
-            //JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
+            BuildingAnalysis analyser = new BuildingAnalysis();
+            JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
 
             //Para testar com o Launcher:
             //analyser.semanticAnalysis(parserResult);
@@ -75,7 +75,31 @@ public class Launcher {
 
             Optimization optimization = new Optimization();
 
+            System.out.println("antes da optimization " + semanticResults.getConfig());
+            System.out.println("aa: " + semanticAnalysis.getConfig());
 
+            //semanticResults.getConfig().put("optimize", "true");
+
+            JmmSemanticsResult semanticResultsOptimized = semanticResults;
+
+            System.out.println("-----------------------Separação do normal com as otimizações-----------------------");
+
+            if (semanticResults.getConfig() != null) {
+
+                //System.out.println("se está empty: " + semanticsResult.getConfig().isEmpty());
+                System.out.println("se tem a key: " + semanticResults.getConfig().containsKey("optimize"));
+                System.out.println("se está a true: " + semanticResults.getConfig().get("optimize").equals("true"));
+
+                if (!semanticResults.getConfig().isEmpty() && semanticResults.getConfig().containsKey("optimize") && semanticResults.getConfig().get("optimize").equals("true")) {
+                    System.out.println("otimização: ");
+                    semanticResultsOptimized = optimization.optimize(semanticAnalysis);
+                    System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
+
+
+                }
+            }
+            System.out.println("depois da optimization: " + semanticResults.getConfig());
+            System.out.println(semanticResultsOptimized);
 
 
 
