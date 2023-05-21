@@ -145,7 +145,10 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             }
         }
         if(!Objects.equals(jmmNode.get("op"), "!")){
-            ret.delete(ret.length() - jmmNode.get("op").length() - s.length() - 2, ret.length());
+            if(Objects.equals(jmmNode.get("op"), "+") || Objects.equals(jmmNode.get("op"), "-") || Objects.equals(jmmNode.get("op"), "*") || Objects.equals(jmmNode.get("op"), "/"))
+                ret.delete(ret.length() - optimization.getOp(jmmNode).length() - 2, ret.length());
+            else
+                ret.delete(ret.length() - optimization.getOp(jmmNode).length() - 1, ret.length());
         }
 
         if(Objects.equals(jmmNode.getJmmParent().getKind(), "DotOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp") || Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment")){
@@ -261,8 +264,11 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         code.append("goto endwhile_").append(whileNumber).append(";\n");
         code.append("whilebody_").append(whileNumber).append(":\n");
         optimization.appendToOllir(code.toString());
+        int i = 0;
         for (JmmNode node : jmmNode.getChildren()){
-            visit(node);
+            if(i > 0)
+                visit(node);
+            i++;
         }
         StringBuilder newCode = new StringBuilder();
         newCode.append(initialIf).append("endwhile_").append(whileNumber).append(":\n\n");
@@ -448,10 +454,12 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         while (!Objects.equals(instance.getKind(), "MethodDeclaration")){
             instance = instance.getJmmParent();
         }
+        instance = instance.getJmmChild(0);
         s = optimization.getVarOrType(jmmNode.getJmmChild(0), instance, "var");
         code.append("temp_").append(tempNumber).append(".i32 :=.i32 arraylength(").append(s).append(").i32");
         optimization.appendToOllir(code + ";\n");
         ret.append("temp_").append(tempNumber).append(".i32");
+        System.out.println("PASSOU");
         return ret.toString();
     }
 
