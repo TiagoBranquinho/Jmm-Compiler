@@ -1,15 +1,22 @@
-class MeuDeus {
-    int field;
-    public static void main(String[] args){
+import ioPlus;
+class ConditionArgsFuncCall {
+
+    public int func(boolean a, boolean b, boolean c, boolean d){
+        ioPlus.printResult(10);
+        return 1;
     }
 
-    public int testMethod(int param){
+	public static void main(String[] args) {
         int a;
-        int[] arr;
-        boolean ola;
-        boolean b;
-
-        a = arr[field] + arr[param] + field;
-        return 3;
-    }
+        int b;
+        boolean i;
+        boolean j;
+        ConditionArgsFuncCall d;
+        d = new ConditionArgsFuncCall();
+        a = 10;
+        b = 5;
+        i = true;
+        j = false;
+		a = d.func(a < b, i && j , a < b && i, !i);
+	}
 }
