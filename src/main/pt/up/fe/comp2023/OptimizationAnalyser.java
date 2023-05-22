@@ -233,8 +233,8 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
         if (loopAncestor.isPresent() || condicionalAncestor.isPresent()) {
             System.out.println("loopAncestors no checkAssignment: " + jmmNode.getAncestor("LoopStmt"));
-            System.out.println("condicionalAncestor no checkAssignment: + " + jmmNode);
-            System.out.println("Significa que tem um Loop node como pai");
+            System.out.println("condicionalAncestor no checkAssignment: " + condicionalAncestor);
+            System.out.println("Significa que tem um Loop node / condicional node como pai");
             if (variableHashmap.containsKey(jmmNode.get("var"))) {
                 variableHashmap.replace(jmmNode.get("var"), null);
                 System.out.println("hashmap depois da substituição: " + variableHashmap);
@@ -242,7 +242,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             } else {
                 System.out.println("variável não foi acrescentada");
             }
-            System.out.println("hashmap depois das transformações por ter estado num loop: " + variableHashmap);
+            System.out.println("hashmap depois das transformações por ter estado num loop/num if: " + variableHashmap);
             return "";
         }
 
