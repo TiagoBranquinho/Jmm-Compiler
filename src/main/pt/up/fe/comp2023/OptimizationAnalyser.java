@@ -208,13 +208,6 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
         System.out.println("checkWithStmt");
 
-        System.out.println("node: " + jmmNode);
-        System.out.println("attributes: " + jmmNode.getAttributes());
-        System.out.println("children: " + jmmNode.getChildren());
-
-        jmmNode.put("type", "none");
-        jmmNode.put("type", "false");
-
 
         return "";
     }
