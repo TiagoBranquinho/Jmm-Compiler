@@ -964,8 +964,11 @@ public class Analyser extends PostorderJmmVisitor<MySymbolTable, List<Report>> {
                     if (i > 0) {
                         //System.out.println("child > 0 type: " + jmmNode.getChildren().get(i).get("type"));
                         //System.out.println("child > 0 isArray: " + jmmNode.getChildren().get(i).get("isArray"));
-                        parameterTypesCalled.add(jmmNode.getChildren().get(i).get("type"));
-                        parameterIsArrayCalled.add(jmmNode.getChildren().get(i).get("isArray"));
+                        if (jmmNode.getChildren().get(i).hasAttribute("type") && jmmNode.getChildren().get(i).hasAttribute("isArray")) {
+                            parameterTypesCalled.add(jmmNode.getChildren().get(i).get("type"));
+                            parameterIsArrayCalled.add(jmmNode.getChildren().get(i).get("isArray"));
+                        }
+
 
                     }
 
