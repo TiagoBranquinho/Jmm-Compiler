@@ -111,7 +111,7 @@ public class Optimization implements JmmOptimization {
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         ollirCode.append("\n").append(
                 ".construct ").append(className).append("().V {\n").append(
-                "invokespecial(this, \"<init>\").V;\n").append(
+                "invokespecial(this.").append(className).append(", \"<init>\").V;\n").append(
                 "}\n\n");
     }
 
@@ -233,28 +233,33 @@ public class Optimization implements JmmOptimization {
 
     public String getInvoke(JmmNode dotOp, JmmNode instance) {
         JmmNode left = dotOp.getJmmChild(0);
-        while (!left.hasAttribute("value")) {
+        while (!left.hasAttribute("value") && !left.hasAttribute("objClass")) {
             left = left.getJmmChild(0);
         }
-        if (Objects.equals(left.get("value"), "this")) {
+        if (left.hasAttribute("value")) {
+            if (Objects.equals(left.get("value"), "this")) {
+                return "invokevirtual";
+            }
+            String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
+            for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+                if (Objects.equals(localVar.getName(), left.get("value"))) {
+                    return "invokevirtual";
+                }
+            }
+            for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
+                if (Objects.equals(localVar.getName(), left.get("value"))) {
+                    return "invokevirtual";
+                }
+            }
+            for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+                if (Objects.equals(parameter.getName(), left.get("value"))) {
+                    return "invokevirtual";
+                }
+            }
+        } else {
             return "invokevirtual";
         }
-        String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
-            if (Objects.equals(localVar.getName(), left.get("value"))) {
-                return "invokevirtual";
-            }
-        }
-        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
-            if (Objects.equals(localVar.getName(), left.get("value"))) {
-                return "invokevirtual";
-            }
-        }
-        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
-            if (Objects.equals(parameter.getName(), left.get("value"))) {
-                return "invokevirtual";
-            }
-        }
+
 
         return "invokestatic";
     }
@@ -293,15 +298,20 @@ public class Optimization implements JmmOptimization {
     public int addGetField(JmmNode node, String s) {
         String value = node.get("value");
         int tempNumber = this.getTempNumber();
-        ollirCode.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" getfield(this, ").append(value).append(s).append(")").append(s);
+        ollirCode.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" getfield(this.").append(jmmSemanticsResult.getSymbolTable().getClassName()).append(", ").append(value).append(s).append(")").append(s);
         ollirCode.append(";\n");
         return tempNumber;
     }
 
     public String getDotOpType(JmmNode dotOp, JmmNode instance) {
         JmmNode left = dotOp.getJmmChild(0);
-        while (!left.hasAttribute("value")) {
+        while (!left.hasAttribute("value") && !left.hasAttribute("objClass")) {
             left = left.getJmmChild(0);
+        }
+
+        if (!left.hasAttribute("value")) {
+            if (left.get("objClass").equals(jmmSemanticsResult.getSymbolTable().getClassName()))
+                left.put("value", "this");
         }
         if (Objects.equals(left.get("value"), "this")) {
             return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
@@ -328,9 +338,9 @@ public class Optimization implements JmmOptimization {
                 }
             }
         }
-
         return ".V";
     }
+
 
     public String getSubstringAfterSecondDot(String str) {
         int firstDotIndex = str.indexOf(".");
@@ -395,6 +405,21 @@ public class Optimization implements JmmOptimization {
         StringBuilder ret = new StringBuilder();
         ret.append("if (").append(insideIf).append(") ");
         return ret.toString();
+    }
+
+    public String getPutField() {
+        return "putfield(this." + jmmSemanticsResult.getSymbolTable().getClassName() + ", ";
+    }
+
+    public String getReservedExpr(JmmNode node) {
+        String value = node.get("value");
+        if (Objects.equals(value, "true") || Objects.equals(value, "false")) {
+            return value + ".bool";
+        }
+        if (Objects.equals(value, "this")) {
+            return value + "." + jmmSemanticsResult.getSymbolTable().getClassName();
+        }
+        return value;
     }
 
     @Override
