@@ -119,13 +119,17 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
         System.out.println("children: " + children);
 
-        Optional<JmmNode> ancestor = jmmNode.getAncestor("LoopStmt");
-        if (ancestor.isPresent()) {
-            System.out.println("ancestors na checkDeclaration: " + ancestor);
+        Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
+        Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
+        if (loopAncestor.isPresent()) {
+            System.out.println("ancestors na checkDeclaration: " + loopAncestor);
+        }
+        if (condicionalAncestor.isPresent()) {
+            System.out.println("condicionalAncestors na checkDeclaration: " + condicionalAncestor);
         }
 
 
-        if (variableHashmap.containsKey(jmmNode.get("value")) && ancestor.isEmpty() && variableHashmap.get(jmmNode.get("value")) != null) {
+        if (variableHashmap.containsKey(jmmNode.get("value")) && loopAncestor.isEmpty() && condicionalAncestor.isEmpty() && variableHashmap.get(jmmNode.get("value")) != null) {
             System.out.println("vai ser criado um novo node");
             System.out.println("variableHasmap: " + variableHashmap);
             JmmNode substituteNode = new JmmNodeImpl("Integer");
@@ -144,9 +148,15 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
         System.out.println("node: " + jmmNode);
 
-        Optional<JmmNode> ancestor = jmmNode.getAncestor("LoopStmt");
-        if (ancestor.isPresent()) {
-            System.out.println("ancestors na BinaryOp: " + ancestor);
+        Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
+        Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
+
+        if (loopAncestor.isPresent()) {
+            System.out.println("ancestors na BinaryOp: " + loopAncestor);
+        }
+
+        if (condicionalAncestor.isPresent()) {
+            System.out.println("condicionalAncestor na BinaryOp: " + condicionalAncestor);
         }
 
         return "";
@@ -159,27 +169,6 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         System.out.println("node: " + jmmNode);
         System.out.println("attributes: " + jmmNode.getAttributes());
         System.out.println("children: " + jmmNode.getChildren());
-
-        List<JmmNode> children = jmmNode.getChildren();
-        System.out.println("child 0: " + children.get(0));
-        System.out.println("child 0 attributes: " + children.get(0).getAttributes());
-        System.out.println("child 1: " + children.get(1));
-        System.out.println("child 1 attributes: " + children.get(1).getAttributes());
-        System.out.println("child 2: " + children.get(2));
-        System.out.println("child 2 attributes: " + children.get(2).getAttributes());
-
-
-        if (jmmNode.getChildren().get(0).get("type").equals("boolean")) {
-            return "";
-        }
-
-        String op = children.get(0).get("op");
-
-        if (!_BOOLEAN_OPERATORS.contains(op)) {
-            globalReports.add(Reports.reportcheckConditionalStatement(jmmNode));
-            System.out.println("globalReports checkCondition: " + globalReports);
-            return "";
-        }
 
 
         return "";
@@ -240,9 +229,11 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         System.out.println("node attributes: " + jmmNode.getAttributes());
         System.out.println("var: " + jmmNode.get("var"));
         System.out.println("children: " + jmmNode.getChildren());
-        Optional<JmmNode> ancestor = jmmNode.getAncestor("LoopStmt");
-        if (ancestor.isPresent()) {
-            System.out.println("ancestors no checkAssignment: " + jmmNode.getAncestor("LoopStmt"));
+        Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
+        Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
+        if (loopAncestor.isPresent() || condicionalAncestor.isPresent()) {
+            System.out.println("loopAncestors no checkAssignment: " + jmmNode.getAncestor("LoopStmt"));
+            System.out.println("condicionalAncestor no checkAssignment: + " + jmmNode);
             System.out.println("Significa que tem um Loop node como pai");
             if (variableHashmap.containsKey(jmmNode.get("var"))) {
                 variableHashmap.replace(jmmNode.get("var"), null);
