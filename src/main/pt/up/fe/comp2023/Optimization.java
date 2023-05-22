@@ -6,13 +6,8 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp.jmm.report.Report;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.Map;
 
 public class Optimization implements JmmOptimization {
     private StringBuilder ollirCode = new StringBuilder();
@@ -24,7 +19,6 @@ public class Optimization implements JmmOptimization {
     private int ifNumber = 0;
 
 
-
     @Override
     public OllirResult toOllir(JmmSemanticsResult jmmSemanticsResult) {
         this.jmmSemanticsResult = jmmSemanticsResult;
@@ -33,31 +27,32 @@ public class Optimization implements JmmOptimization {
         return new OllirResult(ollirCode.toString(), jmmSemanticsResult.getConfig());
     }
 
-    public void appendToOllir(String code){
+    public void appendToOllir(String code) {
         ollirCode.append(code);
     }
 
-    public int getTempNumber(){
+    public int getTempNumber() {
         return tempNumber++;
     }
 
-    public int getWhileNumber(){
+    public int getWhileNumber() {
         return whileNumber++;
     }
 
-    public int getIfNumber(){
+    public int getIfNumber() {
         return ifNumber++;
     }
 
 
+    public void decreaseTempNumber() {
+        tempNumber--;
+    }
 
-    public void decreaseTempNumber(){tempNumber--;}
-
-    public String intToOllir(JmmNode integer){
+    public String intToOllir(JmmNode integer) {
         return integer.get("value") + typeToOllir(new Type("int", false));
     }
 
-    public String initObjectDeclaration(JmmNode declaration){
+    public String initObjectDeclaration(JmmNode declaration) {
         StringBuilder ret = new StringBuilder();
         String objClass = declaration.get("objClass");
         String type = typeToOllir(new Type(objClass, false));
@@ -70,9 +65,9 @@ public class Optimization implements JmmOptimization {
         return ret.toString();
     }
 
-    private String typeToOllir(Type type){
+    private String typeToOllir(Type type) {
         StringBuilder ret = new StringBuilder();
-        if(type.isArray())
+        if (type.isArray())
             ret.append(".array");
         String typeName = type.getName();
         switch (typeName) {
@@ -85,17 +80,17 @@ public class Optimization implements JmmOptimization {
         return ret.toString();
     }
 
-    public String getMethodRetType(JmmNode instance){
+    public String getMethodRetType(JmmNode instance) {
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name));
     }
 
 
-    public void addImport(JmmNode node){
+    public void addImport(JmmNode node) {
         String library = node.get("library");
         library = library.substring(1, library.length() - 1);
         ollirCode.append("import ");
-        for(String item : library.split(", ")){
+        for (String item : library.split(", ")) {
             ollirCode.append(item).append(".");
 
         }
@@ -103,8 +98,8 @@ public class Optimization implements JmmOptimization {
         ollirCode.append(";\n");
     }
 
-    public void addClass(){
-        if(!ollirCode.isEmpty())
+    public void addClass() {
+        if (!ollirCode.isEmpty())
             ollirCode.append("\n");
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         String extend = Objects.equals(jmmSemanticsResult.getSymbolTable().getSuper(), null) ? "" : " extends " + jmmSemanticsResult.getSymbolTable().getSuper();
@@ -112,7 +107,7 @@ public class Optimization implements JmmOptimization {
 
     }
 
-    public void addConstructor(){
+    public void addConstructor() {
         String className = jmmSemanticsResult.getSymbolTable().getClassName();
         ollirCode.append("\n").append(
                 ".construct ").append(className).append("().V {\n").append(
@@ -121,51 +116,50 @@ public class Optimization implements JmmOptimization {
     }
 
 
-
-    public void addMethod(JmmNode jmmNode){
+    public void addMethod(JmmNode jmmNode) {
         String name;
         String accessModifier = "public";
         JmmNode instance = jmmNode.getJmmChild(0);
         name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         accessModifier = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.getJmmChild(0).get("value") : "public static";
         ollirCode.append(".method ").append(accessModifier).append(" ").append(name).append("(");
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
             ollirCode.append(parameter.getName()).append(typeToOllir(parameter.getType())).append(", ");
         }
-        if(!jmmSemanticsResult.getSymbolTable().getParameters(name).isEmpty()){
+        if (!jmmSemanticsResult.getSymbolTable().getParameters(name).isEmpty()) {
             ollirCode.delete(ollirCode.length() - 2, ollirCode.length());
         }
         ollirCode.append(")");
         ollirCode.append(typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name))).append(" {\n");
     }
 
-    public void addMethodRetType(JmmNode instance, JmmNode retStmt){
+    public void addMethodRetType(JmmNode instance, JmmNode retStmt) {
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String retType = typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(name));
 
         ollirCode.append("ret").append(retType);
 
-        if(!retType.equals(".V")){
-            for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-                if(Objects.equals(localVar.getName(), retStmt.getJmmChild(0).get("value"))){
+        if (!retType.equals(".V")) {
+            for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+                if (Objects.equals(localVar.getName(), retStmt.getJmmChild(0).get("value"))) {
                     ollirCode.append(" ").append(localVar.getName()).append(typeToOllir(localVar.getType()));
                     ollirCode.append(";\n");
                     return;
                 }
             }
             int i = 1;
-            for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-                if(Objects.equals(parameter.getName(), retStmt.getJmmChild(0).get("value"))){
+            for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+                if (Objects.equals(parameter.getName(), retStmt.getJmmChild(0).get("value"))) {
                     ollirCode.append(" ").append("$").append(i).append(".").append(parameter.getName()).append(typeToOllir(parameter.getType()));
                     ollirCode.append(";\n");
                     return;
                 }
                 i++;
             }
-            if(isNumeric(retStmt.getJmmChild(0).get("value"))){
+            if (isNumeric(retStmt.getJmmChild(0).get("value"))) {
                 ollirCode.append(" ").append(retStmt.getJmmChild(0).get("value")).append(typeToOllir(new Type("int", false)));
             }
-            if(Objects.equals(retStmt.getJmmChild(0).get("value"), "true") || Objects.equals(retStmt.getJmmChild(0).get("value"), "false")){
+            if (Objects.equals(retStmt.getJmmChild(0).get("value"), "true") || Objects.equals(retStmt.getJmmChild(0).get("value"), "false")) {
                 ollirCode.append(" ").append(retStmt.getJmmChild(0).get("value")).append(typeToOllir(new Type("bool", false)));
             }
 
@@ -174,48 +168,48 @@ public class Optimization implements JmmOptimization {
 
     }
 
-    public void addField(JmmNode field){
+    public void addField(JmmNode field) {
         String accessModifier = field.getNumChildren() == 2 ? field.getJmmChild(0).get("value") : "private";
         ollirCode.append(".field ").append(accessModifier);
 
-        for(Symbol f : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(f.getName(), field.get("var"))){
+        for (Symbol f : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(f.getName(), field.get("var"))) {
                 ollirCode.append(" ").append(f.getName()).append(typeToOllir(f.getType())).append(";\n");
                 break;
             }
         }
     }
 
-    public String getVarOrType(JmmNode node, JmmNode instance, String condition){
+    public String getVarOrType(JmmNode node, JmmNode instance, String condition) {
         StringBuilder retString = new StringBuilder();
 
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         System.out.println(name);
         String var = Objects.equals(node.getKind(), "Assignment") || Objects.equals(node.getKind(), "ArrayAssignment") ? node.get("var") : node.get("value");
-        if(isNumeric(var)){
+        if (isNumeric(var)) {
             return this.intToOllir(node);
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), var)){
-                if(Objects.equals(condition, "var"))
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+            if (Objects.equals(localVar.getName(), var)) {
+                if (Objects.equals(condition, "var"))
                     retString.append(var);
                 retString.append(typeToOllir(localVar.getType()));
                 return retString.toString();
             }
         }
         int i = 1;
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(parameter.getName(), var)){
-                if(Objects.equals(condition, "var"))
+        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+            if (Objects.equals(parameter.getName(), var)) {
+                if (Objects.equals(condition, "var"))
                     retString.append("$").append(i).append(".").append(var);
                 retString.append(typeToOllir(parameter.getType()));
                 return retString.toString();
             }
             i++;
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), var)){
-                if(Objects.equals(condition, "var")){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(localVar.getName(), var)) {
+                if (Objects.equals(condition, "var")) {
                     retString.append(var);
                 }
                 retString.append(typeToOllir(localVar.getType()));
@@ -239,25 +233,25 @@ public class Optimization implements JmmOptimization {
 
     public String getInvoke(JmmNode dotOp, JmmNode instance) {
         JmmNode left = dotOp.getJmmChild(0);
-        while(!left.hasAttribute("value")){
+        while (!left.hasAttribute("value")) {
             left = left.getJmmChild(0);
         }
-        if(Objects.equals(left.get("value"), "this")){
+        if (Objects.equals(left.get("value"), "this")) {
             return "invokevirtual";
         }
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), left.get("value"))){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+            if (Objects.equals(localVar.getName(), left.get("value"))) {
                 return "invokevirtual";
             }
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), left.get("value"))){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(localVar.getName(), left.get("value"))) {
                 return "invokevirtual";
             }
         }
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(parameter.getName(), left.get("value"))){
+        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+            if (Objects.equals(parameter.getName(), left.get("value"))) {
                 return "invokevirtual";
             }
         }
@@ -265,38 +259,38 @@ public class Optimization implements JmmOptimization {
         return "invokestatic";
     }
 
-    public void checkVoidMethod(JmmNode instance){
+    public void checkVoidMethod(JmmNode instance) {
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
 
-        if(Objects.equals(jmmSemanticsResult.getSymbolTable().getReturnType(name).getName(), "void"))
+        if (Objects.equals(jmmSemanticsResult.getSymbolTable().getReturnType(name).getName(), "void"))
             ollirCode.append("ret.V;\n");
     }
 
-    public boolean isField(JmmNode node, JmmNode instance){
+    public boolean isField(JmmNode node, JmmNode instance) {
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String var = Objects.equals(node.getKind(), "Assignment") ? node.get("var") : node.get("value");
 
-        for(Symbol field : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(field.getName(), var)){
+        for (Symbol field : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+            if (Objects.equals(field.getName(), var)) {
                 return false;
             }
         }
 
-        for(Symbol field : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(field.getName(), var)){
+        for (Symbol field : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+            if (Objects.equals(field.getName(), var)) {
                 return false;
             }
         }
 
-        for(Symbol field : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(field.getName(), var)){
+        for (Symbol field : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(field.getName(), var)) {
                 return true;
             }
         }
         return false;
     }
 
-    public int addGetField(JmmNode node, String s){
+    public int addGetField(JmmNode node, String s) {
         String value = node.get("value");
         int tempNumber = this.getTempNumber();
         ollirCode.append("temp_").append(tempNumber).append(s).append(" :=").append(s).append(" getfield(this, ").append(value).append(s).append(")").append(s);
@@ -304,32 +298,32 @@ public class Optimization implements JmmOptimization {
         return tempNumber;
     }
 
-    public String getDotOpType(JmmNode dotOp, JmmNode instance){
+    public String getDotOpType(JmmNode dotOp, JmmNode instance) {
         JmmNode left = dotOp.getJmmChild(0);
-        while(!left.hasAttribute("value")){
+        while (!left.hasAttribute("value")) {
             left = left.getJmmChild(0);
         }
-        if(Objects.equals(left.get("value"), "this")){
+        if (Objects.equals(left.get("value"), "this")) {
             return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
         }
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), left.get("value"))){
-                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+            if (Objects.equals(localVar.getName(), left.get("value"))) {
+                if (Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())) {
                     return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
                 }
             }
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), left.get("value"))){
-                if(Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(localVar.getName(), left.get("value"))) {
+                if (Objects.equals(localVar.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())) {
                     return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
                 }
             }
         }
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
-            if(Objects.equals(parameter.getName(), left.get("value"))){
-                if(Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())){
+        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
+            if (Objects.equals(parameter.getName(), left.get("value"))) {
+                if (Objects.equals(parameter.getType().getName(), jmmSemanticsResult.getSymbolTable().getClassName())) {
                     return typeToOllir(jmmSemanticsResult.getSymbolTable().getReturnType(dotOp.get("method")));
                 }
             }
@@ -363,23 +357,23 @@ public class Optimization implements JmmOptimization {
         StringBuilder retString = new StringBuilder();
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String var = subscriptOp.getJmmChild(0).get("value");
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)){
-            if(Objects.equals(localVar.getName(), var)){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+            if (Objects.equals(localVar.getName(), var)) {
                 retString.append(var);
                 return retString.toString();
             }
         }
         int i = 1;
-        for(Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)){
+        for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
             System.out.println(parameter.getName());
-            if(Objects.equals(parameter.getName(), var)){
+            if (Objects.equals(parameter.getName(), var)) {
                 retString.append("$").append(i).append(".").append(var);
                 return retString.toString();
             }
             i++;
         }
-        for(Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()){
-            if(Objects.equals(localVar.getName(), var)){
+        for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getFields()) {
+            if (Objects.equals(localVar.getName(), var)) {
                 retString.append(var);
                 return retString.toString();
             }
@@ -389,10 +383,9 @@ public class Optimization implements JmmOptimization {
 
     public String getOp(JmmNode node) {
         String op = node.get("op");
-        if(Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "/") || Objects.equals(op, "*")){
+        if (Objects.equals(op, "+") || Objects.equals(op, "-") || Objects.equals(op, "/") || Objects.equals(op, "*")) {
             op += ".i32";
-        }
-        else{
+        } else {
             op += ".bool";
         }
         return op;
@@ -405,21 +398,37 @@ public class Optimization implements JmmOptimization {
     }
 
     @Override
-    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticResults) {
 
 
-        MySymbolTable mySymbolTable = new MySymbolTable(semanticsResult.getRootNode());
+        //System.out.println("se está empty: " + semanticsResult.getConfig().isEmpty());
+
+        var optimizeFlag = semanticResults.getConfig().getOrDefault("optimize", "false");
 
 
-        List<Report> reports = new ArrayList<>();
-        List<Report> semanticAnalysis = new ArrayList<>();
-
-        semanticAnalysis = new OptimizationAnalyser().visit(semanticsResult.getRootNode(), mySymbolTable);
-        reports.addAll(semanticAnalysis);
-        System.out.println("os reports finais na otimização: " + reports);
+        if (!optimizeFlag.equals("true")) {
+            return semanticResults;
+        }
 
 
-        return semanticsResult;
+        //flag está dentro do semanticsResult
+
+        boolean hasChange = true;
+        while (hasChange) {
+            hasChange = false;
+            var prop = new OptimizationAnalyser();
+            prop.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
+
+            var fold = new OptimizationAnalyser();
+        }
+
+        System.out.println(semanticResults.getRootNode().toTree());
+
+        //reports.addAll(semanticAnalysis);
+        //System.out.println("os reports finais na otimização: " + reports);
+
+
+        return semanticResults;
     }
 
 

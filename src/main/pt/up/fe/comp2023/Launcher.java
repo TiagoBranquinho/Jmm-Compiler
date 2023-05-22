@@ -78,32 +78,23 @@ public class Launcher {
             System.out.println("antes da optimization " + semanticResults.getConfig());
             System.out.println("aa: " + semanticAnalysis.getConfig());
 
-            //semanticResults.getConfig().put("optimize", "true");
+            //passar esta lógica para dentro do optimize, aqui chamar só o optimize
+            //no server, só o optimize é chamado
+
+            semanticResults.getConfig().put("optimize", "true");
 
             JmmSemanticsResult semanticResultsOptimized = semanticResults;
 
             System.out.println("-----------------------Separação do normal com as otimizações-----------------------");
 
-            if (semanticResults.getConfig() != null) {
+            optimization.optimize(semanticResults);
 
-                //System.out.println("se está empty: " + semanticsResult.getConfig().isEmpty());
-                System.out.println("se tem a key: " + semanticResults.getConfig().containsKey("optimize"));
-                System.out.println("se está a true: " + semanticResults.getConfig().get("optimize").equals("true"));
-
-                if (!semanticResults.getConfig().isEmpty() && semanticResults.getConfig().containsKey("optimize") && semanticResults.getConfig().get("optimize").equals("true")) {
-                    System.out.println("otimização: ");
-                    semanticResultsOptimized = optimization.optimize(semanticAnalysis);
-                    System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
-
-
-                }
-            }
             System.out.println("depois da optimization: " + semanticResults.getConfig());
             System.out.println(semanticResultsOptimized);
 
 
 
-            OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+            /*OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
 
 
 
@@ -117,7 +108,7 @@ public class Launcher {
             jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            jasminResult.run();
+            jasminResult.run();*/
 
         }
 
