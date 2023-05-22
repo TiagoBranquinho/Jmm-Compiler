@@ -119,6 +119,9 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
         System.out.println("children: " + children);
 
+        boolean isParameter = false;
+        boolean isField = false;
+
         Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
         Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
         if (loopAncestor.isPresent()) {
@@ -128,8 +131,66 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("condicionalAncestors na checkDeclaration: " + condicionalAncestor);
         }
 
+        //Se o pai for um condicional statement, significa que este node é o node da condição, no qual deve ser feito constant propagation
+        JmmNode parent = jmmNode.getJmmParent().getJmmParent();
 
-        if (variableHashmap.containsKey(jmmNode.get("value")) && loopAncestor.isEmpty() && condicionalAncestor.isEmpty() && variableHashmap.get(jmmNode.get("value")) != null) {
+        if (jmmNode.getJmmParent().getKind().equals("CondicionalStmt")) {
+            //se o node for logo a condição
+            parent = jmmNode.getJmmParent();
+        }
+
+        System.out.println("parent: " + parent);
+
+
+        String methodNode = null;
+        Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
+
+        System.out.println("instanceDeclaration: " + instanceDeclaration);
+
+        if (instanceDeclaration.isPresent()) {
+            methodNode = instanceDeclaration.get().get("instance");
+        } else {
+            methodNode = "main";
+        }
+
+        //Se fôr parâmetro
+
+        List<Symbol> parameters = mySymbolTable.getParameters(methodNode);
+
+        //Se for um type que não é pârametro
+        for (int i = 0; i < parameters.size(); i++) {
+            System.out.println("getParameters");
+            System.out.println(parameters.get(i));
+            if (Objects.equals(parameters.get(i).getName(), jmmNode.get("value"))) {
+                //se for um parâmetro
+                isParameter = true;
+            }
+        }
+
+        List<Symbol> fields = mySymbolTable.getFields();
+
+        //Se for uma variável da classe
+        for (int i = 0; i < fields.size(); i++) {
+            System.out.println("getFields");
+            System.out.println(fields.get(i));
+            if (Objects.equals(fields.get(i).getName(), jmmNode.get("value"))) {
+                isField = true;
+
+            }
+        }
+
+
+        System.out.println("condicional: " + condicionalAncestor.isEmpty());
+        System.out.println("parental: " + parent.getKind().equals("CondicionalStmt"));
+        System.out.println("variableHasmMap: " + variableHashmap);
+        System.out.println("tem a key: " + variableHashmap.containsKey(jmmNode.get("value")));
+        System.out.println("!isField: " + !isField);
+        System.out.println("!isParameter: " + !isParameter);
+        System.out.println("loopAncestor.isEmpty(): " + loopAncestor.isEmpty());
+        System.out.println("(condicionalAncestor.isEmpty() || parent.getKind().equals(\"CondicionalStmt\")): " + (condicionalAncestor.isEmpty() || parent.getKind().equals("CondicionalStmt")));
+        System.out.println("variableHashmap.get(jmmNode.get(\"value\")) != null: " + (variableHashmap.get(jmmNode.get("value")) != null));
+
+        if (variableHashmap.containsKey(jmmNode.get("value")) && !isField && !isParameter && loopAncestor.isEmpty() && (condicionalAncestor.isEmpty() || parent.getKind().equals("CondicionalStmt")) && variableHashmap.get(jmmNode.get("value")) != null) {
             System.out.println("vai ser criado um novo node");
             System.out.println("variableHasmap: " + variableHashmap);
             JmmNode substituteNode = new JmmNodeImpl("Integer");
