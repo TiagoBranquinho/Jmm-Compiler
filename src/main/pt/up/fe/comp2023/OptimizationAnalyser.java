@@ -13,6 +13,8 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
     public List<Report> globalReports = new ArrayList<>();
 
+    public Boolean propHasChanged = false;
+
     public HashMap<String, String> variableHashmap = new HashMap<>();
 
     final List<String> _PERMITTED_TYPES = List.of(new String[]{"int", "boolean", "void", "String[]", "int[]", "String"});
@@ -22,6 +24,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     //reports (depois têm de ser concatenados)
     @Override
     protected void buildVisitor() {
+
         addVisit("Identifier", this::checkDeclaration);
         addVisit("BinaryOp", this::checkBinaryOpOptimization);
         addVisit("CondicionalStmt", this::checkConditionalStatement);
@@ -112,7 +115,9 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
     private String checkDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
+
         System.out.println("checkDeclaration ");
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println(jmmNode.getAttributes());
         System.out.println("node: " + jmmNode);
         List<JmmNode> children = jmmNode.getChildren();
@@ -197,6 +202,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             substituteNode.put("value", variableHashmap.get(jmmNode.get("value")));
             System.out.println("substituteNode: " + substituteNode);
             jmmNode.replace(substituteNode);
+            propHasChanged = true;
         }
 
         return "";
@@ -206,7 +212,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
     private String checkBinaryOpOptimization(JmmNode jmmNode, MySymbolTable mySymbolTable) {
         System.out.println("checkBinaryOp");
-
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("node: " + jmmNode);
 
         Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
@@ -235,6 +241,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
 
         System.out.println("checkConditionalStatement");
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("node: " + jmmNode);
         System.out.println("attributes: " + jmmNode.getAttributes());
         System.out.println("children: " + jmmNode.getChildren());
@@ -247,7 +254,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkLoopStatement(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkLoopStatement");
-
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("hashmap antes da substituição: " + variableHashmap);
 
         /*if (variableHashmap.containsKey(jmmNode.get("var"))) {
@@ -265,7 +272,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkWithStmt(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkWithStmt");
-
+        System.out.println("propHasChanged: " + propHasChanged);
 
         return "";
     }
@@ -274,7 +281,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkInteger(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkInteger");
-
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("node: " + jmmNode);
         System.out.println("attributes: " + jmmNode.getAttributes());
         System.out.println("children: " + jmmNode.getChildren());
@@ -293,7 +300,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkAssignment(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkAssignment");
-
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("node: " + jmmNode);
         System.out.println("node attributes: " + jmmNode.getAttributes());
         System.out.println("var: " + jmmNode.get("var"));
@@ -333,7 +340,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkArrayDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkArrayDeclaration");
-
+        System.out.println("propHasChanged: " + propHasChanged);
         System.out.println("node: " + jmmNode);
         System.out.println("node attributes: " + jmmNode.getAttributes());
 
@@ -352,7 +359,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
     private String checkReservedExpr(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
         System.out.println("checkReservedExpr");
-
+        System.out.println("propHasChanged: " + propHasChanged);
 
         return "";
     }

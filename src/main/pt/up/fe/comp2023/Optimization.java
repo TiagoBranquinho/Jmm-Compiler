@@ -443,8 +443,12 @@ public class Optimization implements JmmOptimization {
             hasChange = false;
             var prop = new OptimizationAnalyser();
             prop.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
+            System.out.println("propdHasChanged depois de tudo: " + prop.propHasChanged);
 
-            var fold = new OptimizationAnalyser();
+            var fold = new FoldingAnalyser();
+            fold.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
+            System.out.println("foldHasChanged depois de tudo: " + fold.foldHasChanged);
+            hasChange = (fold.foldHasChanged || prop.propHasChanged);
         }
 
         System.out.println(semanticResults.getRootNode().toTree());
