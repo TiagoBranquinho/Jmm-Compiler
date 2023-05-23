@@ -220,6 +220,14 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("condicionalAncestor na BinaryOp: " + condicionalAncestor);
         }
 
+        //se um dos filhos não for um integer, então não vou poder ter um value no binaryOp node
+        for (int i = 0; i < jmmNode.getChildren().size(); i++) {
+            if (jmmNode.getChildren().get(i).getKind().equals("Integer")) {
+                jmmNode.put("value", "none");
+                break;
+            }
+        }
+
         return "";
     }
 
@@ -292,7 +300,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         System.out.println("children: " + jmmNode.getChildren());
         Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
         Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
-        if (loopAncestor.isPresent() || condicionalAncestor.isPresent()) {
+        if (loopAncestor.isPresent() || condicionalAncestor.isPresent() || jmmNode.getChildren().get(0).get("value").equals("none")) {
             System.out.println("loopAncestors no checkAssignment: " + jmmNode.getAncestor("LoopStmt"));
             System.out.println("condicionalAncestor no checkAssignment: " + condicionalAncestor);
             System.out.println("Significa que tem um Loop node / condicional node como pai");
@@ -315,6 +323,8 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("pôr um novo valor no hashmap");
             variableHashmap.put(jmmNode.get("var"), jmmNode.getChildren().get(0).get("value"));
             return "";
+        } else {
+            //pôr o valor a null
         }
 
         return "";
