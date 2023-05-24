@@ -430,7 +430,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         index = visit(jmmNode.getJmmChild(0), s);
         value = visit(jmmNode.getJmmChild(1), s);
         StringBuilder ret = new StringBuilder();
-        ret.append(jmmNode.get("var")).append("[").append(index).append("]").append(s).append(" :=").append(s).append(" ").append(value);
+        ret.append(optimization.getArrayString(jmmNode, instance)).append("[").append(index).append("]").append(s).append(" :=").append(s).append(" ").append(value);
         this.optimization.appendToOllir(ret + ";\n");
         return "";
     }

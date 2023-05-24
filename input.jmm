@@ -9,15 +9,10 @@ class Fac{
         }
 
     public static void main(String[] args){
-        boolean a;
-        Fac fac;
-        fac = new Fac();
-        a = fac.gato(12);
-        if(a){
-            io.println(new Fac().compFac(2));
-        }
-        else{
-            io.println(3);
-        }
+        int[] a;
+        a = new int[5];
+        a[1] = 2;
+        int b;
+        b = 3 + a[1];
     }
 }
