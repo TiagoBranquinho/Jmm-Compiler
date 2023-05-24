@@ -107,7 +107,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
             }
             else{
                 StringBuilder code = new StringBuilder();
-                System.out.println("yes");
+                //System.out.println("yes");
                 int tempNumber = optimization.getTempNumber();
                 code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(optimization.getVarOrType(jmmNode, instance, "var"));
                 code.append(";\n");
@@ -237,7 +237,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
     private String dealWithInteger(JmmNode jmmNode, String s){
         if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayDeclaration") || Objects.equals(jmmNode.getJmmParent().getKind(), "SubscriptOp")){
             StringBuilder code = new StringBuilder();
-            System.out.println("yes");
+            //System.out.println("yes");
             int tempNumber = optimization.getTempNumber();
             code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
             code.append(";\n");
@@ -246,7 +246,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         }
         else if(Objects.equals(jmmNode.getJmmParent().getKind(), "ArrayAssignment") && jmmNode.getIndexOfSelf() == 0){
             StringBuilder code = new StringBuilder();
-            System.out.println("no");
+            //System.out.println("no");
             int tempNumber = optimization.getTempNumber();
             code.append("temp_").append(tempNumber).append(".i32").append(" :=").append(".i32").append(" ").append(jmmNode.get("value")).append(".i32");
             code.append(";\n");
@@ -372,7 +372,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
 
         if(Objects.equals(invokeType, "invokevirtual")){
             s = optimization.getDotOpType(jmmNode, instance);
-            System.out.println("YEE");
+            //System.out.println("YEE");
             if(s.equals(".V"))
                 s = oldS;
         }
@@ -468,7 +468,7 @@ public class OllirGenerator extends AJmmVisitor <String , String > {
         code.append("temp_").append(tempNumber).append(".i32 :=.i32 arraylength(").append(s).append(").i32");
         optimization.appendToOllir(code + ";\n");
         ret.append("temp_").append(tempNumber).append(".i32");
-        System.out.println("PASSOU");
+        //System.out.println("PASSOU");
         return ret.toString();
     }
 

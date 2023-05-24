@@ -94,7 +94,7 @@ public class Launcher {
 
 
 
-            /*OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
+            OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
 
 
 
@@ -108,7 +108,7 @@ public class Launcher {
             jasminResult.compile(new File("jasminResult"));
 
             // Run .class file
-            jasminResult.run();*/
+            jasminResult.run();
 
         }
 
