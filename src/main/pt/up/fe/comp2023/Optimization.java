@@ -449,6 +449,8 @@ public class Optimization implements JmmOptimization {
             fold.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
             System.out.println("foldHasChanged depois de tudo: " + fold.foldHasChanged);
             hasChange = (fold.foldHasChanged || prop.propHasChanged);
+            prop.propHasChanged = false;
+            fold.foldHasChanged = false;
         }
 
         System.out.println(semanticResults.getRootNode().toTree());
