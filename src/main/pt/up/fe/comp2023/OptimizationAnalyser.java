@@ -130,11 +130,17 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
 
         Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
         Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
+        Optional<JmmNode> subscriptAncestor = jmmNode.getAncestor("SubscriptOp");
+
+
         if (loopAncestor.isPresent()) {
             System.out.println("ancestors na checkDeclaration: " + loopAncestor);
         }
         if (condicionalAncestor.isPresent()) {
             System.out.println("condicionalAncestors na checkDeclaration: " + condicionalAncestor);
+        }
+        if (subscriptAncestor.isPresent()) {
+            System.out.println("subscriptAncestor na checkDeclaration: " + subscriptAncestor);
         }
 
         //Se o pai for um condicional statement, significa que este node é o node da condição, no qual deve ser feito constant propagation
@@ -143,6 +149,11 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         if (jmmNode.getJmmParent().getKind().equals("CondicionalStmt")) {
             //se o node for logo a condição
             parent = jmmNode.getJmmParent();
+        }
+
+        if (subscriptAncestor.isPresent() && jmmNode.getJmmParent().getChildren().get(0) == jmmNode) {
+            //se este ifentifier for o "a" na expressão a[b], ou seja, o primeiro child, não pode ser substituído porque é um array
+            return "";
         }
 
         System.out.println("parent: " + parent);
@@ -227,9 +238,6 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("condicionalAncestor na BinaryOp: " + condicionalAncestor);
         }
 
-        if (jmmNode.get("op").equals("!")) {
-
-        }
 
         //se um dos filhos não for um integer, então não vou poder ter um value no binaryOp node
         for (int i = 0; i < jmmNode.getChildren().size(); i++) {
