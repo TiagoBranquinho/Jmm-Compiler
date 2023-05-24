@@ -369,12 +369,18 @@ public class Optimization implements JmmOptimization {
         String var;
         if(Objects.equals(subscriptOp.getKind(), "SubscriptOp")){
             var = subscriptOp.getJmmChild(0).get("value");
+            System.out.println("VAR IS " + var);
         }
         else{
             var = subscriptOp.get("var");
         }
         for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
+
+            System.out.println("Var name|" + localVar.getName() + "|");
+            System.out.println("Curr var|" + var + "|");
+
             if (Objects.equals(localVar.getName(), var)) {
+                System.out.println("sim");
                 retString.append(var);
                 return retString.toString();
             }
@@ -394,6 +400,7 @@ public class Optimization implements JmmOptimization {
                 return retString.toString();
             }
         }
+        System.out.println("ardeu");
         return "error";
     }
 
