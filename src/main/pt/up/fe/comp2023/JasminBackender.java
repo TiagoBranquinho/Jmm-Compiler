@@ -173,7 +173,7 @@ public class JasminBackender implements JasminBackend {
     private String getMethodStatements(Method method) {
         this.limit_stack = 0;
         this.limit_method = 0;
-        this.limit_locals = getLimitLocals(method);
+        this.limit_locals = getLocalLimits(method);
         String methodInstructions = this.getMethodInstructions(method);
         return "\t.limit stack " + this.limit_stack + "\n" + "\t.limit locals " + this.limit_locals + "\n" + methodInstructions;
     }
@@ -315,12 +315,8 @@ public class JasminBackender implements JasminBackend {
 
             stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) element).getName(), varTable)).append("\n");
 
-            this.updateStackLimits(1);
-
             stringBuilder.append(getLoadToStackInstruction(((ArrayOperand) element).getIndexOperands().get(0), varTable));
             stringBuilder.append("\tiaload");
-
-            this.updateStackLimits(-1);
 
         } else if (element instanceof Operand) {
             switch (((Operand) element).getType().getTypeOfElement()) {
@@ -393,9 +389,7 @@ public class JasminBackender implements JasminBackend {
 
                             if (literalValue <= 127 && binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
                                 return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
-                            }
-
-                            if (literalValue <= 128 && binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
+                            } else if (literalValue <= 128 && binaryOpInstruction.getOperation().getOpType() == OperationType.SUB) {
                                 return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " -" + literalValue + "\n";
                             }
                         }
@@ -730,26 +724,26 @@ public class JasminBackender implements JasminBackend {
                         Element leftElement = binaryOpInstruction.getLeftOperand();
                         Element rightElement = binaryOpInstruction.getRightOperand();
 
-                        Integer parsedInt = null;
+                        Integer integer = null;
                         Element otherElement = null;
                         operation = "if_icmplt";
 
                         // instruction selection for 0 < x
                         if (leftElement instanceof LiteralElement) {
                             String literal = ((LiteralElement) leftElement).getLiteral();
-                            parsedInt = Integer.parseInt(literal);
+                            integer = Integer.parseInt(literal);
                             otherElement = rightElement;
                             operation = "ifgt";
 
                             // instruction selection for x < 0
                         } else if (rightElement instanceof LiteralElement) {
                             String literal = ((LiteralElement) rightElement).getLiteral();
-                            parsedInt = Integer.parseInt(literal);
+                            integer = Integer.parseInt(literal);
                             otherElement = leftElement;
                             operation = "iflt";
                         }
 
-                        if (parsedInt != null && parsedInt == 0) {
+                        if (integer != null && integer == 0) {
                             stringBuilder.append(this.getLoadToStackInstruction(otherElement, varTable));
 
                         } else {
@@ -763,26 +757,26 @@ public class JasminBackender implements JasminBackend {
                         Element leftElement = binaryOpInstruction.getLeftOperand();
                         Element rightElement = binaryOpInstruction.getRightOperand();
 
-                        Integer parsedInt = null;
+                        Integer integer = null;
                         Element otherElement = null;
                         operation = "if_icmple";
 
-                        // instruction selection for 0 < x
+                        // instruction selection for 0 <= x
                         if (leftElement instanceof LiteralElement) {
                             String literal = ((LiteralElement) leftElement).getLiteral();
-                            parsedInt = Integer.parseInt(literal);
+                            integer = Integer.parseInt(literal);
                             otherElement = rightElement;
                             operation = "ifge";
 
-                            // instruction selection for x < 0
+                            // instruction selection for x <= 0
                         } else if (rightElement instanceof LiteralElement) {
                             String literal = ((LiteralElement) rightElement).getLiteral();
-                            parsedInt = Integer.parseInt(literal);
+                            integer = Integer.parseInt(literal);
                             otherElement = leftElement;
                             operation = "ifle";
                         }
 
-                        if (parsedInt != null && parsedInt == 0) {
+                        if (integer != null && integer == 0) {
                             stringBuilder.append(this.getLoadToStackInstruction(otherElement, varTable));
 
                         } else {
@@ -797,7 +791,6 @@ public class JasminBackender implements JasminBackend {
                         operation = "ifne";
                     }
                     default -> {
-                        // not supposed to happen
                         stringBuilder.append("; ERROR: Unsupported binary operator in branch\n");
                         stringBuilder.append(this.getInstruction(condition, varTable));
                         operation = "ifne";
@@ -810,7 +803,6 @@ public class JasminBackender implements JasminBackend {
                     stringBuilder.append(this.getLoadToStackInstruction(unaryOpInstruction.getOperand(), varTable));
                     operation = "ifeq";
                 } else {
-                    // not supposed to happen
                     stringBuilder.append("; ERROR: Unsupported unary operator in branch\n");
                     stringBuilder.append(this.getInstruction(condition, varTable));
                     operation = "ifne";
@@ -840,15 +832,15 @@ public class JasminBackender implements JasminBackend {
         }
     }
 
-    public static int getLimitLocals(Method method) {
-        Set<Integer> virtualRegs = new TreeSet<>();
-        virtualRegs.add(0);
+    public static int getLocalLimits(Method method) {
+        Set<Integer> virtualRegisters = new TreeSet<>();
+        virtualRegisters.add(0);
 
         for(Descriptor descriptor : method.getVarTable().values()) {
-            virtualRegs.add(descriptor.getVirtualReg());
+            virtualRegisters.add(descriptor.getVirtualReg());
         }
 
-        return virtualRegs.size();
+        return virtualRegisters.size();
     }
 
 }
