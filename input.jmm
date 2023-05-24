@@ -5,15 +5,19 @@ class Fac{
     }
 
     public boolean gato(int a){
-            return true;
+            return 1;
         }
 
     public static void main(String[] args){
-    if(new Fac().gato(10)){
-                io.println(new Fac().compFac(2));
-    }
-    else{
-        io.println(3);
-    }
+        boolean a;
+        Fac fac;
+        fac = new Fac();
+        a = fac.gato(12);
+        if(a){
+            io.println(new Fac().compFac(2));
+        }
+        else{
+            io.println(3);
+        }
     }
 }
