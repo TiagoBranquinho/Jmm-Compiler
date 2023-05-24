@@ -184,7 +184,7 @@ public class Optimization implements JmmOptimization {
         StringBuilder retString = new StringBuilder();
 
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
-        System.out.println(name);
+        //System.out.println(name);
         String var = Objects.equals(node.getKind(), "Assignment") || Objects.equals(node.getKind(), "ArrayAssignment") ? node.get("var") : node.get("value");
         if (isNumeric(var)) {
             return this.intToOllir(node);
@@ -375,7 +375,7 @@ public class Optimization implements JmmOptimization {
         }
         int i = 1;
         for (Symbol parameter : jmmSemanticsResult.getSymbolTable().getParameters(name)) {
-            System.out.println(parameter.getName());
+            //System.out.println(parameter.getName());
             if (Objects.equals(parameter.getName(), var)) {
                 retString.append("$").append(i).append(".").append(var);
                 return retString.toString();
@@ -449,6 +449,8 @@ public class Optimization implements JmmOptimization {
             fold.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
             System.out.println("foldHasChanged depois de tudo: " + fold.foldHasChanged);
             hasChange = (fold.foldHasChanged || prop.propHasChanged);
+            prop.propHasChanged = false;
+            fold.foldHasChanged = false;
         }
 
         System.out.println(semanticResults.getRootNode().toTree());
