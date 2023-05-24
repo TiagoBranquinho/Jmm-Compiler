@@ -33,6 +33,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         addVisit("Assignment", this::checkAssignment);
         addVisit("ArrayAssignment", this::checkAssignment);
 
+
         this.setDefaultVisit(this::defaultVisitor);
     }
 
@@ -226,6 +227,10 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("condicionalAncestor na BinaryOp: " + condicionalAncestor);
         }
 
+        if (jmmNode.get("op").equals("!")) {
+
+        }
+
         //se um dos filhos não for um integer, então não vou poder ter um value no binaryOp node
         for (int i = 0; i < jmmNode.getChildren().size(); i++) {
             if (jmmNode.getChildren().get(i).getKind().equals("Integer")) {
@@ -307,7 +312,14 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         System.out.println("children: " + jmmNode.getChildren());
         Optional<JmmNode> loopAncestor = jmmNode.getAncestor("LoopStmt");
         Optional<JmmNode> condicionalAncestor = jmmNode.getAncestor("CondicionalStmt");
-        if (loopAncestor.isPresent() || condicionalAncestor.isPresent() || jmmNode.getChildren().get(0).get("value").equals("none")) {
+        String valor;
+        if (jmmNode.getChildren().get(0).hasAttribute("value")) {
+            valor = jmmNode.getChildren().get(0).get("value");
+        } else {
+            valor = "";
+        }
+        if (loopAncestor.isPresent() || condicionalAncestor.isPresent() || valor.equals("none")) {
+
             System.out.println("loopAncestors no checkAssignment: " + jmmNode.getAncestor("LoopStmt"));
             System.out.println("condicionalAncestor no checkAssignment: " + condicionalAncestor);
             System.out.println("Significa que tem um Loop node / condicional node como pai");
@@ -333,33 +345,6 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         } else {
             //pôr o valor a null
         }
-
-        return "";
-    }
-
-    private String checkArrayDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable) {
-
-        System.out.println("checkArrayDeclaration");
-        System.out.println("propHasChanged: " + propHasChanged);
-        System.out.println("node: " + jmmNode);
-        System.out.println("node attributes: " + jmmNode.getAttributes());
-
-        System.out.println("children: " + jmmNode.getChildren());
-        System.out.println("child 0 attributes: " + jmmNode.getChildren().get(0).getAttributes());
-
-        jmmNode.put("isArray", "true");
-        jmmNode.put("type", jmmNode.getChildren().get(0).get("type"));
-
-        System.out.println("isArray: " + jmmNode.get("isArray"));
-        System.out.println("after, node attributes: " + jmmNode.getAttributes());
-
-        return "";
-    }
-
-    private String checkReservedExpr(JmmNode jmmNode, MySymbolTable mySymbolTable) {
-
-        System.out.println("checkReservedExpr");
-        System.out.println("propHasChanged: " + propHasChanged);
 
         return "";
     }
