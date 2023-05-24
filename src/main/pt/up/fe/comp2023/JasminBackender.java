@@ -315,8 +315,12 @@ public class JasminBackender implements JasminBackend {
 
             stringBuilder.append("\taload").append(this.getVariableNumber(((ArrayOperand) element).getName(), varTable)).append("\n");
 
+            this.updateStackLimits(1);
+
             stringBuilder.append(getLoadToStackInstruction(((ArrayOperand) element).getIndexOperands().get(0), varTable));
             stringBuilder.append("\tiaload");
+
+            this.updateStackLimits(-1);
 
         } else if (element instanceof Operand) {
             switch (((Operand) element).getType().getTypeOfElement()) {
