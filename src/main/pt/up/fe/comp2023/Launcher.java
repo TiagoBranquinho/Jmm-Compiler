@@ -66,8 +66,6 @@ public class Launcher {
             Optimization optimization = new Optimization();
 
 
-            //semanticResults.getConfig().put("optimize", "true");
-
             JmmSemanticsResult semanticResultsOptimized = semanticResults;
 
             optimization.optimize(semanticResults);
