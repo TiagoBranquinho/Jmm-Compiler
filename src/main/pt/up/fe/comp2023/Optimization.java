@@ -367,11 +367,10 @@ public class Optimization implements JmmOptimization {
         StringBuilder retString = new StringBuilder();
         String name = Objects.equals(instance.getKind(), "InstanceDeclaration") ? instance.get("instance") : "main";
         String var;
-        if(Objects.equals(subscriptOp.getKind(), "SubscriptOp")){
+        if (Objects.equals(subscriptOp.getKind(), "SubscriptOp")) {
             var = subscriptOp.getJmmChild(0).get("value");
             System.out.println("VAR IS " + var);
-        }
-        else{
+        } else {
             var = subscriptOp.get("var");
         }
         for (Symbol localVar : jmmSemanticsResult.getSymbolTable().getLocalVariables(name)) {
@@ -461,7 +460,9 @@ public class Optimization implements JmmOptimization {
             var fold = new FoldingAnalyser();
             fold.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
             System.out.println("foldHasChanged depois de tudo: " + fold.foldHasChanged);
+            //System.out.println(semanticResults.getRootNode().toTree());
             hasChange = (fold.foldHasChanged || prop.propHasChanged);
+            System.out.println("hasChange: " + hasChange);
             prop.propHasChanged = false;
             fold.foldHasChanged = false;
         }

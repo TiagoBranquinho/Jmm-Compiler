@@ -32,6 +32,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         addVisit("Integer", this::checkInteger);
         addVisit("Assignment", this::checkAssignment);
         addVisit("ArrayAssignment", this::checkAssignment);
+        addVisit("MethodDeclaration", this::checkMethodDeclaration);
 
 
         this.setDefaultVisit(this::defaultVisitor);
@@ -42,76 +43,22 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         return "";
     }
 
-    private boolean checkIfIsConstant(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
-        System.out.println("checkIfIsConstant");
+    private String checkMethodDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable) {
 
-        String methodNode = null;
-        Optional<JmmNode> instanceDeclaration = jmmNode.getAncestor("InstanceDeclaration");
+        System.out.println("checkInstanceDeclaration");
 
-        System.out.println("instanceDeclaration: " + instanceDeclaration);
+        System.out.println("node: " + jmmNode);
+        System.out.println("node attributes: " + jmmNode.getAttributes());
 
-        if (instanceDeclaration.isPresent()) {
-            methodNode = instanceDeclaration.get().get("instance");
-        } else {
-            methodNode = "main";
-        }
+        System.out.println("children: " + jmmNode.getChildren());
 
-
-        List<Symbol> tipo = mySymbolTable.getLocalVariables(methodNode);
+        System.out.println("antes do hashmap ser limpo: " + variableHashmap);
+        variableHashmap.clear();
+        System.out.println("depois do hashmap ser limpo: " + variableHashmap);
 
 
-        String var = jmmNode.get("var");
-
-        //Se for um type que não é pârametro
-        /*for (int i = 0; i < tipo.size(); i++) {
-            System.out.println("getLocalVariables");
-            System.out.println(tipo.get(i));
-            //significa que a variável é
-            if(Objects.equals(tipo.get(i).getName(), var)){
-                jmmNode.put("type", tipo.get(i).getType().getName());
-                jmmNode.put("isArray", String.valueOf(tipo.get(i).getType().isArray()));
-
-                return false;
-            }
-        }*/
-
-        //Se fôr parâmetro
-
-        List<Symbol> parameters = mySymbolTable.getParameters(methodNode);
-
-        //Se for um type que não é pârametro
-        for (int i = 0; i < parameters.size(); i++) {
-            System.out.println("getParameters");
-            System.out.println(parameters.get(i));
-            //significa que o variável é um parâmetro
-            if (Objects.equals(parameters.get(i).getName(), var)) {
-
-                return false;
-            }
-        }
-
-        List<Symbol> fields = mySymbolTable.getFields();
-
-
-        //Se for uma variável da classe/ ou seja, um field
-        for (int i = 0; i < fields.size(); i++) {
-            System.out.println("getFields");
-            System.out.println(fields.get(i));
-            if (Objects.equals(fields.get(i).getName(), var)) {
-                System.out.println("Objects.equals(fields.get(i).getName(), var)");
-                jmmNode.put("type", fields.get(i).getType().getName());
-                jmmNode.put("isArray", String.valueOf(fields.get(i).getType().isArray()));
-
-                if (methodNode.equals("main")) {
-                    //trata do caso mesmo que seja static
-                    //globalReports.add(Reports.reportCheckDeclaration(jmmNode));
-                }
-                return false;
-            }
-        }
-
-        return true;
+        return "";
     }
 
     private String checkDeclaration(JmmNode jmmNode, MySymbolTable mySymbolTable) {
@@ -149,7 +96,9 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         if (jmmNode.getJmmParent().getKind().equals("CondicionalStmt")) {
             //se o node for logo a condição
             parent = jmmNode.getJmmParent();
-        }
+        } /*else if (jmmNode.getJmmParent().getKind().equals("LoopStmt")) {
+            parent = jmmNode.getJmmParent();
+        }*/
 
         if (subscriptAncestor.isPresent() && jmmNode.getJmmParent().getChildren().get(0) == jmmNode) {
             //se este ifentifier for o "a" na expressão a[b], ou seja, o primeiro child, não pode ser substituído porque é um array
@@ -207,7 +156,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
         System.out.println("(condicionalAncestor.isEmpty() || parent.getKind().equals(\"CondicionalStmt\")): " + (condicionalAncestor.isEmpty() || parent.getKind().equals("CondicionalStmt")));
         System.out.println("variableHashmap.get(jmmNode.get(\"value\")) != null: " + (variableHashmap.get(jmmNode.get("value")) != null));
 
-        if (variableHashmap.containsKey(jmmNode.get("value")) && !isField && !isParameter && loopAncestor.isEmpty() && (condicionalAncestor.isEmpty() || parent.getKind().equals("CondicionalStmt")) && variableHashmap.get(jmmNode.get("value")) != null) {
+        if (variableHashmap.containsKey(jmmNode.get("value")) && !isField && !isParameter && (loopAncestor.isEmpty() /*|| parent.getKind().equals("LoopStmt")*/) && (condicionalAncestor.isEmpty() || parent.getKind().equals("CondicionalStmt")) && variableHashmap.get(jmmNode.get("value")) != null) {
             System.out.println("vai ser criado um novo node");
             System.out.println("variableHasmap: " + variableHashmap);
             JmmNode substituteNode = new JmmNodeImpl("Integer");
@@ -346,7 +295,7 @@ public class OptimizationAnalyser extends PostorderJmmVisitor<MySymbolTable, Str
             System.out.println("Substituição do valor da variável no hashmap");
             variableHashmap.replace(jmmNode.get("var"), jmmNode.getChildren().get(0).get("value"));
             return "";
-        } else if (jmmNode.getChildren().get(0).hasAttribute("value")) {
+        } else if (jmmNode.getChildren().get(0).hasAttribute("value") && jmmNode.getChildren().get(0).getKind().equals("Integer")) {
             System.out.println("pôr um novo valor no hashmap");
             variableHashmap.put(jmmNode.get("var"), jmmNode.getChildren().get(0).get("value"));
             return "";
