@@ -11,7 +11,7 @@
 ## Self-assesment
 
 Taking into account all the constant and dedicated work of the group throughout the semester, as well as the excellent
-grades obtained in the different checkpoints, we consider that the deserved grade would be 19,5.
+grades obtained in the different checkpoints, we consider that the deserved grade is 19,5.
 
 ## Extras
 
