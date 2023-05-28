@@ -1,20 +1,16 @@
 package pt.up.fe.comp2023;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
-import pt.up.fe.comp2023.BuildingAnalysis;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Launcher {
 
@@ -27,7 +23,6 @@ public class Launcher {
 
 
         //Map<String, String> arguments = parseArgs(args);
-
 
 
         // Get input file
@@ -46,19 +41,18 @@ public class Launcher {
 
         // Parse stage
         JmmParserResult parserResult = parser.parse(code, config);
-        if(parserResult.getReports().size() > 0){
+        if (parserResult.getReports().size() > 0) {
 
             //TestUtils.noErrors(parserResult.getReports()); //imprime as exceções
             Integer errorNumber = parserResult.getReports().size();
             String errorMessage = "A total of " + errorNumber + " errors have occurred";
             System.out.println(errorMessage);
-            for(int i = 0; i < parserResult.getReports().size(); i++){
+            for (int i = 0; i < parserResult.getReports().size(); i++) {
                 System.out.println("Errors:" + parserResult.getReports());
             }
 
 
-        }
-        else{
+        } else {
             System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
             MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
@@ -69,19 +63,18 @@ public class Launcher {
             JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
 
 
-
             Optimization optimization = new Optimization();
 
 
-            semanticResults.getConfig().put("optimize", "true");
+            //semanticResults.getConfig().put("optimize", "true");
 
             JmmSemanticsResult semanticResultsOptimized = semanticResults;
 
             optimization.optimize(semanticResults);
 
+            System.out.println(parserResult.getRootNode().toTree()); //dar print da árvore
 
             OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
-
 
 
             //Instantiate JasminBackender
@@ -103,7 +96,7 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
+        if (args.length < 1) {
             throw new RuntimeException("Expected a single argument, a path to an existing input file.");
         }
 
@@ -114,9 +107,9 @@ public class Launcher {
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
 
-        for(int i = 0; i < args.length; i++){
+        for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            if(arg.contains("-o")){
+            if (arg.contains("-o")) {
                 config.put("optimize", "true");
             }
         }
