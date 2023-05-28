@@ -436,10 +436,7 @@ public class Optimization implements JmmOptimization {
 
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticResults) {
-
-
-        //System.out.println("se está empty: " + semanticsResult.getConfig().isEmpty());
-
+        
         var optimizeFlag = semanticResults.getConfig().getOrDefault("optimize", "false");
 
 
@@ -455,23 +452,15 @@ public class Optimization implements JmmOptimization {
             hasChange = false;
             var prop = new OptimizationAnalyser();
             prop.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
-            System.out.println("propdHasChanged depois de tudo: " + prop.propHasChanged);
 
             var fold = new FoldingAnalyser();
             fold.visit(semanticResults.getRootNode(), (MySymbolTable) semanticResults.getSymbolTable());
-            System.out.println("foldHasChanged depois de tudo: " + fold.foldHasChanged);
-            //System.out.println(semanticResults.getRootNode().toTree());
             hasChange = (fold.foldHasChanged || prop.propHasChanged);
-            System.out.println("hasChange: " + hasChange);
             prop.propHasChanged = false;
             fold.foldHasChanged = false;
         }
 
         System.out.println(semanticResults.getRootNode().toTree());
-
-        //reports.addAll(semanticAnalysis);
-        //System.out.println("os reports finais na otimização: " + reports);
-
 
         return semanticResults;
     }

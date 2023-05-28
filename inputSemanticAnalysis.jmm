@@ -1,10 +1,84 @@
-/*class PropSimple {
-    public int foo(){
+/*import io;
+class Fac{
+    public int compFac(int num){
+        return 2;
+    }
+
+    public boolean gato(int a){
+            return 1;
+        }
+
+    public static void main(String[] args){
+        int[] a;
+        a = new int[5];
+        a[1] = 2;
+        int b;
+        int c;
+        b = 2;
+        c = 3 + a[b];
+    }
+}
+*/
+
+class PropSimple {
+    public int fooTwo(){
 	  int a;
 	  a = 10;
 	  return a;
 	}
-    public static void main(String[] args) {
 
+
+    public int bar(){
+	  int a;
+	  int i;
+	  int res;
+	  a = 10;
+	  i = 0;
+	  while (i < a){
+	    i=i+1;
+	  }
+	  res = i*a;
+	  i = 20000;
+	  return res;
+	}
+
+    public int foo(){
+	  int a;
+	  int b;
+	  b = 20;
+	  a = 10;
+	  if(b < a){
+		a = b;
+	  }else{
+	    a = 0;
+	  }
+	  //return a;
+	  return b;
+	}
+
+    public int fooThree(int b){
+      int a;
+      a = 10;
+
+      if(b < a){
+        a = b;
+      }else{
+        a = 0;
+      }
+      return a;
+      //return b;
     }
-}*/
+
+    public int demonstratingFold(){
+      int a;
+      int b;
+      int c;
+      a = 2;
+      b = a + 10;
+      c = b;
+      return c;
+    }
+
+	public static void main(String[] args) {
+	}
+}

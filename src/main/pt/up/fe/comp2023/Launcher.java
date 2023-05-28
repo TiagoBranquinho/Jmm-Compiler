@@ -63,39 +63,24 @@ public class Launcher {
             MySymbolTable mySymbolTable = new MySymbolTable(parserResult.getRootNode());
 
             System.out.println(mySymbolTable.print());
-            //System.out.println(mySymbolTable.getImports());
             JmmSemanticsResult semanticAnalysis = new JmmSemanticsResult(parserResult.getRootNode(), mySymbolTable, null, null);
 
             BuildingAnalysis analyser = new BuildingAnalysis();
             JmmSemanticsResult semanticResults = analyser.semanticAnalysis(parserResult);
 
-            //Para testar com o Launcher:
-            //analyser.semanticAnalysis(parserResult);
 
 
             Optimization optimization = new Optimization();
 
-            System.out.println("antes da optimization " + semanticResults.getConfig());
-            System.out.println("aa: " + semanticAnalysis.getConfig());
-
-            //passar esta lógica para dentro do optimize, aqui chamar só o optimize
-            //no server, só o optimize é chamado
 
             semanticResults.getConfig().put("optimize", "true");
 
             JmmSemanticsResult semanticResultsOptimized = semanticResults;
 
-            System.out.println("-----------------------Separação do normal com as otimizações-----------------------");
-
             optimization.optimize(semanticResults);
-
-            System.out.println("depois da optimization: " + semanticResults.getConfig());
-            System.out.println(semanticResultsOptimized);
-
 
 
             OllirResult ollirResult = optimization.toOllir(semanticAnalysis);
-
 
 
 
@@ -112,23 +97,6 @@ public class Launcher {
 
         }
 
-        //JmmSemanticsResult semanticAnalysis = parserResult;
-
-        //fazer um for para correr os reports
-
-
-
-
-
-
-        // Check if there are parsing errors
-        //
-
-
-
-
-
-        // ... add remaining stages
     }
 
     private static Map<String, String> parseArgs(String[] args) {
